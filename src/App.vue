@@ -1,7 +1,25 @@
 <template>
-  <div id="app" class="min-h-screen bg-gradient-to-br from-neutral-50 to-neutral-100">
+  <div id="app" class="min-h-screen bg-gradient-to-br from-neutral-50 to-neutral-100 relative">
+    <!-- 全局加载动画 -->
+    <LoadingSpinner 
+      v-if="isPageLoading"
+      title="页面跳转中"
+      message="正在加载新页面内容..."
+      class="fixed inset-0 z-[9999]"
+    />
+    
     <!-- 应用主内容 -->
-    <router-view />
+    <router-view v-slot="{ Component, route }">
+      <transition 
+        name="page-transition" 
+        mode="out-in"
+        @enter="onPageEnter"
+        @leave="onPageLeave"
+        @after-enter="onPageAfterEnter"
+      >
+        <component :is="Component" :key="route.path" />
+      </transition>
+    </router-view>
     
     <!-- 全局管理员登录弹窗 -->
     <AdminLogin 
@@ -17,6 +35,7 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { adminHotkeyService } from './utils/adminHotkey'
 import { AdminLogin } from './components/admin'
+import LoadingSpinner from './components/common/LoadingSpinner.vue'
 
 const router = useRouter()
 
@@ -24,10 +43,54 @@ const router = useRouter()
 const showAdminLogin = ref(false)
 const pendingRedirect = ref<string>('')
 
+// 页面加载动画状态
+const isPageLoading = ref(false)
+const pageTransitionTimeout = ref<NodeJS.Timeout | null>(null)
+
 // 关闭管理员登录弹窗
 const closeAdminLogin = () => {
   showAdminLogin.value = false
   pendingRedirect.value = ''
+}
+
+// 页面过渡动画处理函数
+const onPageEnter = () => {
+  console.log('🎬 页面进入动画开始')
+  // 延迟显示加载动画，给路由过渡留出时间
+  pageTransitionTimeout.value = setTimeout(() => {
+    isPageLoading.value = true
+    console.log('⏳ 显示页面加载动画')
+  }, 100)
+}
+
+const onPageLeave = () => {
+  console.log('🎬 页面离开动画开始')
+  isPageLoading.value = false
+  if (pageTransitionTimeout.value) {
+    clearTimeout(pageTransitionTimeout.value)
+    pageTransitionTimeout.value = null
+  }
+}
+
+const onPageAfterEnter = () => {
+  console.log('✅ 页面进入动画完成')
+  isPageLoading.value = false
+  if (pageTransitionTimeout.value) {
+    clearTimeout(pageTransitionTimeout.value)
+    pageTransitionTimeout.value = null
+  }
+}
+
+// 监听路由变化，启动页面加载动画
+const startPageLoading = () => {
+  console.log('🚀 启动页面加载动画')
+  isPageLoading.value = true
+}
+
+// 停止页面加载动画
+const stopPageLoading = () => {
+  console.log('🛑 停止页面加载动画')
+  isPageLoading.value = false
 }
 
 // 处理管理员登录成功
@@ -105,10 +168,24 @@ onMounted(() => {
   window.addEventListener('showAdminLogin', handleShowAdminLoginEvent)
   window.addEventListener('admin-exit', handleAdminExitEvent)
   
+  // 监听路由变化
+  const routerHook = router.beforeEach((to, from) => {
+    console.log(`🔄 路由变化: ${from.path} -> ${to.path}`)
+    startPageLoading()
+  })
+  
+  const afterRouterHook = router.afterEach(() => {
+    console.log('✅ 路由跳转完成')
+    stopPageLoading()
+  })
+  
+  // 保存钩子函数引用以便清理
+  ;(window as any).__routerHooks = { routerHook, afterRouterHook }
+  
   // 启动管理员快捷键监听
   startAdminHotkeyListening()
   
-  console.log('✅ App 组件已初始化，管理员快捷键监听已启动')
+  console.log('✅ App 组件已初始化，管理员快捷键监听和路由监听已启动')
 })
 
 onUnmounted(() => {
@@ -117,8 +194,21 @@ onUnmounted(() => {
   window.removeEventListener('showAdminLogin', handleShowAdminLoginEvent)
   window.removeEventListener('admin-exit', handleAdminExitEvent)
   
+  // 清理路由监听
+  const hooks = (window as any).__routerHooks
+  if (hooks) {
+    router.beforeEach(() => {})
+    router.afterEach(() => {})
+  }
+  
   // 停止快捷键监听
   adminHotkeyService.stopListening()
+  
+  // 清理定时器
+  if (pageTransitionTimeout.value) {
+    clearTimeout(pageTransitionTimeout.value)
+    pageTransitionTimeout.value = null
+  }
 })
 </script>
 
@@ -127,5 +217,45 @@ onUnmounted(() => {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* 页面过渡动画 */
+.page-transition-enter-active {
+  animation: pageIn 0.3s ease-out forwards;
+}
+
+.page-transition-leave-active {
+  animation: pageOut 0.3s ease-out forwards;
+}
+
+@keyframes pageIn {
+  0% {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pageOut {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+}
+
+/* 减少动画偏好支持 */
+@media (prefers-reduced-motion: reduce) {
+  .page-transition-enter-active,
+  .page-transition-leave-active {
+    animation: none !important;
+    transition: none !important;
+  }
 }
 </style>
