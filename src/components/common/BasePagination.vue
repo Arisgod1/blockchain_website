@@ -26,9 +26,9 @@
     <div :class="paginationClasses">
       <!-- 上一页 -->
       <button
-        :disabled="currentPage <= 1"
+        :disabled="displayedCurrent <= 1"
         :class="getPageButtonClasses(false, true)"
-        @click="goToPage(currentPage - 1)"
+        @click="goToPage(displayedCurrent - 1)"
       >
         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -49,8 +49,8 @@
           <!-- 页码按钮 -->
           <button
             v-else
-            :class="getPageButtonClasses(page === currentPage)"
-            :disabled="page === currentPage"
+            :class="getPageButtonClasses(page === displayedCurrent)"
+            :disabled="page === displayedCurrent"
             @click="goToPage(page as number)"
           >
             {{ page }}
@@ -60,9 +60,9 @@
 
       <!-- 下一页 -->
       <button
-        :disabled="currentPage >= totalPages"
+        :disabled="displayedCurrent >= totalPages"
         :class="getPageButtonClasses(false, true)"
-        @click="goToPage(currentPage + 1)"
+        @click="goToPage(displayedCurrent + 1)"
       >
         下一页
         <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -83,7 +83,8 @@
 import { computed } from 'vue'
 
 interface Props {
-  currentPage: number
+  currentPage?: number
+  current?: number
   pageSize: number
   total: number
   pageSizeOptions?: number[]
@@ -101,10 +102,14 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   'update:currentPage': [page: number]
+  'update:current': [page: number]
   'update:pageSize': [size: number]
   'pageChange': [page: number]
   'pageSizeChange': [size: number]
 }>()
+
+// Support both `currentPage` and `current` (v-model:current) for backward compatibility
+const displayedCurrent = computed(() => props.currentPage ?? props.current ?? 1)
 
 const pageSizeId = `page-size-${Math.random().toString(36).substr(2, 9)}`
 
@@ -112,11 +117,11 @@ const pageSizeId = `page-size-${Math.random().toString(36).substr(2, 9)}`
 const totalPages = computed(() => Math.ceil(props.total / props.pageSize))
 
 const startItem = computed(() => {
-  return props.total === 0 ? 0 : (props.currentPage - 1) * props.pageSize + 1
+  return props.total === 0 ? 0 : (displayedCurrent.value - 1) * props.pageSize + 1
 })
 
 const endItem = computed(() => {
-  return Math.min(props.currentPage * props.pageSize, props.total)
+  return Math.min(displayedCurrent.value * props.pageSize, props.total)
 })
 
 // 计算可见的页码
@@ -128,7 +133,7 @@ const visiblePages = computed(() => {
   const pages: (number | string)[] = []
   const half = Math.floor(props.maxVisiblePages / 2)
   
-  let start = Math.max(1, props.currentPage - half)
+  let start = Math.max(1, displayedCurrent.value - half)
   let end = Math.min(totalPages.value, start + props.maxVisiblePages - 1)
   
   if (end - start + 1 < props.maxVisiblePages) {
@@ -264,9 +269,9 @@ function getPageButtonClasses(active = false, isNavButton = false) {
     )
   }
   
-  if (props.currentPage <= 1 && !isNavButton) {
+  if (displayedCurrent.value <= 1 && !isNavButton) {
     baseClasses.push('cursor-not-allowed', 'opacity-50')
-  } else if (props.currentPage >= totalPages.value && !isNavButton) {
+  } else if (displayedCurrent.value >= totalPages.value && !isNavButton) {
     baseClasses.push('cursor-not-allowed', 'opacity-50')
   }
   
@@ -275,11 +280,13 @@ function getPageButtonClasses(active = false, isNavButton = false) {
 
 // 事件处理函数
 function goToPage(page: number) {
-  if (page < 1 || page > totalPages.value || page === props.currentPage) {
+  if (page < 1 || page > totalPages.value || page === displayedCurrent.value) {
     return
   }
-  
+
+  // emit both update events to support callers using either v-model argument
   emit('update:currentPage', page)
+  emit('update:current', page)
   emit('pageChange', page)
 }
 
@@ -291,7 +298,7 @@ function handlePageSizeChange(event: Event) {
   emit('pageSizeChange', newSize)
   
   // 如果当前页码超出范围，调整到最后一页
-  if (props.currentPage > Math.ceil(props.total / newSize)) {
+  if (displayedCurrent.value > Math.ceil(props.total / newSize)) {
     const lastPage = Math.ceil(props.total / newSize)
     if (lastPage > 0) {
       goToPage(lastPage)

@@ -20,7 +20,7 @@
       <!-- 轮盘容器 -->
       <div class="relative w-96 h-96">
         <!-- 背景光晕 -->
-        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-orange-500/20 to-blue-500/20 rounded-full blur-3xl animate-pulse"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-orange-500/20 to-blue-500/20 rounded-full blur-3xl animate-pulse pointer-events-none"></div>
         
         <!-- 中心区域 -->
         <div 
@@ -30,7 +30,7 @@
           @mouseleave="isCenterActive = false"
         >
           <!-- 中心装饰环 -->
-          <div class="absolute inset-0 rounded-full border-2 border-white/30 animate-spin-slow">
+          <div class="absolute inset-0 rounded-full border-2 border-white/30 animate-spin-slow pointer-events-none">
             <div class="absolute -top-1 -left-1 w-3 h-3 bg-gradient-to-r from-blue-400 to-orange-400 rounded-full"></div>
             <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-gradient-to-r from-orange-400 to-blue-400 rounded-full"></div>
           </div>
@@ -42,44 +42,27 @@
             </div>
             <h1 class="text-2xl font-bold text-white mb-1">区块链组</h1>
             <p class="text-sm text-blue-200 mb-2">Blockchain Research Group</p>
-            <p class="text-xs text-gray-300 max-w-32">{{ centerData.description }}</p>
+            <p class="text-xs text-gray-300 max-w-[12rem] mx-auto">{{ centerData.description }}</p>
             
             <!-- 统计数据 -->
-            <div v-show="isCenterActive" class="mt-4 grid grid-cols-2 gap-2 text-xs">
-              <div class="text-center">
-                <div class="text-lg font-bold text-blue-300">{{ centerData.stats.members }}</div>
-                <div class="text-gray-400">成员</div>
-              </div>
-              <div class="text-center">
-                <div class="text-lg font-bold text-orange-300">{{ centerData.stats.projects }}</div>
-                <div class="text-gray-400">项目</div>
-              </div>
-              <div class="text-center">
-                <div class="text-lg font-bold text-green-300">{{ centerData.stats.articles }}</div>
-                <div class="text-gray-400">文章</div>
-              </div>
-              <div class="text-center">
-                <div class="text-lg font-bold text-purple-300">{{ centerData.stats.meetings }}</div>
-                <div class="text-gray-400">例会</div>
-              </div>
-            </div>
+           
           </div>
         </div>
 
         <!-- 轮盘导航项 -->
         <div 
-          v-for="(item, index) in navigationItems" 
-          :key="item.id"
-          class="absolute inset-0 transform transition-all duration-700 ease-out"
-          :style="getItemStyle(item, index)"
+          v-for="item in navigationItems" 
+            :key="item.id"
+            class="absolute inset-0 transform transition-all duration-700 ease-out"
+            :style="getItemStyle(item)"
         >
           <!-- 导航项背景 -->
           <div 
             class="absolute w-20 h-20 rounded-full cursor-pointer transform -translate-x-10 -translate-y-10 transition-all duration-300 hover:scale-110 group"
             :class="[item.gradient, { 'ring-4 ring-white/50': activeSector === item.id }]"
             @click="navigateToSector(item.link, item)"
-            @mouseenter="handleSectorHover(item.id, true, item)"
-            @mouseleave="handleSectorHover(item.id, false, item)"
+            @mouseenter="handleSectorHover(item.id, true, item, $event)"
+            @mouseleave="handleSectorHover(item.id, false, item, $event)"
             style="z-index: 10;"
           >
             <!-- 背景光晕 -->
@@ -90,39 +73,7 @@
               {{ item.icon }}
             </div>
             
-            <!-- 悬浮信息卡片 -->
-            <Transition name="sector-detail">
-              <div 
-                v-if="hoveredSector === item.id"
-                class="absolute top-full left-1/2 transform -translate-x-1/2 mt-4 px-4 py-3 bg-black/90 rounded-xl text-white text-xs backdrop-blur-md border border-white/20 shadow-2xl transition-all duration-300 min-w-[200px] z-[100]"
-                @mouseenter="handleSectorHover(item.id, true, item)"
-                @mouseleave="handleSectorHover(item.id, false, item)"
-                style="pointer-events: auto;"
-              >
-                <div class="text-center">
-                  <div class="font-bold text-lg mb-1">{{ item.title }}</div>
-                  <div class="text-gray-300 text-sm mb-2">{{ item.subtitle }}</div>
-                  <div class="text-gray-400 text-xs mb-3">{{ item.description }}</div>
-                  
-                  <!-- 扇形统计 -->
-                  <div v-if="getSectorStats(item.id).length" class="flex justify-center gap-4 mb-3">
-                    <div v-for="stat in getSectorStats(item.id)" :key="stat.label" class="text-center">
-                      <div class="font-bold text-sm" :style="{ color: item.colorLight }">{{ stat.value }}</div>
-                      <div class="text-gray-400 text-xs">{{ stat.label }}</div>
-                    </div>
-                  </div>
-                  
-                  <div class="flex items-center justify-center gap-2 text-xs">
-                    <span :style="{ color: item.colorLight }">点击进入</span>
-                    <div class="w-4 h-0.5" :style="{ backgroundColor: item.colorLight }"></div>
-                    <div class="w-1 h-1 rounded-full animate-pulse" :style="{ backgroundColor: item.colorLight }"></div>
-                  </div>
-                </div>
-                
-                <!-- 装饰箭头 -->
-                <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-black/90 rotate-45 border-l border-t border-white/20"></div>
-              </div>
-            </Transition>
+            <!-- 悬浮信息卡片：改为页面级 Teleport 实现（见文档底部） -->
           </div>
           
           <!-- 扇形连接线 -->
@@ -134,44 +85,44 @@
           </div>
         </div>
         
-        <!-- 自动播放控制按钮 -->
-        <div class="absolute top-4 right-4 flex gap-2">
-          <button 
-            @click="navigatePrev"
-            class="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white backdrop-blur-sm transition-all duration-300 hover:scale-110"
-            title="上一个"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-            </svg>
-          </button>
-          
-          <button 
-            @click="toggleAutoPlay"
-            class="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white backdrop-blur-sm transition-all duration-300 hover:scale-110"
-            :class="{ 'bg-blue-500/30': isPlaying }"
-            :title="isPlaying ? '暂停自动播放' : '开始自动播放'"
-          >
-            <svg v-if="!isPlaying" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M8 5v14l11-7z"/>
-            </svg>
-            <svg v-else class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
-            </svg>
-          </button>
-          
-          <button 
-            @click="navigateNext"
-            class="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white backdrop-blur-sm transition-all duration-300 hover:scale-110"
-            title="下一个"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-            </svg>
-          </button>
-        </div>
+        <!-- 自动播放控制按钮（已移动到父容器外层以避免被轮盘 transform 影响） -->
+        <!-- 按钮已移至父容器外层插入（见下方） -->
       </div>
     </div>
+
+    <!-- 页面级悬浮弹窗（Teleport） -->
+    <Teleport to="body">
+      <Transition name="sector-detail">
+        <div
+          v-if="hoverPopup.visible && hoverPopup.item"
+          class="fixed z-50 px-4 py-3 bg-black/90 rounded-xl text-white text-xs backdrop-blur-md border border-white/20 shadow-2xl min-w-[200px]"
+          :style="{ left: hoverPopup.x + 'px', top: (hoverPopup.y + 18) + 'px', transform: 'translateX(-50%)' }"
+          @mouseenter="handleSectorHover(hoverPopup.item.id, true, hoverPopup.item, $event)"
+          @mouseleave="handleSectorHover(hoverPopup.item.id, false, hoverPopup.item, $event)"
+        >
+          <div class="text-center">
+            <div class="font-bold text-lg mb-1">{{ hoverPopup.item.title }}</div>
+            <div class="text-gray-300 text-sm mb-2">{{ hoverPopup.item.subtitle }}</div>
+            <div class="text-gray-400 text-xs mb-3">{{ hoverPopup.item.description }}</div>
+
+            <div v-if="getSectorStats(hoverPopup.item.id).length" class="flex justify-center gap-4 mb-3">
+              <div v-for="stat in getSectorStats(hoverPopup.item.id)" :key="stat.label" class="text-center">
+                <div class="font-bold text-sm" :style="{ color: hoverPopup.item.colorLight }">{{ stat.value }}</div>
+                <div class="text-gray-400 text-xs">{{ stat.label }}</div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-center gap-2 text-xs">
+              <span :style="{ color: hoverPopup.item.colorLight }">点击进入</span>
+              <div class="w-4 h-0.5" :style="{ backgroundColor: hoverPopup.item.colorLight }"></div>
+              <div class="w-1 h-1 rounded-full animate-pulse" :style="{ backgroundColor: hoverPopup.item.colorLight }"></div>
+            </div>
+          </div>
+
+          <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-black/90 rotate-45 border-l border-t border-white/20"></div>
+        </div>
+      </Transition>
+    </Teleport>
 
     <!-- 底部提示信息 -->
     <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-center">
@@ -191,7 +142,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 interface NavigationItem {
@@ -339,7 +290,7 @@ const centerData = ref<CenterData>({
   title: "区块链组",
   subtitle: "Blockchain Research Group",
   icon: "🔗",
-  description: "探索区块链技术的无限可能",
+  description: "探索无限可能",
   bgGradient: "linear-gradient(135deg, #2563EB 0%, #F59E0B 100%)",
   stats: {
     members: 28,
@@ -354,7 +305,7 @@ const currentIndex = ref(0)
 
 // 粒子效果数据
 const particles = ref(
-  Array.from({ length: 50 }, (_, i) => ({
+  Array.from({ length: 50 }, () => ({
     left: Math.random() * 100,
     top: Math.random() * 100,
     delay: Math.random() * 3,
@@ -363,23 +314,19 @@ const particles = ref(
 )
 
 // 计算导航项的样式
-function getItemStyle(item: NavigationItem, index: number) {
+function getItemStyle(item: NavigationItem) {
   const radius = 140
   const angle = item.angle - 90 // 调整起始角度
-  const x = Math.cos((angle * Math.PI) / 180) * radius
-  const y = Math.sin((angle * Math.PI) / 180) * radius
+  const x = Math.cos((angle * Math.PI) / 180) * radius+190
+  const y = Math.sin((angle * Math.PI) / 180) * radius+190
   
   const isActive = activeItem.value === item.id
   
   return {
     transform: `translate(${x}px, ${y}px)`,
-    zIndex: isActive ? 20 : item.priority,
+    // 提高默认 z-index，避免被中心装饰层遮挡
+    zIndex: isActive ? 999 : 50 + (item.priority || 0),
   }
-}
-
-// 导航到指定页面
-function navigateTo(path: string) {
-  router.push(path)
 }
 
 // 处理中心区域点击
@@ -417,23 +364,34 @@ function handleKeydown(event: KeyboardEvent) {
 }
 
 // 扇形悬浮处理
-let hoverTimeout: NodeJS.Timeout | null = null
+let hoverTimeout: number | null = null
 
-function handleSectorHover(id: string, isHovering: boolean, sector: NavigationItem) {
+// 悬浮弹窗（Teleport 定位）
+const hoverPopup = ref<{ visible: boolean; x: number; y: number; item: NavigationItem | null }>({ visible: false, x: 0, y: 0, item: null })
+
+function handleSectorHover(id: string, isHovering: boolean, sector: NavigationItem, ev?: MouseEvent) {
   // 清除之前的延迟隐藏定时器
   if (hoverTimeout) {
     clearTimeout(hoverTimeout)
     hoverTimeout = null
   }
-  
+
   if (isHovering) {
     hoveredSector.value = id
     activeSector.value = id
+    hoverPopup.value.visible = true
+    hoverPopup.value.item = sector
+    hoverPopup.value.x = ev ? ev.clientX : 0
+    hoverPopup.value.y = ev ? ev.clientY : 0
   } else {
     // 延迟隐藏，给用户时间移动到浮窗卡片
-    hoverTimeout = setTimeout(() => {
+    hoverTimeout = window.setTimeout(() => {
       hoveredSector.value = null
       activeSector.value = null
+      if (hoverPopup.value) {
+        hoverPopup.value.visible = false
+        hoverPopup.value.item = null
+      }
     }, 150)
   }
 }
@@ -463,11 +421,11 @@ function toggleAutoPlay() {
   }
 }
 
-let autoPlayInterval: NodeJS.Timeout | null = null
+let autoPlayInterval: number | null = null
 
 function startAutoPlay() {
   stopAutoPlay()
-  autoPlayInterval = setInterval(() => {
+  autoPlayInterval = window.setInterval(() => {
     currentRotation.value += rotationSpeed.value
     
     // 自动高亮下一个导航项
@@ -480,7 +438,7 @@ function startAutoPlay() {
 
 function stopAutoPlay() {
   if (autoPlayInterval) {
-    clearInterval(autoPlayInterval)
+    clearInterval(autoPlayInterval as number)
     autoPlayInterval = null
   }
 }
@@ -506,16 +464,6 @@ function activateCurrentSector() {
 }
 
 // 获取统计标签
-function getStatLabel(key: string): string {
-  const labels: Record<string, string> = {
-    members: '成员',
-    projects: '项目',
-    articles: '文章',
-    meetings: '例会'
-  }
-  return labels[key] || key
-}
-
 // 获取扇形统计
 function getSectorStats(id: string) {
   const stats: Record<string, Array<{ value: string; label: string }>> = {
@@ -572,51 +520,32 @@ function getConnectionLineStyle(item: NavigationItem) {
   }
 }
 
-// 获取粒子样式
-function getParticleStyle(index: number) {
-  const angle = (index * 360) / 50
-  const radius = 200 + Math.random() * 100
-  const x = Math.cos((angle * Math.PI) / 180) * radius
-  const y = Math.sin((angle * Math.PI) / 180) * radius
-  
-  return {
-    left: `calc(50% + ${x}px)`,
-    top: `calc(50% + ${y}px)`,
-    animationDelay: `${Math.random() * 3}s`,
-    animationDuration: `${2 + Math.random() * 3}s`
-  }
-}
+/* 粒子样式采用在数据创建时直接计算，不再使用单独函数 */
 </script>
 
 <style scoped>
 /* 自定义动画 */
+.linbo{
+  animation: lunbo 5s linear infinite;
+}
 @keyframes spin-slow {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.animate-spin-slow {
-  animation: spin-slow 20s linear infinite;
-}
-
-/* 粒子动画 */
-.wheel-particle {
-  animation: particleFloat 6s ease-in-out infinite;
-}
-
-@keyframes particleFloat {
-  0%, 100% {
+  0% {
+    transform: rotate(0deg) translateY(0px);
     opacity: 0.2;
-    transform: translateY(0px);
   }
   50% {
+    transform: rotate(180deg) translateY(-10px);
     opacity: 0.8;
-    transform: translateY(-20px);
   }
+  100% {
+    transform: rotate(360deg) translateY(0px);
+    opacity: 0.2;
+  }
+}
+
+/* 自定义慢速旋转动画工具类（用于 template 中的 animate-spin-slow） */
+.animate-spin-slow {
+  animation: spin-slow 8s linear infinite;
 }
 
 /* 响应式设计 */
@@ -640,7 +569,7 @@ function getParticleStyle(index: number) {
   }
   
   .absolute.w-20 {
-    @apply w-16 h-16 -translate-x-8 -translate-y-8;
+    @apply w-16 h-16 -translate-x-8 translate-y-8;
   }
   
   .sector-detail {

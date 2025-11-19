@@ -45,7 +45,7 @@ const pendingRedirect = ref<string>('')
 
 // 页面加载动画状态
 const isPageLoading = ref(false)
-const pageTransitionTimeout = ref<NodeJS.Timeout | null>(null)
+const pageTransitionTimeout = ref<number | null>(null)
 
 // 关闭管理员登录弹窗
 const closeAdminLogin = () => {
@@ -57,7 +57,7 @@ const closeAdminLogin = () => {
 const onPageEnter = () => {
   console.log('🎬 页面进入动画开始')
   // 延迟显示加载动画，给路由过渡留出时间
-  pageTransitionTimeout.value = setTimeout(() => {
+  pageTransitionTimeout.value = window.setTimeout(() => {
     isPageLoading.value = true
     console.log('⏳ 显示页面加载动画')
   }, 100)

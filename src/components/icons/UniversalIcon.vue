@@ -9,12 +9,13 @@
 import { computed } from 'vue'
 
 interface Props {
-  name: string
+  name?: string
   size?: number
   color?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  name: 'EmptyIcon',
   size: 16,
   color: 'currentColor'
 })
@@ -68,7 +69,7 @@ const getIconSymbol = () => {
     'DownloadIcon': '⬇'
   }
   
-  return icons[props.name] || '●'
+  return icons[props.name || 'EmptyIcon'] || '●'
 }
 </script>
 

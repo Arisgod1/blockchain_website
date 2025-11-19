@@ -7,6 +7,8 @@ export interface Member {
   bio?: string
   skills: string[]
   grade?: string
+  major?: string
+  projectCount?: number
   email?: string
   github?: string
   linkedin?: string
@@ -15,22 +17,47 @@ export interface Member {
 }
 
 // 项目相关类型
+/**
+ * ProjectDto
+ */
 export interface Project {
-  id: string
-  title: string
-  description: string
-  shortDescription?: string
-  status: 'planning' | 'in-progress' | 'completed' | 'paused'
-  progress: number
-  tags: string[]
-  techStack: string[]
-  startDate: string
-  endDate?: string
-  githubUrl?: string
-  demoUrl?: string
-  images: string[]
-  isFeatured: boolean
-  contributors: string[]
+    achievements?: string;
+    budget?: number;
+    category: Category;
+    demoUrl?: string;
+    description: string;
+    displayOrder?: number;
+    documentationUrl?: string;
+    endDate?: Date | string;
+    featured?: boolean;
+    goals?: string;
+    id?: number;
+    imageUrl?: string;
+    isPublic?: boolean;
+    name?: string;
+    progress?: number;
+    repositoryUrl?: string;
+    startDate?: Date;
+    status: Status;
+    techStack?: string[];
+    [property: string]: any;
+}
+
+export enum Category {
+    Collaboration = "COLLABORATION",
+    Competition = "COMPETITION",
+    Development = "DEVELOPMENT",
+    Education = "EDUCATION",
+    Research = "RESEARCH",
+}
+
+export enum Status {
+    Cancelled = "CANCELLED",
+    Completed = "COMPLETED",
+    InProgress = "IN_PROGRESS",
+    OnHold = "ON_HOLD",
+    Ongoing = "ONGOING",
+    Planning = "PLANNING",
 }
 
 // 博客文章类型
@@ -39,16 +66,23 @@ export interface Article {
   title: string
   summary: string
   content: string
-  author: string
+  author: any
   tags: string[]
   category: string
   publishDate: string
+  publishedAt?: string
   updateDate: string
   readTime: number
   isPublished: boolean
   views: number
   likes: number
   image?: string
+  coverImage?: string
+  isFeatured?: boolean
+  excerpt?: string
+  description?: string
+  comments?: number
+  isLiked?: boolean
 }
 
 // 会议记录类型

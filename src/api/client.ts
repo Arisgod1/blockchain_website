@@ -22,7 +22,8 @@ class ApiService {
     this.instance.interceptors.request.use(
       (config) => {
         // 添加请求时间戳
-        config.metadata = { startTime: Date.now() }
+            
+       
         
         // 添加认证令牌（如果有）
         const token = localStorage.getItem('adminToken')
@@ -42,7 +43,8 @@ class ApiService {
       (response: AxiosResponse<ApiResponse>) => {
         // 计算请求耗时
         const endTime = Date.now()
-        const duration = endTime - response.config.metadata?.startTime
+        const resConfig = response.config as import('axios').InternalAxiosRequestConfig & { metadata?: { startTime?: number } }
+        const duration = endTime - (resConfig.metadata?.startTime ?? endTime)
         console.log(`API 请求 ${response.config.url} 耗时: ${duration}ms`)
 
         return response

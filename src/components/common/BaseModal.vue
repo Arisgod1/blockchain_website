@@ -5,14 +5,14 @@
       appear
     >
       <div
-        v-if="modelValue"
+        v-if="visible"
         class="fixed inset-0 z-50 flex items-center justify-center p-4"
         @click="handleBackdropClick"
       >
         <!-- 背景遮罩 -->
         <div 
           class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
-          :class="{ 'opacity-0': !modelValue }"
+          :class="{ 'opacity-0': !visible }"
         />
 
         <!-- 模态框内容 -->
@@ -68,10 +68,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, watch, nextTick, onUnmounted } from 'vue'
 
 interface Props {
-  modelValue: boolean
+  modelValue?: boolean
+  // 兼容早期代码使用的 `show` 属性
+  show?: boolean
   title?: string
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'full'
   closable?: boolean
@@ -81,6 +83,8 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  modelValue: false,
+  show: undefined,
   size: 'md',
   closable: true,
   closeOnBackdrop: true,
@@ -90,10 +94,18 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   'update:modelValue': [value: boolean]
+  'update:show': [value: boolean]
   'close': []
 }>()
 
-const modalContent = ref<HTMLElement>()
+const modalContent = ref<HTMLElement | null>(null)
+
+// 兼容：某些使用处仍然传递 `show` 而非 `modelValue`，以 `modelValue` 优先，否则使用 `show`
+const visible = computed(() => {
+  if (typeof props.modelValue === 'boolean') return props.modelValue
+  if (typeof props.show === 'boolean') return props.show
+  return false
+})
 
 // 模态框大小样式
 const sizeClasses = {
@@ -121,7 +133,7 @@ const modalBaseClasses = [
 
 // 完整样式类
 const modalClasses = computed(() => {
-  const sizeClass = sizeClasses[props.size] || sizeClasses.md
+  const sizeClass = sizeClasses[props.size as keyof typeof sizeClasses] || sizeClasses.md
   return [
     ...modalBaseClasses,
     ...sizeClass
@@ -200,13 +212,15 @@ function handleBackdropClick() {
 
 // 处理关闭
 function handleClose() {
+  // 同时触发两种更新事件以兼容使用 `modelValue` 或 `show` 的父组件
   emit('update:modelValue', false)
+  emit('update:show', false)
   emit('close')
 }
 
 // 监听ESC键
 function handleKeydown(event: KeyboardEvent) {
-  if (event.key === 'Escape' && props.modelValue && !props.persistent) {
+  if (event.key === 'Escape' && visible.value && !props.persistent) {
     handleClose()
   }
 }
@@ -221,8 +235,8 @@ function unlockScroll() {
   document.body.style.overflow = ''
 }
 
-// 监听模态框状态变化
-watch(() => props.modelValue, (newValue) => {
+// 监听模态框状态变化（使用合并后的 visible）
+watch(() => visible.value, (newValue) => {
   if (newValue) {
     lockScroll()
     // 聚焦到模态框内容
@@ -234,8 +248,8 @@ watch(() => props.modelValue, (newValue) => {
   }
 })
 
-// 添加键盘监听
-watch(() => props.modelValue, (newValue) => {
+// 添加键盘监听，监听合并后的 visible
+watch(() => visible.value, (newValue) => {
   if (newValue) {
     document.addEventListener('keydown', handleKeydown)
   } else {
@@ -244,7 +258,6 @@ watch(() => props.modelValue, (newValue) => {
 }, { immediate: true })
 
 // 组件卸载时清理
-import { onUnmounted } from 'vue'
 onUnmounted(() => {
   document.removeEventListener('keydown', handleKeydown)
   unlockScroll()

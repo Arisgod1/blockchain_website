@@ -218,7 +218,7 @@
     <BaseModal 
       v-model:show="deleteModal.show"
       title="确认删除"
-      size="small"
+      size="sm"
     >
       <p>确定要删除例会「{{ deleteModal.meeting?.title }}」吗？</p>
       <p class="warning-text">此操作不可撤销。</p>

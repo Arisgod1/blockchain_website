@@ -2,7 +2,7 @@
   <BaseModal 
     :show="show" 
     :title="member?.name + ' - 详细信息'"
-    size="large"
+    size="lg"
     @close="$emit('close')"
   >
     <div v-if="member" class="member-detail-content">

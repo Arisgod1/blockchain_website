@@ -2,7 +2,7 @@
   <BaseModal 
     :show="show"
     :title="isCreate ? '添加新成员' : '编辑成员信息'"
-    size="large"
+    size="lg"
     @close="$emit('close')"
   >
     <form @submit.prevent="handleSubmit" class="member-edit-form">

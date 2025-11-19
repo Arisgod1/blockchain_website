@@ -79,6 +79,9 @@
                 <option value="48">48个/页</option>
               </select>
             </div>
+            <div>
+              <button class="px-3 py-2 bg-green-500 text-white rounded-lg" @click="openCreateModal">+ 新建项目</button>
+            </div>
           </div>
         </div>
 
@@ -134,7 +137,7 @@
               <button
                 v-for="page in visiblePages"
                 :key="page"
-                @click="goToPage(page)"
+                @click="typeof page === 'number' && goToPage(page)"
                 :class="['pagination-number', { active: page === currentPage }]"
               >
                 {{ page }}
@@ -162,6 +165,13 @@
       @like="handleProjectLike"
     />
 
+    <!-- 新建项目模态 -->
+    <ProjectCreateModal
+      v-if="isCreateModalVisible"
+      @created="handleProjectCreated"
+      @close="closeCreateModal"
+    />
+
     <!-- 移动端遮罩 -->
     <div 
       v-if="showMobileFilters"
@@ -177,6 +187,9 @@ import type { Project, FilterOptions } from '@/types/entities'
 import ProjectCard from '@/components/projects/ProjectCard.vue'
 import ProjectFilter from '@/components/projects/ProjectFilter.vue'
 import ProjectDetailModal from '@/components/projects/ProjectDetailModal.vue'
+import ProjectCreateModal from '@/components/projects/ProjectCreateModal.vue'
+import { getProjects } from '@/api/project'
+import { Status } from '@/types/entities'
 
 // 页面元数据设置
 onMounted(() => {
@@ -199,13 +212,14 @@ const showMobileFilters = ref(false)
 const currentPage = ref(1)
 const perPage = ref(12)
 const totalProjects = ref<Project[]>([])
+const isCreateModalVisible = ref(false)
 const selectedProject = ref<Project | null>(null)
 
 // 计算属性
 const stats = computed(() => {
   const totalProjectsCount = totalProjects.value.length
-  const activeProjectsCount = totalProjects.value.filter(p => p.status === 'in-progress').length
-  const completedProjectsCount = totalProjects.value.filter(p => p.status === 'completed').length
+  const activeProjectsCount = totalProjects.value.filter(p => String(p.status) === String(Status.InProgress) || String(p.status).toUpperCase() === 'IN_PROGRESS').length
+  const completedProjectsCount = totalProjects.value.filter(p => String(p.status) === String(Status.Completed) || String(p.status).toUpperCase() === 'COMPLETED').length
   
   // 模拟贡献者数量
   const uniqueContributors = new Set(totalProjects.value.flatMap(p => p.contributors || [])).size
@@ -313,35 +327,18 @@ const resetFilters = () => {
 // 模拟数据加载
 const loadProjects = async () => {
   isLoading.value = true
-  
-  // 模拟API调用延迟
-  await new Promise(resolve => setTimeout(resolve, 1000))
-  
-  // 模拟项目数据
-  totalProjects.value = Array.from({ length: 45 }, (_, i) => ({
-    id: `project-${i + 1}`,
-    title: `项目 ${i + 1}`,
-    description: `这是项目 ${i + 1} 的详细描述，展示了区块链技术的各种应用和创新。`,
-    shortDescription: `项目 ${i + 1} 简短描述`,
-    category: ['DeFi', 'NFT', 'Web3', '智能合约'][i % 4],
-    status: ['planning', 'in-progress', 'completed', 'paused'][i % 4],
-    progress: Math.floor(Math.random() * 100),
-    techStack: ['Solidity', 'React', 'Node.js', 'TypeScript'].slice(0, Math.floor(Math.random() * 4) + 1),
-    startDate: '2023-01-01',
-    endDate: i % 3 === 0 ? '2023-12-31' : null,
-    teamSize: ['1-5', '6-10', '11-20'][i % 3],
-    contributors: [`contributor-${i + 1}`, `contributor-${i + 2}`],
-    githubUrl: i % 2 === 0 ? `https://github.com/org/project-${i + 1}` : null,
-    demoUrl: i % 3 === 0 ? `https://demo-${i + 1}.example.com` : null,
-    documentation: i % 4 === 0 ? `https://docs-${i + 1}.example.com` : null,
-    images: [`/images/project-${i + 1}.jpg`],
-    likes: Math.floor(Math.random() * 100),
-    views: Math.floor(Math.random() * 1000),
-    isLiked: false,
-    isActive: i % 4 !== 3
-  }))
-  
-  isLoading.value = false
+  try {
+    // 请求后端分页接口（此处示例不传分页参数，取全部或默认页）
+    const res = await getProjects({ page: 0, size: 100 })
+    // getProjects 返回 PageProject 类型
+    totalProjects.value = res.content || []
+  } catch (err) {
+    console.error('获取项目列表失败', err)
+    // 失败时保持空列表
+    totalProjects.value = []
+  } finally {
+    isLoading.value = false
+  }
 }
 
 // 监听筛选条件变化
@@ -353,6 +350,16 @@ watch([filteredProjects, perPage], () => {
 onMounted(() => {
   loadProjects()
 })
+
+// 打开新建模态
+const openCreateModal = () => { isCreateModalVisible.value = true }
+const closeCreateModal = () => { isCreateModalVisible.value = false }
+
+const handleProjectCreated = (project: Project) => {
+  // 将新项目添加到列表顶部并关闭模态
+  totalProjects.value.unshift(project)
+  closeCreateModal()
+}
 
 // 图标组件
 const XIcon = () => import('@/components/icons').then(m => m.XIcon)

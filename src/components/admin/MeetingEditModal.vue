@@ -2,7 +2,7 @@
   <BaseModal 
     :show="show" 
     :title="isCreate ? '新建例会' : '编辑例会'"
-    size="large"
+    size="lg"
     @update:show="$emit('update:show', $event)"
     @close="$emit('update:show', false)"
   >

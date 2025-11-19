@@ -117,7 +117,7 @@
     <BaseModal
       v-model:show="showMemberModal"
       :title="selectedMember?.name || ''"
-      size="large"
+      size="lg"
     >
       <div v-if="selectedMember" class="member-detail">
         <div class="member-header">

@@ -10,7 +10,7 @@ class AdminHotkeyService {
   private keySequence: Array<{timestamp: number, ctrlKey: boolean, key: string}> = []
   private callback: AdminHotkeyCallback | null = null
   private isListening = false
-  private resetTimer: NodeJS.Timeout | null = null
+  private resetTimer: number | null = null
   private readonly MAX_SEQUENCE_LENGTH = 10
   private readonly RESET_DELAY = 3000 // 3秒后重置序列
   private readonly REQUIRED_SEQUENCE = 'ctrlb'
@@ -64,7 +64,7 @@ class AdminHotkeyService {
 
     // 重置定时器
     if (this.resetTimer) {
-      clearTimeout(this.resetTimer)
+      clearTimeout(this.resetTimer as number)
     }
 
     // 添加按键信息到序列
@@ -94,7 +94,7 @@ class AdminHotkeyService {
 
     // 如果不是触发条件，设置重置定时器
     if (this.keySequence.length >= 3 && !this.isTriggerPattern()) {
-      this.resetTimer = setTimeout(() => {
+      this.resetTimer = window.setTimeout(() => {
         console.log('重置按键序列')
         this.resetSequence()
       }, this.RESET_DELAY)
