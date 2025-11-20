@@ -278,8 +278,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useHead } from '@vueuse/head'
+import { getMembers, createMember, updateMember, deleteMember } from '@/api/member'
 import { 
   BaseButton, 
   BaseCard, 
@@ -291,7 +292,14 @@ import { GridIcon, ListIcon } from '@/components/icons'
 import MemberFilter from '@/components/members/MemberFilter.vue'
 import MemberCard from '@/components/members/MemberCard.vue'
 import MemberDetailModal from '@/components/members/MemberDetailModal.vue'
+import MemberEditModal from '@/components/members/MemberEditModal.vue'
 import type { Member, FilterOptions } from '@/types/entities'
+
+interface MemberFilterOptions extends Omit<FilterOptions, 'sortBy'> {
+  skills: string[]
+  role?: string
+  sortBy: string
+}
 
 // 设置页面元数据
 useHead({
@@ -306,11 +314,13 @@ const members = ref<Member[]>([])
 const loading = ref(false)
 const viewMode = ref<'grid' | 'list'>('grid')
 
-const filters = ref<FilterOptions>({
+const filters = ref<MemberFilterOptions>({
   search: '',
   status: '',
   sortBy: 'name',
-  sortOrder: 'asc'
+  sortOrder: 'asc',
+  skills: [],
+  role: 'all'
 })
 
 const pagination = ref({
@@ -361,8 +371,9 @@ const filteredMembers = computed(() => {
 
   // 排序
   result.sort((a, b) => {
-    const aValue = a[filters.value.sortBy as keyof Member]
-    const bValue = b[filters.value.sortBy as keyof Member]
+    const key = filters.value.sortBy as keyof Member
+    const aValue = a[key] ?? ''
+    const bValue = b[key] ?? ''
     
     if (filters.value.sortOrder === 'asc') {
       return aValue > bValue ? 1 : -1
@@ -412,43 +423,14 @@ const formatDate = (dateStr: string) => {
 const loadMembers = async () => {
   loading.value = true
   try {
-    // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    const response = await getMembers({
+      page: pagination.value.current - 1,
+      size: pagination.value.pageSize,
+      keyword: filters.value.search,
+    })
     
-    // 这里应该调用实际的API
-    const mockMembers: Member[] = [
-      {
-        id: '1',
-        name: '张三',
-        role: '前端工程师',
-        avatar: '',
-        bio: '专注于Vue.js和React开发',
-        skills: ['Vue.js', 'React', 'TypeScript', 'Node.js'],
-        grade: '大四',
-        email: 'zhangsan@example.com',
-        github: 'https://github.com/zhangsan',
-        linkedin: '',
-        joinDate: '2023-09-01',
-        isActive: true
-      },
-      {
-        id: '2',
-        name: '李四',
-        role: '后端工程师',
-        avatar: '',
-        bio: '精通Python和Go语言开发',
-        skills: ['Python', 'Go', 'Docker', 'Kubernetes'],
-        grade: '研三',
-        email: 'lisi@example.com',
-        github: 'https://github.com/lisi',
-        linkedin: 'https://linkedin.com/in/lisi',
-        joinDate: '2023-09-15',
-        isActive: true
-      }
-    ]
-    
-    members.value = mockMembers
-    pagination.value.total = mockMembers.length
+    members.value = response.content
+    pagination.value.total = response.totalElements
   } catch (error) {
     console.error('加载成员数据失败:', error)
   } finally {
@@ -509,14 +491,18 @@ const handleDelete = (member: Member) => {
   }
 }
 
-const handleSave = (member: Member) => {
-  const index = members.value.findIndex(m => m.id === member.id)
-  if (index !== -1) {
-    members.value[index] = member
-  } else {
-    members.value.unshift(member)
+const handleSave = async (member: Member) => {
+  try {
+    if (editModal.value.isCreate) {
+      await createMember(member)
+    } else {
+      await updateMember(member.id, member)
+    }
+    await loadMembers()
+    editModal.value.show = false
+  } catch (error) {
+    console.error('保存成员失败:', error)
   }
-  editModal.value.show = false
 }
 
 const confirmDelete = async () => {
@@ -525,10 +511,8 @@ const confirmDelete = async () => {
   deleteModal.value.loading = true
   
   try {
-    // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 500))
-    
-    members.value = members.value.filter(m => m.id !== deleteModal.value.member!.id)
+    await deleteMember(deleteModal.value.member.id)
+    await loadMembers()
     deleteModal.value.show = false
   } catch (error) {
     console.error('删除成员失败:', error)

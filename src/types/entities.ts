@@ -83,6 +83,7 @@ export interface Article {
   description?: string
   comments?: number
   isLiked?: boolean
+  bookmarked?: boolean
 }
 
 // 会议记录类型

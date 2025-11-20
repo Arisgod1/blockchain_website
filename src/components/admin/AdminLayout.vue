@@ -100,6 +100,18 @@
                   <span class="nav-text" v-if="!sidebarCollapsed">内容管理</span>
                 </button>
               </li>
+
+              <li class="nav-item">
+                <button
+                  class="nav-link"
+                  :class="{ active: activeTab === 'files' }"
+                  @click="activeTab = 'files'"
+                  title="文件管理"
+                >
+                  <span class="nav-icon">📁</span>
+                  <span class="nav-text" v-if="!sidebarCollapsed">文件管理</span>
+                </button>
+              </li>
             </ul>
           </div>
 
@@ -149,20 +161,17 @@
 
           <!-- 项目管理 -->
           <div v-else-if="activeTab === 'projects'" class="tab-content">
-            <div class="coming-soon">
-              <div class="coming-soon-icon">🚀</div>
-              <h2>项目管理</h2>
-              <p>该功能正在开发中，敬请期待...</p>
-            </div>
+            <AdminProjectManager />
           </div>
 
           <!-- 内容管理 -->
           <div v-else-if="activeTab === 'articles'" class="tab-content">
-            <div class="coming-soon">
-              <div class="coming-soon-icon">📝</div>
-              <h2>内容管理</h2>
-              <p>该功能正在开发中，敬请期待...</p>
-            </div>
+            <AdminArticleManager />
+          </div>
+
+          <!-- 文件管理 -->
+          <div v-else-if="activeTab === 'files'" class="tab-content">
+            <AdminFileManager />
           </div>
 
           <!-- 系统设置 -->
@@ -228,6 +237,9 @@ import { useHead } from '@vueuse/head'
 import { BaseButton, BaseModal } from '@/components/common'
 import AdminMeetingManager from '@/components/admin/AdminMeetingManager.vue'
 import AdminMemberManager from '@/components/admin/AdminMemberManager.vue'
+import AdminProjectManager from '@/components/admin/AdminProjectManager.vue'
+import AdminArticleManager from '@/components/admin/AdminArticleManager.vue'
+import AdminFileManager from '@/components/admin/AdminFileManager.vue'
 import type { AdminUser } from '@/types/entities'
 
 // 设置页面元数据

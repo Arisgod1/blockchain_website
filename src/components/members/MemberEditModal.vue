@@ -5,7 +5,7 @@
     size="lg"
     @close="$emit('close')"
   >
-    <form @submit.prevent="handleSubmit" class="member-edit-form">
+    <form id="member-edit-form" @submit.prevent="handleSubmit" class="member-edit-form">
       <div class="form-content">
         <!-- 基本信息 -->
         <div class="form-section">
@@ -146,7 +146,7 @@
               </button>
             </div>
             
-            <div class="skills-list" v-if="form.skills.length > 0">
+            <div class="skills-list" v-if="form.skills && form.skills.length > 0">
               <div 
                 v-for="(skill, index) in form.skills" 
                 :key="index"
@@ -197,24 +197,25 @@
           </div>
         </div>
       </div>
-
-      <template #footer>
-        <BaseButton 
-          type="button"
-          variant="secondary" 
-          @click="$emit('close')"
-        >
-          取消
-        </BaseButton>
-        <BaseButton 
-          type="submit"
-          variant="primary"
-          :loading="saving"
-        >
-          {{ isCreate ? '创建' : '保存' }}
-        </BaseButton>
-      </template>
     </form>
+
+    <template #footer>
+      <BaseButton 
+        type="button"
+        variant="secondary" 
+        @click="$emit('close')"
+      >
+        取消
+      </BaseButton>
+      <BaseButton 
+        type="submit"
+        form="member-edit-form"
+        variant="primary"
+        :loading="saving"
+      >
+        {{ isCreate ? '创建' : '保存' }}
+      </BaseButton>
+    </template>
   </BaseModal>
 </template>
 

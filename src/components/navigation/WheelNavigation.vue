@@ -53,12 +53,12 @@
         <div 
           v-for="item in navigationItems" 
             :key="item.id"
-            class="absolute inset-0 transform transition-all duration-700 ease-out"
+            class="absolute inset-0 transform transition-all duration-700 ease-out pointer-events-none"
             :style="getItemStyle(item)"
         >
           <!-- 导航项背景 -->
           <div 
-            class="absolute w-20 h-20 rounded-full cursor-pointer transform -translate-x-10 -translate-y-10 transition-all duration-300 hover:scale-110 group"
+            class="absolute w-20 h-20 rounded-full cursor-pointer transform -translate-x-10 -translate-y-10 transition-all duration-300 hover:scale-110 group pointer-events-auto"
             :class="[item.gradient, { 'ring-4 ring-white/50': activeSector === item.id }]"
             @click="navigateToSector(item.link, item)"
             @mouseenter="handleSectorHover(item.id, true, item, $event)"

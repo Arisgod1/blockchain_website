@@ -1,6 +1,10 @@
 import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from 'axios'
 import { useAppStore } from '@/store/app'
 import type { ApiResponse } from '@/types/entities'
+import { MOCK_PROJECTS } from '@/common_value/projects'
+import { MOCK_MEMBERS } from '@/common_value/members'
+import { MOCK_ARTICLES } from '@/common_value/articles'
+import { MOCK_MEETINGS } from '@/common_value/meetings'
 
 class ApiService {
   private instance: AxiosInstance
@@ -15,6 +19,19 @@ class ApiService {
     })
 
     this.setupInterceptors()
+  }
+
+  private getMockData(url: string): any {
+    if (url.includes('/projects')) {
+      return MOCK_PROJECTS
+    } else if (url.includes('/members')) {
+      return MOCK_MEMBERS
+    } else if (url.includes('/articles') || url.includes('/posts')) {
+      return MOCK_ARTICLES
+    } else if (url.includes('/meetings')) {
+      return MOCK_MEETINGS
+    }
+    return null
   }
 
   private setupInterceptors() {
@@ -49,9 +66,30 @@ class ApiService {
 
         return response
       },
-      (error) => {
+      async (error) => {
         const appStore = useAppStore()
+        const url = error.config?.url || ''
         
+        // 尝试获取 Mock 数据
+        const mockData = this.getMockData(url)
+
+        if (mockData) {
+          console.warn(`API 请求失败: ${url}，已降级使用本地 Mock 数据`)
+          // 构造成功的响应结构
+          return {
+            data: {
+              success: true,
+              data: mockData,
+              message: 'Loaded from local mock data (Fallback)',
+              timestamp: new Date().toISOString()
+            },
+            status: 200,
+            statusText: 'OK',
+            headers: {},
+            config: error.config
+          }
+        }
+
         if (error.response) {
           // 服务器返回错误状态码
           const { status, data } = error.response

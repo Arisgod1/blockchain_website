@@ -243,8 +243,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useHead } from '@vueuse/head'
+import { getMeetings, createMeeting, updateMeeting, deleteMeeting } from '@/api/meeting'
 import { 
   BaseButton, 
   BaseCard, 
@@ -302,42 +303,18 @@ const deleteModal = ref({
 })
 
 // 计算属性
-const filteredMeetings = computed(() => {
-  let result = [...meetings.value]
+const filteredMeetings = computed(() => meetings.value)
 
-  // 搜索筛选
-  if (filters.value.search) {
-    const searchTerm = filters.value.search.toLowerCase()
-    result = result.filter(meeting => 
-      meeting.title.toLowerCase().includes(searchTerm) ||
-      meeting.content.toLowerCase().includes(searchTerm) ||
-      meeting.attendees.some(attendee => 
-        attendee.toLowerCase().includes(searchTerm)
-      )
-    )
-  }
+const paginatedMeetings = computed(() => meetings.value)
 
-  // 排序
-  result.sort((a, b) => {
-    const aValue = a[filters.value.sortBy as keyof Meeting]
-    const bValue = b[filters.value.sortBy as keyof Meeting]
-    
-    if (filters.value.sortOrder === 'asc') {
-      return aValue > bValue ? 1 : -1
-    } else {
-      return aValue < bValue ? 1 : -1
-    }
-  })
-
-  pagination.value.total = result.length
-  return result
+watch(() => pagination.value.current, () => {
+  loadMeetings()
 })
 
-const paginatedMeetings = computed(() => {
-  const start = (pagination.value.current - 1) * pagination.value.pageSize
-  const end = start + pagination.value.pageSize
-  return filteredMeetings.value.slice(start, end)
-})
+watch(() => filters.value, () => {
+  pagination.value.current = 1
+  loadMeetings()
+}, { deep: true })
 
 const totalMeetings = computed(() => meetings.value.length)
 
@@ -369,39 +346,16 @@ const formatDate = (dateStr: string) => {
 const loadMeetings = async () => {
   loading.value = true
   try {
-    // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    const response = await getMeetings({
+      page: pagination.value.current - 1, // API uses 0-based indexing
+      size: pagination.value.pageSize,
+      keyword: filters.value.search,
+      // startDate: filters.value.dateRange?.start, // Assuming filters might have dateRange later or we ignore it for now if not in FilterOptions
+      // endDate: filters.value.dateRange?.end
+    })
     
-    // 这里应该调用实际的API
-    const mockMeetings: Meeting[] = [
-      {
-        id: '1',
-        title: '周例会 - 项目进展讨论',
-        date: '2024-01-15',
-        time: '14:00',
-        location: '会议室A',
-        attendees: ['张三', '李四', '王五'],
-        agenda: ['项目进展汇报', '下周计划', '问题讨论'],
-        content: '讨论了当前项目的进展情况...',
-        decisions: ['决定采用新的技术方案'],
-        actionItems: [
-          {
-            id: '1',
-            description: '完成技术调研',
-            assignee: '张三',
-            dueDate: '2024-01-20',
-            status: 'pending',
-            priority: 'high'
-          }
-        ],
-        attachments: ['meeting-notes.pdf'],
-        recorder: '李四',
-        isPublic: true
-      }
-    ]
-    
-    meetings.value = mockMeetings
-    pagination.value.total = mockMeetings.length
+    meetings.value = response.content
+    pagination.value.total = response.totalElements
   } catch (error) {
     console.error('加载例会数据失败:', error)
   } finally {
@@ -459,14 +413,18 @@ const handleDuplicate = (meeting: Meeting) => {
   meetings.value.unshift(duplicatedMeeting)
 }
 
-const handleSave = (meeting: Meeting) => {
-  const index = meetings.value.findIndex(m => m.id === meeting.id)
-  if (index !== -1) {
-    meetings.value[index] = meeting
-  } else {
-    meetings.value.unshift(meeting)
+const handleSave = async (meeting: Meeting) => {
+  try {
+    if (editModal.value.isCreate) {
+      await createMeeting(meeting)
+    } else {
+      await updateMeeting(meeting.id, meeting)
+    }
+    await loadMeetings()
+    editModal.value.show = false
+  } catch (error) {
+    console.error('保存例会失败:', error)
   }
-  editModal.value.show = false
 }
 
 const confirmDelete = async () => {
@@ -475,10 +433,8 @@ const confirmDelete = async () => {
   deleteModal.value.loading = true
   
   try {
-    // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 500))
-    
-    meetings.value = meetings.value.filter(m => m.id !== deleteModal.value.meeting!.id)
+    await deleteMeeting(deleteModal.value.meeting.id)
+    await loadMeetings()
     deleteModal.value.show = false
   } catch (error) {
     console.error('删除例会失败:', error)

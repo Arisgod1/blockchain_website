@@ -214,6 +214,8 @@ const perPage = ref(12)
 const totalProjects = ref<Project[]>([])
 const isCreateModalVisible = ref(false)
 const selectedProject = ref<Project | null>(null)
+const filters = ref<FilterOptions>({})
+const totalElements = ref(0)
 
 // 计算属性
 const stats = computed(() => {
@@ -232,18 +234,11 @@ const stats = computed(() => {
   }
 })
 
-const filteredProjects = computed(() => {
-  // 模拟筛选逻辑
-  return totalProjects.value
-})
+const filteredProjects = computed(() => totalProjects.value)
 
-const totalPages = computed(() => Math.ceil(filteredProjects.value.length / perPage.value))
+const totalPages = computed(() => Math.ceil(totalElements.value / perPage.value))
 
-const paginatedProjects = computed(() => {
-  const start = (currentPage.value - 1) * perPage.value
-  const end = start + perPage.value
-  return filteredProjects.value.slice(start, end)
-})
+const paginatedProjects = computed(() => totalProjects.value)
 
 const visiblePages = computed(() => {
   const pages = []
@@ -272,10 +267,17 @@ const visiblePages = computed(() => {
 })
 
 // 方法
-const handleFilterChange = (filters: FilterOptions) => {
+const handleFilterChange = (newFilters: any) => {
+  filters.value = {
+    search: newFilters.searchQuery,
+    category: newFilters.category,
+    status: newFilters.statuses && newFilters.statuses.length > 0 ? newFilters.statuses[0] : undefined,
+    tags: newFilters.techStack,
+    sortBy: newFilters.sortBy,
+    sortOrder: newFilters.sortOrder
+  }
   currentPage.value = 1
-  // 实际项目中这里应该根据 filters 筛选项目
-  console.log('筛选条件更新:', filters)
+  loadProjects()
 }
 
 const setViewMode = (mode: 'grid' | 'list') => {
@@ -328,13 +330,18 @@ const resetFilters = () => {
 const loadProjects = async () => {
   isLoading.value = true
   try {
-    // 请求后端分页接口（此处示例不传分页参数，取全部或默认页）
-    const res = await getProjects({ page: 0, size: 100 })
-    // getProjects 返回 PageProject 类型
+    const res = await getProjects({
+      page: currentPage.value - 1,
+      size: perPage.value,
+      keyword: filters.value.search,
+      category: filters.value.category,
+      status: filters.value.status
+    })
     totalProjects.value = res.content || []
+    // Update total count if needed for pagination, but totalPages is computed from filteredProjects
+    // We need to update how pagination works if we use server-side pagination
   } catch (err) {
     console.error('获取项目列表失败', err)
-    // 失败时保持空列表
     totalProjects.value = []
   } finally {
     isLoading.value = false

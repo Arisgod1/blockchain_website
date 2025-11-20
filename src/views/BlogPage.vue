@@ -184,6 +184,32 @@ import { useRoute, useRouter } from 'vue-router'
 import ArticleCard from '@/components/blog/ArticleCard.vue'
 import BlogFilter from '@/components/blog/BlogFilter.vue'
 import ArticleDetailModal from '@/components/blog/ArticleDetailModal.vue'
+import { getArticles } from '@/api/article'
+import type { Article } from '@/types/entities'
+
+// 图标组件
+const FilterIcon = () => import('@/components/icons').then(m => m.FilterIcon)
+const ListIcon = () => import('@/components/icons').then(m => m.ListIcon)
+const GridIcon = () => import('@/components/icons').then(m => m.GridIcon)
+const BookmarkIcon = () => import('@/components/icons').then(m => m.BookmarkIcon)
+const XIcon = () => import('@/components/icons').then(m => m.XIcon)
+const ChevronUpIcon = () => import('@/components/icons').then(m => m.ChevronUpIcon)
+const ChevronDownIcon = () => import('@/components/icons').then(m => m.ChevronDownIcon)
+const RotateCcwIcon = () => import('@/components/icons').then(m => m.RotateCcwIcon)
+const EmptyIcon = () => import('@/components/icons').then(m => m.EmptyIcon)
+const ChevronLeftIcon = () => import('@/components/icons').then(m => m.ChevronLeftIcon)
+const ChevronRightIcon = () => import('@/components/icons').then(m => m.ChevronRightIcon)
+const ArrowUpIcon = () => import('@/components/icons').then(m => m.ArrowUpIcon)
+
+// Categories icons
+const CodeIcon = () => import('@/components/icons').then(m => m.CodeIcon)
+const CoinsIcon = () => import('@/components/icons').then(m => m.CoinsIcon)
+const FileTextIcon = () => import('@/components/icons').then(m => m.FileTextIcon)
+const ToolIcon = () => import('@/components/icons').then(m => m.ToolIcon)
+const TrendingUpIcon = () => import('@/components/icons').then(m => m.TrendingUpIcon)
+const LayersIcon = () => import('@/components/icons').then(m => m.LayersIcon)
+const GitBranchIcon = () => import('@/components/icons').then(m => m.GitBranchIcon)
+const FolderIcon = () => import('@/components/icons').then(m => m.FolderIcon)
 
 // 页面元数据设置
 onMounted(() => {
@@ -216,8 +242,8 @@ const selectedArticle = ref(null)
 const showArticleModal = ref(false)
 
 // 文章数据
-const articles = ref([])
-const filteredArticles = ref([])
+const articles = ref<Article[]>([])
+const filteredArticles = ref<Article[]>([])
 
 // 计算属性
 const totalArticles = computed(() => articles.value.length)
@@ -265,14 +291,14 @@ const visiblePages = computed(() => {
 
 // 模拟数据
 const popularCategories = ref([
-  { name: '技术深度', count: 35, weight: 1.4, icon: 'CodeIcon' },
-  { name: 'DeFi协议', count: 28, weight: 1.3, icon: 'CoinsIcon' },
-  { name: '智能合约', count: 32, weight: 1.35, icon: 'FileTextIcon' },
-  { name: '开发实践', count: 25, weight: 1.2, icon: 'ToolIcon' },
-  { name: '行业分析', count: 20, weight: 1.1, icon: 'TrendingUpIcon' },
-  { name: '区块链基础', count: 18, weight: 1.0, icon: 'LayersIcon' },
-  { name: '共识算法', count: 15, weight: 0.9, icon: 'GitBranchIcon' },
-  { name: '项目分享', count: 22, weight: 1.15, icon: 'FolderIcon' }
+  { name: '技术深度', count: 35, weight: 1.4, icon: CodeIcon },
+  { name: 'DeFi协议', count: 28, weight: 1.3, icon: CoinsIcon },
+  { name: '智能合约', count: 32, weight: 1.35, icon: FileTextIcon },
+  { name: '开发实践', count: 25, weight: 1.2, icon: ToolIcon },
+  { name: '行业分析', count: 20, weight: 1.1, icon: TrendingUpIcon },
+  { name: '区块链基础', count: 18, weight: 1.0, icon: LayersIcon },
+  { name: '共识算法', count: 15, weight: 0.9, icon: GitBranchIcon },
+  { name: '项目分享', count: 22, weight: 1.15, icon: FolderIcon }
 ])
 
 const selectedCategory = ref('')
@@ -313,8 +339,8 @@ const handleFilterChange = (filters: any) => {
 const handleLike = (articleId: string) => {
   const article = articles.value.find(a => a.id === articleId)
   if (article) {
-    article.likes = article.liked ? article.likes - 1 : article.likes + 1
-    article.liked = !article.liked
+    article.likes = article.isLiked ? article.likes - 1 : article.likes + 1
+    article.isLiked = !article.isLiked
   }
 }
 
@@ -373,14 +399,21 @@ const handleScroll = () => {
 const fetchArticles = async () => {
   loading.value = true
   try {
-    // 模拟 API 调用
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    // 模拟文章数据
-    articles.value = generateMockArticles()
+    const res = await getArticles({ page: currentPage.value - 1, size: pageSize.value })
+    if (Array.isArray(res)) {
+      articles.value = res
+    } else {
+      articles.value = res.content || []
+    }
     filteredArticles.value = [...articles.value]
   } catch (error) {
     console.error('获取文章失败:', error)
+    // 如果 API 失败，client.ts 已经处理了 Mock 数据降级
+    // 这里可以保留 generateMockArticles 作为最后的兜底，或者直接依赖 client.ts
+    if (articles.value.length === 0) {
+       articles.value = generateMockArticles()
+       filteredArticles.value = [...articles.value]
+    }
   } finally {
     loading.value = false
   }
@@ -443,16 +476,18 @@ const generateMockArticles = () => {
       author,
       category,
       tags: articleTags,
-      publishedAt: new Date(Date.now() - Math.random() * 1000 * 60 * 60 * 24 * 90),
+      publishDate: new Date().toISOString().split('T')[0],
+      updateDate: new Date().toISOString().split('T')[0],
+      isPublished: true,
+      publishedAt: new Date(Date.now() - Math.random() * 1000 * 60 * 60 * 24 * 90).toISOString(),
       readTime: Math.floor(Math.random() * 25) + 5,
       views: Math.floor(Math.random() * 1000) + 100,
       likes: Math.floor(Math.random() * 200) + 20,
       comments: Math.floor(Math.random() * 50) + 5,
-      featured: Math.random() > 0.8,
-      difficulty: ['beginner', 'intermediate', 'advanced', 'expert'][Math.floor(Math.random() * 4)],
-      thumbnail: `https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&h=250&fit=crop`,
+      isFeatured: Math.random() > 0.8,
+      coverImage: `https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&h=250&fit=crop`,
       bookmarked: Math.random() > 0.7,
-      liked: Math.random() > 0.6
+      isLiked: Math.random() > 0.6
     }
   })
 }
@@ -469,30 +504,6 @@ onUnmounted(() => {
 
 // 组件引用
 const blogFilterRef = ref()
-
-// 图标组件
-const FilterIcon = () => import('@/components/icons').then(m => m.FilterIcon)
-const ListIcon = () => import('@/components/icons').then(m => m.ListIcon)
-const GridIcon = () => import('@/components/icons').then(m => m.GridIcon)
-const BookmarkIcon = () => import('@/components/icons').then(m => m.BookmarkIcon)
-const XIcon = () => import('@/components/icons').then(m => m.XIcon)
-const ChevronUpIcon = () => import('@/components/icons').then(m => m.ChevronUpIcon)
-const ChevronDownIcon = () => import('@/components/icons').then(m => m.ChevronDownIcon)
-const RotateCcwIcon = () => import('@/components/icons').then(m => m.RotateCcwIcon)
-const EmptyIcon = () => import('@/components/icons').then(m => m.EmptyIcon)
-const ChevronLeftIcon = () => import('@/components/icons').then(m => m.ChevronLeftIcon)
-const ChevronRightIcon = () => import('@/components/icons').then(m => m.ChevronRightIcon)
-const ArrowUpIcon = () => import('@/components/icons').then(m => m.ArrowUpIcon)
-
-// Categories icons
-const CodeIcon = () => import('@/components/icons').then(m => m.CodeIcon)
-const CoinsIcon = () => import('@/components/icons').then(m => m.CoinsIcon)
-const FileTextIcon = () => import('@/components/icons').then(m => m.FileTextIcon)
-const ToolIcon = () => import('@/components/icons').then(m => m.ToolIcon)
-const TrendingUpIcon = () => import('@/components/icons').then(m => m.TrendingUpIcon)
-const LayersIcon = () => import('@/components/icons').then(m => m.LayersIcon)
-const GitBranchIcon = () => import('@/components/icons').then(m => m.GitBranchIcon)
-const FolderIcon = () => import('@/components/icons').then(m => m.FolderIcon)
 </script>
 
 <style scoped>
