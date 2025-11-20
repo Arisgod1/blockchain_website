@@ -103,12 +103,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { getFiles, uploadFile, deleteFile, downloadFile, type FileInfo } from '@/api/file'
 import BaseButton from '@/components/common/BaseButton.vue'
 import BaseCard from '@/components/common/BaseCard.vue'
 import BasePagination from '@/components/common/BasePagination.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
+import { onAdminRefresh } from '@/utils/adminEvents'
+import { recordAdminOperation } from '@/composables/useAdminLogs'
 
 const files = ref<FileInfo[]>([])
 const loading = ref(false)
@@ -117,6 +119,21 @@ const pageSize = ref(10)
 const totalPages = ref(1)
 const totalElements = ref(0)
 const fileInput = ref<HTMLInputElement | null>(null)
+const cleanupFns: Array<() => void> = []
+
+type FileLogAction = 'create' | 'delete' | 'refresh' | 'export'
+
+const logFileAction = (action: FileLogAction, message: string, result: 'success' | 'failure' = 'success', targetId?: string | number) => {
+  recordAdminOperation({
+    entity: 'files',
+    action,
+    message,
+    targetId,
+    result
+  }).catch((error) => {
+    console.warn('记录文件操作日志失败:', error)
+  })
+}
 
 const fetchFiles = async () => {
   loading.value = true
@@ -140,6 +157,7 @@ const fetchFiles = async () => {
 
 const handleRefresh = () => {
   fetchFiles()
+  logFileAction('refresh', '手动刷新文件列表')
 }
 
 const handlePageChange = (page: number) => {
@@ -159,8 +177,10 @@ const handleFileChange = async (event: Event) => {
       await uploadFile(file)
       alert('上传成功')
       fetchFiles()
+      logFileAction('create', `上传文件「${file.name}」`, 'success')
     } catch (error) {
       alert('上传失败')
+      logFileAction('create', `上传文件「${file.name}」失败`, 'failure')
     } finally {
       target.value = '' // Reset input
     }
@@ -170,8 +190,10 @@ const handleFileChange = async (event: Event) => {
 const handleDownload = async (file: FileInfo) => {
   try {
     await downloadFile(file.id, file.originalName)
+    logFileAction('export', `下载文件「${file.originalName}」`, 'success', file.id)
   } catch (error) {
     alert('下载失败')
+    logFileAction('export', `下载文件「${file.originalName}」失败`, 'failure', file.id)
   }
 }
 
@@ -180,8 +202,10 @@ const handleDelete = async (file: FileInfo) => {
   try {
     await deleteFile(file.id)
     fetchFiles()
+    logFileAction('delete', `删除文件「${file.originalName}」`, 'success', file.id)
   } catch (error) {
     alert('删除失败')
+    logFileAction('delete', `删除文件「${file.originalName}」失败`, 'failure', file.id)
   }
 }
 
@@ -195,6 +219,17 @@ const formatSize = (bytes: number) => {
 
 onMounted(() => {
   fetchFiles()
+  const stopRefresh = onAdminRefresh((detail) => {
+    if (detail.entity === 'all' || detail.entity === 'files') {
+      fetchFiles()
+      logFileAction('refresh', `全局触发 ${detail.action ?? 'refresh'} 同步文件数据`)
+    }
+  })
+  cleanupFns.push(stopRefresh)
+})
+
+onUnmounted(() => {
+  cleanupFns.forEach((stop) => stop())
 })
 </script>
 

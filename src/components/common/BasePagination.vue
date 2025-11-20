@@ -59,12 +59,12 @@
       <!-- 页码按钮 -->
       <div :class="pageNumbersClasses">
         <template
-          v-for="(page, index) in visiblePages"
-          :key="index"
+          v-for="pageItem in pageItems"
+          :key="pageItem.key"
         >
           <!-- 省略号 -->
           <span 
-            v-if="page === '...'" 
+            v-if="pageItem.value === '...'" 
             :class="ellipsisClasses"
           >
             ...
@@ -72,11 +72,11 @@
           <!-- 页码按钮 -->
           <button
             v-else
-            :class="getPageButtonClasses(page === displayedCurrent)"
-            :disabled="page === displayedCurrent"
-            @click="goToPage(page as number)"
+            :class="getPageButtonClasses(pageItem.value === displayedCurrent)"
+            :disabled="pageItem.value === displayedCurrent"
+            @click="goToPage(pageItem.value as number)"
           >
-            {{ page }}
+            {{ pageItem.value }}
           </button>
         </template>
       </div>
@@ -130,6 +130,8 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  currentPage: undefined,
+  current: undefined,
   pageSizeOptions: () => [10, 20, 50, 100],
   showPageSize: true,
   showInfo: true,
@@ -158,6 +160,15 @@ const startItem = computed(() => {
 
 const endItem = computed(() => {
   return Math.min(displayedCurrent.value * props.pageSize, props.total)
+})
+
+const pageItems = computed(() => {
+  return visiblePages.value.map((page, index) => ({
+    value: page,
+    key: typeof page === 'number'
+      ? `page-${page}`
+      : `ellipsis-${index}`
+  }))
 })
 
 // 计算可见的页码
@@ -343,7 +354,7 @@ function handlePageSizeChange(event: Event) {
 }
 </script>
 
-<style scoped>
+<style scoped lang="postcss">
 /* 移动端适配 */
 @media (max-width: 640px) {
   nav {

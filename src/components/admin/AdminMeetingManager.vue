@@ -286,7 +286,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useHead } from '@vueuse/head'
 import { getMeetings, createMeeting, updateMeeting, deleteMeeting } from '@/api/meeting'
 import { 
@@ -301,6 +301,8 @@ import MeetingFilter from '@/components/meetings/MeetingFilter.vue'
 import MeetingCard from '@/components/meetings/MeetingCard.vue'
 import MeetingDetailModal from '@/components/meetings/MeetingDetailModal.vue'
 import type { Meeting, FilterOptions } from '@/types/entities'
+import { onAdminRefresh } from '@/utils/adminEvents'
+import { recordAdminOperation } from '@/composables/useAdminLogs'
 
 // 设置页面元数据
 useHead({
@@ -349,6 +351,22 @@ const deleteModal = ref({
 const filteredMeetings = computed(() => meetings.value)
 
 const paginatedMeetings = computed(() => meetings.value)
+
+type MeetingLogAction = 'create' | 'update' | 'delete' | 'refresh' | 'duplicate'
+
+const cleanupFns: Array<() => void> = []
+
+const logMeetingAction = (action: MeetingLogAction, message: string, result: 'success' | 'failure' = 'success', targetId?: string | number) => {
+  recordAdminOperation({
+    entity: 'meetings',
+    action,
+    message,
+    targetId,
+    result
+  }).catch((error) => {
+    console.warn('记录例会操作日志失败:', error)
+  })
+}
 
 watch(() => pagination.value.current, () => {
   loadMeetings()
@@ -454,33 +472,41 @@ const handleDuplicate = (meeting: Meeting) => {
   }
   
   meetings.value.unshift(duplicatedMeeting)
+  logMeetingAction('duplicate', `复制例会「${meeting.title}」`, 'success', meeting.id)
 }
 
 const handleSave = async (meeting: Meeting) => {
   try {
     if (editModal.value.isCreate) {
-      await createMeeting(meeting)
+      const created = await createMeeting(meeting)
+      logMeetingAction('create', `创建例会「${created.title}」`, 'success', created.id)
     } else {
-      await updateMeeting(meeting.id, meeting)
+      const updated = await updateMeeting(meeting.id, meeting)
+      logMeetingAction('update', `更新例会「${updated.title}」`, 'success', updated.id)
     }
     await loadMeetings()
     editModal.value.show = false
   } catch (error) {
     console.error('保存例会失败:', error)
+    const action: MeetingLogAction = editModal.value.isCreate ? 'create' : 'update'
+    logMeetingAction(action, `保存例会「${meeting.title}」失败`, 'failure', meeting.id)
   }
 }
 
 const confirmDelete = async () => {
-  if (!deleteModal.value.meeting) return
+  const target = deleteModal.value.meeting
+  if (!target) return
   
   deleteModal.value.loading = true
   
   try {
-    await deleteMeeting(deleteModal.value.meeting.id)
+    await deleteMeeting(target.id)
     await loadMeetings()
     deleteModal.value.show = false
+    logMeetingAction('delete', `删除例会「${target.title}」`, 'success', target.id)
   } catch (error) {
     console.error('删除例会失败:', error)
+    logMeetingAction('delete', `删除例会「${target.title}」失败`, 'failure', target.id)
   } finally {
     deleteModal.value.loading = false
   }
@@ -488,11 +514,23 @@ const confirmDelete = async () => {
 
 const handleRefresh = () => {
   loadMeetings()
+  logMeetingAction('refresh', '手动刷新例会列表')
 }
 
-// 组件挂载时加载数据
 onMounted(() => {
   loadMeetings()
+  const stopRefreshListener = onAdminRefresh((detail) => {
+    if (detail.entity === 'all' || detail.entity === 'meetings') {
+      loadMeetings()
+      const action = detail.action ?? 'refresh'
+      logMeetingAction('refresh', `全局触发 ${action} 同步例会数据`)
+    }
+  })
+  cleanupFns.push(stopRefreshListener)
+})
+
+onUnmounted(() => {
+  cleanupFns.forEach((stop) => stop())
 })
 </script>
 

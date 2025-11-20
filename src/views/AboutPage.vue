@@ -1,7 +1,13 @@
 <template>
   <div class="about-page">
     <!-- 页面头部 -->
-    <header class="relative bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 text-white overflow-hidden">
+    <header class="gradient-hero flowing-gradient-sunrise text-white overflow-hidden">
+      <div class="hero-stars">
+        <span style="top:12%;left:8%;animation-duration:18s" />
+        <span style="top:28%;left:78%;animation-duration:22s;animation-delay:1s" />
+        <span style="top:58%;left:32%;animation-duration:16s;animation-delay:2.5s" />
+        <span style="top:75%;left:68%;animation-duration:24s;animation-delay:3.2s" />
+      </div>
       <!-- 背景装饰 -->
       <div class="absolute inset-0">
         <div class="absolute top-10 left-10 w-20 h-20 bg-blue-500/10 rounded-full blur-xl animate-pulse" />
@@ -215,7 +221,7 @@
           </h2>
           <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div 
-              v-for="(field, index) in researchFields" 
+              v-for="field in researchFields" 
               :key="field.id"
               class="group bg-white rounded-xl shadow-lg border border-gray-100 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
             >
@@ -250,7 +256,7 @@
             
             <div class="space-y-8">
               <div 
-                v-for="(milestone, index) in timeline" 
+                v-for="milestone in timeline" 
                 :key="milestone.year"
                 class="relative flex items-start"
               >

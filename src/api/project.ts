@@ -73,7 +73,7 @@ const normalizeProjectPage = (data?: ProjectPage | Project[]): ProjectPage => {
 }
 
 // 获取分页项目列表
-export const getProjects = async (params?: Record<string, any>): Promise<ProjectPage> => {
+export const getProjects = async (params?: Record<string, unknown>): Promise<ProjectPage> => {
   const res = await apiService.get<ProjectPage | Project[]>('/api/projects', { params })
   if (!res.success) throw new Error(res.message || '获取项目列表失败')
   return normalizeProjectPage(res.data)
@@ -117,7 +117,7 @@ export const getProjectsByStatus = async (status: string): Promise<Project[]> =>
 }
 
 // 搜索项目
-export const searchProjects = async (params?: Record<string, any>): Promise<Project[]> => {
+export const searchProjects = async (params?: Record<string, unknown>): Promise<Project[]> => {
   const res = await apiService.get<Project[]>('/api/projects/search', { params })
   if (!res.success) throw new Error(res.message || '搜索项目失败')
   return res.data ?? []

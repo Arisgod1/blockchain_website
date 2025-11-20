@@ -19,7 +19,9 @@
         class="relative wheel-container"
         :style="{ width: wheelDiameter + 'px', height: wheelDiameter + 'px' }"
       >
-        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-orange-500/20 to-blue-500/20 rounded-full blur-3xl animate-pulse pointer-events-none" />
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div class="halo-backdrop" />
+        </div>
         <div class="absolute inset-0 wheel-gradient-overlay pointer-events-none" />
 
         <div
@@ -118,16 +120,15 @@
               {{ item.icon }}
             </div>
           </div>
+        </div>
 
-          <div
-            v-if="activeSector === item.id"
-            class="absolute inset-0 pointer-events-none"
-          >
-            <div
-              class="absolute w-0.5 bg-gradient-to-t from-white/60 to-transparent"
-              :style="getConnectionLineStyle(item)"
-            />
-          </div>
+        <div
+          v-if="activeNavigationItem"
+          class="connection-ray pointer-events-none"
+          :style="getConnectionLineStyle(activeNavigationItem)"
+        >
+          <span class="ray-core" />
+          <span class="ray-glow" />
         </div>
       </div>
     </div>
@@ -175,8 +176,14 @@
 
             <div class="flex items-center justify-center gap-2 text-xs">
               <span :style="{ color: hoverPopup.item.colorLight }">点击进入</span>
-              <div class="w-4 h-0.5" :style="{ backgroundColor: hoverPopup.item.colorLight }" />
-              <div class="w-1 h-1 rounded-full animate-pulse" :style="{ backgroundColor: hoverPopup.item.colorLight }" />
+              <div
+                class="w-4 h-0.5"
+                :style="{ backgroundColor: hoverPopup.item.colorLight }"
+              />
+              <div
+                class="w-1 h-1 rounded-full animate-pulse"
+                :style="{ backgroundColor: hoverPopup.item.colorLight }"
+              />
             </div>
           </div>
 
@@ -389,6 +396,10 @@ const navigationItems = ref<NavigationItem[]>([
   }
 ])
 
+const activeNavigationItem = computed<NavigationItem | null>(() => {
+  return navigationItems.value.find(item => item.id === activeSector.value) || null
+})
+
 const centerData = ref<CenterData>({
   title: "区块链组",
   subtitle: "Blockchain Club",
@@ -435,11 +446,13 @@ function getItemStyle(item: NavigationItem) {
   const y = Math.sin(angleRad) * radius
 
   const isActive = activeSector.value === item.id
+  const baseLayer = 10
+  const priorityBoost = item.priority || 0
 
   return {
     left: `calc(50% + ${x}px)`,
     top: `calc(50% + ${y}px)`,
-    zIndex: isActive ? 999 : 50 + (item.priority || 0)
+    zIndex: isActive ? baseLayer + 5 + priorityBoost : baseLayer + priorityBoost
   }
 }
 
@@ -598,12 +611,12 @@ function getSectorStats(id: string) {
       { value: '10k+', label: '阅读' }
     ],
     'meetings': [
-      { value: '120', label: '例会' },
-      { value: '95%', label: '出席率' }
+      { value: '5', label: '例会总数' },
+      { value: '3', label: '本学期剩余例会' }
     ],
     'contact': [
-      { value: '24/7', label: '在线' },
-      { value: '∞', label: '合作可能' }
+      { value: '永久', label: '在线' },
+      { value: '∞', label: '共同进步可能' }
     ]
   }
   return stats[id] || []
@@ -624,14 +637,17 @@ onUnmounted(() => {
 // 获取连接线样式
 function getConnectionLineStyle(item: NavigationItem) {
   const radius = orbitRadius.value
-  const angle = item.angle - 90
+  const angleRad = ((item.angle - 90) * Math.PI) / 180
+  const x = Math.cos(angleRad) * radius
+  const y = Math.sin(angleRad) * radius
+  const rotation = Math.atan2(x, -y) * (180 / Math.PI)
 
   return {
-    left: '50%',
-    top: '50%',
     height: `${radius}px`,
-    transform: `translate(-50%, -50%) rotate(${angle}deg)`,
-    transformOrigin: '50% 0%'
+    left: `calc(50% + ${x}px)`,
+    top: `calc(50% + ${y}px)`,
+    transform: `translate(-50%, 0) rotate(${rotation}deg)`,
+    transformOrigin: 'top center'
   }
 }
 
@@ -661,6 +677,18 @@ function getConnectionLineStyle(item: NavigationItem) {
 /* 自定义慢速旋转动画工具类（用于 template 中的 animate-spin-slow） */
 .animate-spin-slow {
   animation: spin-slow 8s linear infinite;
+}
+
+.halo-backdrop {
+  width: 130%;
+  height: 130%;
+  border-radius: 9999px;
+  background:
+    radial-gradient(circle at 40% 30%, rgba(96, 165, 250, 0.45), transparent 55%),
+    radial-gradient(circle at 70% 60%, rgba(249, 115, 22, 0.35), transparent 65%),
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.25), transparent 70%);
+  filter: blur(60px) saturate(120%);
+  animation: haloBreath 10s ease-in-out infinite;
 }
 
 .wheel-gradient-overlay {
@@ -745,6 +773,21 @@ function getConnectionLineStyle(item: NavigationItem) {
   }
 }
 
+@keyframes haloBreath {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.7;
+  }
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
   .wheel-container {
@@ -801,19 +844,56 @@ function getConnectionLineStyle(item: NavigationItem) {
   transform: translateX(-50%) translateY(0) scale(1);
 }
 
-/* 连接线动画 */
-.connection-line {
-  animation: connectionPulse 2s infinite ease-in-out;
+/* 中心射线 */
+.connection-ray {
+  position: absolute;
+  width: 3px;
+  transform-origin: top center;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  z-index: 18;
 }
 
-@keyframes connectionPulse {
+.ray-core {
+  position: relative;
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(125, 211, 252, 0.5) 45%, transparent 100%);
+  border-radius: 9999px;
+  animation: rayPulse 1.8s ease-in-out infinite;
+}
+
+.ray-glow {
+  position: absolute;
+  top: -6px;
+  width: 12px;
+  height: 12px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.9), rgba(59, 130, 246, 0.4), transparent 70%);
+  filter: blur(2px);
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+@keyframes rayPulse {
   0%, 100% {
-    opacity: 0.6;
-    transform: scaleY(1);
+    opacity: 0.7;
+    filter: drop-shadow(0 0 6px rgba(125, 211, 252, 0.6));
   }
   50% {
     opacity: 1;
-    transform: scaleY(1.1);
+    filter: drop-shadow(0 0 10px rgba(96, 165, 250, 0.8));
+  }
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.1);
   }
 }
 
@@ -836,6 +916,8 @@ function getConnectionLineStyle(item: NavigationItem) {
 /* 轮盘旋转效果 */
 .wheel-container {
   transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 9999px;
+  background-clip: padding-box;
 }
 
 /* 悬浮状态增强 */

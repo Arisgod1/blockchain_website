@@ -123,9 +123,10 @@ const submit = async () => {
     form.category = ''
     form.status = 'planning'
     form.progress = 0
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('创建项目失败', err)
-    alert(err?.message || '创建项目失败')
+    const message = err instanceof Error ? err.message : '创建项目失败'
+    alert(message)
   }
 }
 </script>

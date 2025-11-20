@@ -4,7 +4,7 @@ import { ref, computed } from 'vue'
 export interface AppError {
   message: string
   code?: string
-  details?: any
+  details?: Record<string, unknown> | string
 }
 
 export const useAppStore = defineStore('app', () => {
@@ -13,6 +13,8 @@ export const useAppStore = defineStore('app', () => {
   const error = ref<AppError | null>(null)
   const isAdminMode = ref(false)
   const isOnline = ref(navigator.onLine)
+  const isUsingMockData = ref(false)
+  const mockDataMessage = ref('')
   
   // 计算属性
   const hasError = computed(() => error.value !== null)
@@ -33,6 +35,11 @@ export const useAppStore = defineStore('app', () => {
   
   function setAdminMode(enabled: boolean) {
     isAdminMode.value = enabled
+  }
+
+  function setMockDataUsage(active: boolean, message?: string) {
+    isUsingMockData.value = active
+    mockDataMessage.value = active ? (message || '当前展示本地示例数据，后台服务启动后将自动同步。') : ''
   }
   
   function initialize() {
@@ -59,6 +66,8 @@ export const useAppStore = defineStore('app', () => {
     error,
     isAdminMode,
     isOnline,
+  isUsingMockData,
+  mockDataMessage,
     
     // 计算属性
     hasError,
@@ -69,6 +78,7 @@ export const useAppStore = defineStore('app', () => {
     setError,
     clearError,
     setAdminMode,
+    setMockDataUsage,
     initialize
   }
 })

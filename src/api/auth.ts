@@ -1,8 +1,8 @@
 import apiService from '@/api/client'
-import type { AdminUser } from '@/types/entities'
+import type { AdminLoginPayload, AdminUser } from '@/types/entities'
 
 // 管理员登录
-export const login = async (data: any): Promise<{ token: string; user: AdminUser }> => {
+export const login = async (data: AdminLoginPayload): Promise<{ token: string; user: AdminUser }> => {
   const res = await apiService.post<{ token: string; user: AdminUser }>('/api/auth/login', data)
   if (!res.success) throw new Error(res.message || '登录失败')
   if (!res.data) throw new Error('登录未返回数据')

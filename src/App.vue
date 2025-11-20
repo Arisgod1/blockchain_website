@@ -42,6 +42,17 @@ import { useRouter } from 'vue-router'
 import { adminHotkeyService } from './utils/adminHotkey'
 import { AdminLogin } from './components/admin'
 import LoadingSpinner from './components/common/LoadingSpinner.vue'
+import type { AdminUser } from '@/types/entities'
+
+interface AdminHotkeyDetail {
+  redirectTo?: string
+  timestamp?: number
+  type?: string
+}
+
+interface ShowAdminLoginDetail {
+  redirectTo?: string
+}
 
 const router = useRouter()
 
@@ -100,7 +111,7 @@ const stopPageLoading = () => {
 }
 
 // 处理管理员登录成功
-const handleAdminLoginSuccess = async (adminUser: any) => {
+const handleAdminLoginSuccess = async (adminUser: AdminUser) => {
   console.log('✅ 管理员登录成功', adminUser)
   
   // 统一使用 'adminToken' 作为存储键名
@@ -121,14 +132,14 @@ const handleAdminLoginSuccess = async (adminUser: any) => {
 }
 
 // 监听管理员快捷键事件
-const handleAdminHotkey = (event: CustomEvent) => {
+const handleAdminHotkey = (event: CustomEvent<AdminHotkeyDetail>) => {
   console.log('🚀 管理员快捷键触发')
   showAdminLogin.value = true
   pendingRedirect.value = event.detail?.redirectTo || ''
 }
 
 // 监听全局showAdminLogin事件
-const handleShowAdminLoginEvent = (event: any) => {
+const handleShowAdminLoginEvent = (event: CustomEvent<ShowAdminLoginDetail>) => {
   console.log('📢 收到showAdminLogin事件:', event.detail)
   showAdminLogin.value = true
   pendingRedirect.value = event.detail?.redirectTo || ''
@@ -171,7 +182,7 @@ const startAdminHotkeyListening = () => {
 onMounted(() => {
   // 添加事件监听器
   window.addEventListener('admin-hotkey-trigger', handleAdminHotkey as EventListener)
-  window.addEventListener('showAdminLogin', handleShowAdminLoginEvent)
+  window.addEventListener('showAdminLogin', handleShowAdminLoginEvent as EventListener)
   window.addEventListener('admin-exit', handleAdminExitEvent)
   
   // 监听路由变化
@@ -186,7 +197,7 @@ onMounted(() => {
   })
   
   // 保存钩子函数引用以便清理
-  ;(window as any).__routerHooks = { routerHook, afterRouterHook }
+  window.__routerHooks = { routerHook, afterRouterHook }
   
   // 启动管理员快捷键监听
   startAdminHotkeyListening()
@@ -197,14 +208,15 @@ onMounted(() => {
 onUnmounted(() => {
   // 清理事件监听器
   window.removeEventListener('admin-hotkey-trigger', handleAdminHotkey as EventListener)
-  window.removeEventListener('showAdminLogin', handleShowAdminLoginEvent)
+  window.removeEventListener('showAdminLogin', handleShowAdminLoginEvent as EventListener)
   window.removeEventListener('admin-exit', handleAdminExitEvent)
   
   // 清理路由监听
-  const hooks = (window as any).__routerHooks
+  const hooks = window.__routerHooks
   if (hooks) {
-    router.beforeEach(() => {})
-    router.afterEach(() => {})
+    hooks.routerHook?.()
+    hooks.afterRouterHook?.()
+    window.__routerHooks = undefined
   }
   
   // 停止快捷键监听

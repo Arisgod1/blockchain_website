@@ -324,9 +324,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useHead } from '@vueuse/head'
-import { getAdminMembers, createMember, updateMember, deleteMember, updateMemberStatus } from '@/api/member'
+import { getMembers, createMember, updateMember, deleteMember } from '@/api/member'
 import { 
   BaseButton, 
   BaseCard, 
@@ -340,6 +340,8 @@ import MemberCard from '@/components/members/MemberCard.vue'
 import MemberDetailModal from '@/components/members/MemberDetailModal.vue'
 import MemberEditModal from '@/components/members/MemberEditModal.vue'
 import type { Member, FilterOptions } from '@/types/entities'
+import { onAdminRefresh } from '@/utils/adminEvents'
+import { recordAdminOperation } from '@/composables/useAdminLogs'
 
 interface MemberFilterOptions extends Omit<FilterOptions, 'sortBy'> {
   skills: string[]
@@ -428,7 +430,6 @@ const filteredMembers = computed(() => {
     }
   })
 
-  pagination.value.total = result.length
   return result
 })
 
@@ -437,6 +438,26 @@ const paginatedMembers = computed(() => {
   const end = start + pagination.value.pageSize
   return filteredMembers.value.slice(start, end)
 })
+
+watch(filteredMembers, (nextMembers) => {
+  pagination.value.total = nextMembers.length
+})
+
+type MemberLogAction = 'create' | 'update' | 'delete' | 'refresh'
+
+const cleanupFns: Array<() => void> = []
+
+const logMemberAction = (action: MemberLogAction, message: string, result: 'success' | 'failure' = 'success', targetId?: string | number) => {
+  recordAdminOperation({
+    entity: 'members',
+    action,
+    message,
+    targetId,
+    result
+  }).catch((error) => {
+    console.warn('记录成员操作日志失败:', error)
+  })
+}
 
 const totalMembers = computed(() => members.value.length)
 
@@ -469,22 +490,16 @@ const formatDate = (dateStr: string) => {
 const loadMembers = async () => {
   loading.value = true
   try {
-    const response = await getAdminMembers({
-      page: pagination.value.current,
-      pageSize: pagination.value.pageSize,
-      search: filters.value.search,
-      skills: filters.value.skills,
-      status: filters.value.status as 'active' | 'inactive' | undefined,
-      sortBy: filters.value.sortBy as 'name' | 'joinDate' | 'projectCount' | 'role' | undefined,
-      sortOrder: filters.value.sortOrder as 'asc' | 'desc' | undefined
+    const response = await getMembers({
+      page: pagination.value.current - 1,
+      size: pagination.value.pageSize,
+      keyword: filters.value.search,
     })
-
-    members.value = response.items || []
-    pagination.value.total = response.total ?? members.value.length
+    
+    members.value = response.content
+    pagination.value.total = response.totalElements
   } catch (error) {
     console.error('加载成员数据失败:', error)
-    members.value = []
-    pagination.value.total = 0
   } finally {
     loading.value = false
   }
@@ -492,12 +507,10 @@ const loadMembers = async () => {
 
 const handleFilterChange = () => {
   pagination.value.current = 1
-  loadMembers()
 }
 
 const handlePageChange = (page: number) => {
   pagination.value.current = page
-  loadMembers()
 }
 
 const handleCreate = () => {
@@ -525,13 +538,18 @@ const handleEdit = (member: Member) => {
 
 const handleToggleStatus = async (member: Member) => {
   try {
-    await updateMemberStatus(
-      member.id,
-      member.isActive ? 'inactive' : 'active'
-    )
-    await loadMembers()
+    // 模拟API调用
+    await new Promise(resolve => setTimeout(resolve, 500))
+    
+    const index = members.value.findIndex(m => m.id === member.id)
+    if (index !== -1) {
+      members.value[index].isActive = !members.value[index].isActive
+    }
+    const statusLabel = members.value[index]?.isActive ? '活跃' : '非活跃'
+    logMemberAction('update', `切换成员「${member.name}」状态为 ${statusLabel}`, 'success', member.id)
   } catch (error) {
     console.error('切换成员状态失败:', error)
+    logMemberAction('update', `切换成员「${member.name}」状态失败`, 'failure', member.id)
   }
 }
 
@@ -546,28 +564,34 @@ const handleDelete = (member: Member) => {
 const handleSave = async (member: Member) => {
   try {
     if (editModal.value.isCreate) {
-      await createMember(member)
+      const created = await createMember(member)
+      logMemberAction('create', `创建成员「${created.name}」`, 'success', created.id)
     } else {
-      await updateMember(member.id, member)
+      const updated = await updateMember(member.id, member)
+      logMemberAction('update', `更新成员「${updated.name}」`, 'success', updated.id)
     }
     await loadMembers()
     editModal.value.show = false
   } catch (error) {
     console.error('保存成员失败:', error)
+    const action: MemberLogAction = editModal.value.isCreate ? 'create' : 'update'
+    logMemberAction(action, `保存成员「${member.name}」失败`, 'failure', member.id)
   }
 }
 
 const confirmDelete = async () => {
-  if (!deleteModal.value.member) return
-  
+  const target = deleteModal.value.member
+  if (!target) return
   deleteModal.value.loading = true
   
   try {
-    await deleteMember(deleteModal.value.member.id)
+    await deleteMember(target.id)
     await loadMembers()
     deleteModal.value.show = false
+    logMemberAction('delete', `删除成员「${target.name}」`, 'success', target.id)
   } catch (error) {
     console.error('删除成员失败:', error)
+    logMemberAction('delete', `删除成员「${target.name}」失败`, 'failure', target.id)
   } finally {
     deleteModal.value.loading = false
   }
@@ -575,11 +599,22 @@ const confirmDelete = async () => {
 
 const handleRefresh = () => {
   loadMembers()
+  logMemberAction('refresh', '手动刷新成员列表')
 }
 
-// 组件挂载时加载数据
 onMounted(() => {
   loadMembers()
+  const stopRefresh = onAdminRefresh((detail) => {
+    if (detail.entity === 'all' || detail.entity === 'members') {
+      loadMembers()
+      logMemberAction('refresh', `全局触发 ${detail.action ?? 'refresh'} 同步成员数据`)
+    }
+  })
+  cleanupFns.push(stopRefresh)
+})
+
+onUnmounted(() => {
+  cleanupFns.forEach((stop) => stop())
 })
 </script>
 

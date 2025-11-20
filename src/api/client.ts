@@ -5,6 +5,7 @@ import { MOCK_PROJECTS } from '@/common_value/projects'
 import { MOCK_MEMBERS } from '@/common_value/members'
 import { MOCK_ARTICLES } from '@/common_value/articles'
 import { MOCK_MEETINGS } from '@/common_value/meetings'
+import { MOCK_ADMIN_LOGS } from '@/common_value/adminLogs'
 
 class ApiService {
   private instance: AxiosInstance
@@ -21,7 +22,7 @@ class ApiService {
     this.setupInterceptors()
   }
 
-  private getMockData(url: string): any {
+  private getMockData(url: string): unknown {
     if (url.includes('/projects')) {
       return MOCK_PROJECTS
     } else if (url.includes('/members')) {
@@ -30,6 +31,8 @@ class ApiService {
       return MOCK_ARTICLES
     } else if (url.includes('/meetings')) {
       return MOCK_MEETINGS
+    } else if (url.includes('/admin/logs')) {
+      return MOCK_ADMIN_LOGS
     }
     return null
   }
@@ -153,19 +156,19 @@ class ApiService {
   }
 
   // POST 请求
-  async post<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async post<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
     const response = await this.instance.post(url, data, config)
     return response.data
   }
 
   // PUT 请求
-  async put<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async put<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
     const response = await this.instance.put(url, data, config)
     return response.data
   }
 
   // PATCH 请求
-  async patch<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async patch<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
     const response = await this.instance.patch(url, data, config)
     return response.data
   }

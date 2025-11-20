@@ -1,7 +1,13 @@
 <template>
   <div class="blog-page">
     <!-- 页面头部 -->
-    <div class="page-header">
+    <header class="gradient-hero flowing-gradient-aurora overflow-hidden page-header">
+      <div class="hero-stars">
+        <span style="top:18%;left:5%;animation-duration:17s" />
+        <span style="top:25%;left:82%;animation-duration:21s;animation-delay:1.5s" />
+        <span style="top:64%;left:28%;animation-duration:15s;animation-delay:2.2s" />
+        <span style="top:78%;left:70%;animation-duration:23s;animation-delay:3s" />
+      </div>
       <div class="header-content">
         <div class="header-text">
           <h1 class="page-title">
@@ -66,7 +72,7 @@
           收藏
         </button>
       </div>
-    </div>
+    </header>
 
     <!-- 筛选侧边栏 -->
     <div
@@ -95,13 +101,6 @@
       class="main-content"
       :class="{ 'with-sidebar': showFilter }"
     >
-      <div
-        v-if="usingFallback"
-        class="fallback-banner"
-      >
-        当前展示的是离线缓存数据，后台服务恢复后会自动刷新。
-      </div>
-
       <!-- 分类标签云 -->
       <div
         v-if="showCategoryCloud"
@@ -145,33 +144,16 @@
       <div class="article-container">
         <!-- 加载状态 -->
         <div
-          v-if="isLoading && !hasLoadedOnce"
+          v-if="loading"
           class="loading-state"
         >
           <div class="loading-spinner" />
           <p>加载中...</p>
         </div>
 
-        <!-- 错误状态 -->
-        <div
-          v-else-if="errorMessage && !hasArticles"
-          class="error-state"
-        >
-          <p class="error-text">
-            {{ errorMessage }}
-          </p>
-          <button
-            class="reset-all-btn"
-            @click="loadArticles({ force: true })"
-          >
-            <RotateCcwIcon />
-            重试
-          </button>
-        </div>
-
         <!-- 空状态 -->
         <div
-          v-else-if="!hasArticles"
+          v-else-if="filteredArticles.length === 0"
           class="empty-state"
         >
           <EmptyIcon class="empty-icon" />
@@ -191,36 +173,25 @@
         </div>
 
         <!-- 文章网格/列表 -->
-        <div v-else>
-          <transition
-            name="fade"
-            appear
-          >
-            <div
-              v-if="isLoading && hasLoadedOnce"
-              class="grid-overlay"
-            >
-              <div class="loading-spinner" />
-              <p>正在刷新文章列表...</p>
-            </div>
-          </transition>
-
-          <div :class="['article-grid', `view-${viewMode}`]">
-            <ArticleCard
-              v-for="article in paginatedArticles"
-              :key="article.id"
-              :article="article"
-              :view-mode="viewMode"
-              @select="openArticle"
-              @like="handleCardLike"
-              @share="handleCardShare"
-            />
-          </div>
+        <div
+          v-else
+          :class="['article-grid', `view-${viewMode}`]"
+        >
+          <ArticleCard
+            v-for="article in paginatedArticles"
+            :key="article.id"
+            :article="article"
+            :view-mode="viewMode"
+            @article-click="openArticle"
+            @like="handleLike"
+            @bookmark="handleBookmark"
+            @share="handleShare"
+          />
         </div>
 
         <!-- 分页导航 -->
         <div
-          v-if="hasArticles && totalPages > 1"
+          v-if="filteredArticles.length > 0"
           class="pagination"
         >
           <button
@@ -234,12 +205,10 @@
           
           <div class="pagination-numbers">
             <button
-              v-for="(page, index) in visiblePages"
-              :key="`${page}-${index}`"
-              class="pagination-number"
-              :class="{ active: typeof page === 'number' && page === currentPage }"
-              :disabled="page === '...'"
-              @click="handlePageIndicatorClick(page)"
+              v-for="page in visiblePages"
+              :key="page"
+              :class="['pagination-number', { active: page === currentPage }]"
+              @click="changePage(page)"
             >
               {{ page }}
             </button>
@@ -260,12 +229,12 @@
     <!-- 文章详情模态框 -->
     <ArticleDetailModal
       v-if="selectedArticle"
-      :article="selectedArticle!"
+      :article="selectedArticle"
       :show="showArticleModal"
       @close="closeArticle"
-      @like="handleModalLike"
+      @like="handleLike"
       @bookmark="handleBookmark"
-      @share="handleModalShare"
+      @share="handleShare"
     />
 
     <!-- 固定按钮 -->
@@ -295,31 +264,29 @@ import ArticleCard from '@/components/blog/ArticleCard.vue'
 import BlogFilter from '@/components/blog/BlogFilter.vue'
 import ArticleDetailModal from '@/components/blog/ArticleDetailModal.vue'
 import { getArticles } from '@/api/article'
-import type { Article, ArticlePage } from '@/types/entities'
-
-// 图标组件
-const FilterIcon = () => import('@/components/icons').then(m => m.FilterIcon)
-const ListIcon = () => import('@/components/icons').then(m => m.ListIcon)
-const GridIcon = () => import('@/components/icons').then(m => m.GridIcon)
-const BookmarkIcon = () => import('@/components/icons').then(m => m.BookmarkIcon)
-const XIcon = () => import('@/components/icons').then(m => m.XIcon)
-const ChevronUpIcon = () => import('@/components/icons').then(m => m.ChevronUpIcon)
-const ChevronDownIcon = () => import('@/components/icons').then(m => m.ChevronDownIcon)
-const RotateCcwIcon = () => import('@/components/icons').then(m => m.RotateCcwIcon)
-const EmptyIcon = () => import('@/components/icons').then(m => m.EmptyIcon)
-const ChevronLeftIcon = () => import('@/components/icons').then(m => m.ChevronLeftIcon)
-const ChevronRightIcon = () => import('@/components/icons').then(m => m.ChevronRightIcon)
-const ArrowUpIcon = () => import('@/components/icons').then(m => m.ArrowUpIcon)
-
-// Categories icons
-const CodeIcon = () => import('@/components/icons').then(m => m.CodeIcon)
-const CoinsIcon = () => import('@/components/icons').then(m => m.CoinsIcon)
-const FileTextIcon = () => import('@/components/icons').then(m => m.FileTextIcon)
-const ToolIcon = () => import('@/components/icons').then(m => m.ToolIcon)
-const TrendingUpIcon = () => import('@/components/icons').then(m => m.TrendingUpIcon)
-const LayersIcon = () => import('@/components/icons').then(m => m.LayersIcon)
-const GitBranchIcon = () => import('@/components/icons').then(m => m.GitBranchIcon)
-const FolderIcon = () => import('@/components/icons').then(m => m.FolderIcon)
+import type { Article } from '@/types/entities'
+import {
+  FilterIcon,
+  ListIcon,
+  GridIcon,
+  BookmarkIcon,
+  XIcon,
+  ChevronUpIcon,
+  ChevronDownIcon,
+  RotateCcwIcon,
+  EmptyIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ArrowUpIcon,
+  CodeIcon,
+  CoinsIcon,
+  FileTextIcon,
+  ToolIcon,
+  TrendingUpIcon,
+  LayersIcon,
+  GitBranchIcon,
+  FolderIcon
+} from '@/components/icons'
 
 // 页面元数据设置
 onMounted(() => {
@@ -335,11 +302,7 @@ onMounted(() => {
   }
 })
 
-const router = useRouter()
-
-const ARTICLES_CACHE_KEY = 'articles:list-cache'
-
-interface BlogFilterPayload {
+interface BlogFilterOptions {
   searchQuery: string
   category: string
   tags: string[]
@@ -352,18 +315,28 @@ interface BlogFilterPayload {
   featuredOnly: boolean
 }
 
-const defaultFilters: BlogFilterPayload = {
-  searchQuery: '',
-  category: 'all',
-  tags: [],
-  author: '',
-  dateRange: '',
-  sortBy: 'publishedAt',
-  sortOrder: 'desc',
-  difficulties: [],
-  minReadTime: 1,
-  featuredOnly: false
+const categoryValueMap: Record<string, string> = {
+  tech: '技术深度',
+  practice: '开发实践',
+  defi: 'DeFi协议',
+  analysis: '行业分析',
+  blockchain: '区块链基础',
+  contract: '智能合约',
+  consensus: '共识算法',
+  project: '项目分享',
+  research: '学术研究',
+  all: ''
 }
+
+type ShareableArticle = Article & {
+  difficulty?: string
+  thumbnail?: string
+  featured?: boolean
+  liked?: boolean
+}
+
+const router = useRouter()
+const activeFilters = ref<BlogFilterOptions | null>(null)
 
 // 响应式数据
 const showFilter = ref(false)
@@ -371,43 +344,28 @@ const showCategoryCloud = ref(true)
 const viewMode = ref<'grid' | 'list'>('grid')
 const showBookmarkedOnly = ref(false)
 const showScrollTop = ref(false)
-const isLoading = ref(false)
+const loading = ref(false)
 const currentPage = ref(1)
 const pageSize = ref(12)
-const selectedArticle = ref<Article | null>(null)
+const selectedArticle = ref<ShareableArticle | null>(null)
 const showArticleModal = ref(false)
-const errorMessage = ref('')
-const hasLoadedOnce = ref(false)
-const usingFallback = ref(false)
 
 // 文章数据
 const articles = ref<Article[]>([])
 const filteredArticles = ref<Article[]>([])
-const totalElements = ref(0)
-const serverTotalPages = ref(0)
-const activeFilters = ref<BlogFilterPayload>({ ...defaultFilters })
 
 // 计算属性
-const totalArticles = computed(() => totalElements.value || articles.value.length)
+const totalArticles = computed(() => articles.value.length)
 const totalAuthors = computed(() => new Set(articles.value.map(a => a.author.id)).size)
 const totalViews = computed(() => articles.value.reduce((sum, a) => sum + a.views, 0))
 const totalLikes = computed(() => articles.value.reduce((sum, a) => sum + a.likes, 0))
 
-const hasArticles = computed(() => filteredArticles.value.length > 0)
-
-const totalPages = computed(() => {
-  if (usingFallback.value) {
-    return Math.max(1, Math.ceil(filteredArticles.value.length / pageSize.value))
-  }
-  return Math.max(1, serverTotalPages.value || 1)
-})
+const totalPages = computed(() => Math.ceil(filteredArticles.value.length / pageSize.value))
 
 const paginatedArticles = computed(() => {
-  if (usingFallback.value) {
-    const start = (currentPage.value - 1) * pageSize.value
-    return filteredArticles.value.slice(start, start + pageSize.value)
-  }
-  return filteredArticles.value
+  const start = (currentPage.value - 1) * pageSize.value
+  const end = start + pageSize.value
+  return filteredArticles.value.slice(start, end)
 })
 
 const visiblePages = computed(() => {
@@ -440,12 +398,6 @@ const visiblePages = computed(() => {
   return pages
 })
 
-const handlePageIndicatorClick = (indicator: number | string) => {
-  if (typeof indicator === 'number') {
-    changePage(indicator)
-  }
-}
-
 // 模拟数据
 const popularCategories = ref([
   { name: '技术深度', count: 35, weight: 1.4, icon: CodeIcon },
@@ -475,7 +427,7 @@ const toggleView = () => {
 
 const toggleBookmark = () => {
   showBookmarkedOnly.value = !showBookmarkedOnly.value
-  applyFilters({ resetPage: true })
+  applyFilters()
 }
 
 const toggleCategoryCloud = () => {
@@ -484,70 +436,41 @@ const toggleCategoryCloud = () => {
 
 const selectCategory = (category: string) => {
   selectedCategory.value = selectedCategory.value === category ? '' : category
-  applyFilters({ resetPage: true })
+  applyFilters()
 }
 
-const handleFilterChange = (filters: BlogFilterPayload) => {
-  activeFilters.value = { ...filters }
-  currentPage.value = 1
-  loadArticles({ resetPage: true })
+const handleFilterChange = (filters: BlogFilterOptions) => {
+  activeFilters.value = filters
+  fetchFilteredArticles(filters)
 }
 
-const findArticleById = (articleId: string | number) => {
-  return articles.value.find(article => String(article.id) === String(articleId))
-}
-
-const syncSelectedArticle = (articleId: string | number, source: Article) => {
-  if (selectedArticle.value && String(selectedArticle.value.id) === String(articleId) && selectedArticle.value !== source) {
-    Object.assign(selectedArticle.value, source)
-  }
-}
-
-const toggleArticleLike = (article: Article) => {
-  article.isLiked = !article.isLiked
-  const delta = article.isLiked ? 1 : -1
-  article.likes = Math.max(0, (article.likes || 0) + delta)
-}
-
-const handleCardLike = (article: Article) => {
-  toggleArticleLike(article)
-  syncSelectedArticle(article.id, article)
-}
-
-const handleModalLike = (articleId: string) => {
-  const target = findArticleById(articleId)
-  if (target) {
-    toggleArticleLike(target)
-    syncSelectedArticle(articleId, target)
-  } else if (selectedArticle.value && String(selectedArticle.value.id) === String(articleId)) {
-    toggleArticleLike(selectedArticle.value)
+const handleLike = (articleId: string) => {
+  const article = articles.value.find(a => a.id === articleId)
+  if (article) {
+    article.likes = article.isLiked ? article.likes - 1 : article.likes + 1
+    article.isLiked = !article.isLiked
   }
 }
 
 const handleBookmark = (articleId: string) => {
-  const target = findArticleById(articleId)
-  if (target) {
-    target.bookmarked = !target.bookmarked
-    syncSelectedArticle(articleId, target)
-  } else if (selectedArticle.value && String(selectedArticle.value.id) === String(articleId)) {
-    selectedArticle.value.bookmarked = !selectedArticle.value.bookmarked
+  const article = articles.value.find(a => a.id === articleId)
+  if (article) {
+    article.bookmarked = !article.bookmarked
   }
 }
 
-const handleShareCommon = (article: Article, platform: string) => {
-  console.log('分享文章:', article.title, '渠道:', platform)
-}
-
-const handleCardShare = (article: Article) => {
-  handleShareCommon(article, 'card')
-}
-
-const handleModalShare = (article: Article, platform: string) => {
-  handleShareCommon(article, platform)
+const handleShare = (article: ShareableArticle, platform = 'general') => {
+  // 分享逻辑
+  console.log('分享文章:', article.title, '到:', platform)
 }
 
 const openArticle = (article: Article) => {
-  selectedArticle.value = article
+  selectedArticle.value = {
+    ...article,
+    publishedAt: article.publishedAt || article.publishDate || new Date().toISOString(),
+    thumbnail: article.image || article.coverImage || '/images/default-article.jpg',
+    difficulty: (article as ShareableArticle).difficulty || 'intermediate'
+  }
   showArticleModal.value = true
   // 更新浏览量
   article.views += 1
@@ -560,25 +483,22 @@ const closeArticle = () => {
 }
 
 const changePage = (page: number) => {
-  if (page === currentPage.value || page < 1 || page > totalPages.value) return
-  currentPage.value = page
-  if (!usingFallback.value) {
-    loadArticles()
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page
+    // 滚动到顶部
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
-  window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 const resetAllFilters = () => {
   selectedCategory.value = ''
   showBookmarkedOnly.value = false
   currentPage.value = 1
-  activeFilters.value = { ...defaultFilters }
+  activeFilters.value = null
   // 重置筛选器
-  const instance = blogFilterRef.value
-  if (instance?.resetFilters) {
-    instance.resetFilters()
+  if (blogFilterRef.value?.resetFilters) {
+    blogFilterRef.value.resetFilters()
   }
-  loadArticles({ resetPage: true })
 }
 
 const scrollToTop = () => {
@@ -589,130 +509,135 @@ const handleScroll = () => {
   showScrollTop.value = window.scrollY > 500
 }
 
-const cacheArticlesSnapshot = (payload: ArticlePage) => {
-  if (typeof window === 'undefined') return
+// 数据获取
+const fetchArticles = async () => {
+  loading.value = true
   try {
-    localStorage.setItem(ARTICLES_CACHE_KEY, JSON.stringify(payload))
-  } catch (error) {
-    console.warn('缓存文章列表失败', error)
-  }
-}
-
-const hydrateArticlesFromCache = (silent = false) => {
-  if (typeof window === 'undefined') return false
-  try {
-    const raw = localStorage.getItem(ARTICLES_CACHE_KEY)
-    if (!raw) return false
-    const parsed = JSON.parse(raw) as ArticlePage
-    if (!parsed?.content?.length) return false
-    applyArticleResponse({ ...parsed, fromFallback: true }, { resetPage: true })
-    if (!silent) {
-      errorMessage.value = ''
+    const res = await getArticles({ page: currentPage.value - 1, size: pageSize.value })
+    if (Array.isArray(res)) {
+      articles.value = res
+    } else {
+      articles.value = res.content || []
     }
-    return true
-  } catch (error) {
-    console.warn('读取文章缓存失败', error)
-    return false
-  }
-}
-
-const buildArticleQuery = () => {
-  const filters = activeFilters.value
-  const params: Record<string, unknown> = {
-    page: Math.max(currentPage.value - 1, 0),
-    size: pageSize.value,
-    sortBy: filters.sortBy,
-    sortOrder: filters.sortOrder
-  }
-
-  if (filters.searchQuery) params.keyword = filters.searchQuery
-  if (filters.category && filters.category !== 'all') params.category = filters.category
-  if (filters.tags?.length) params.tags = filters.tags.join(',')
-  if (filters.author) params.author = filters.author
-  if (filters.dateRange) params.dateRange = filters.dateRange
-  if (filters.difficulties?.length) params.difficulty = filters.difficulties.join(',')
-  if (filters.minReadTime > 1) params.minReadTime = filters.minReadTime
-  if (filters.featuredOnly) params.featured = true
-
-  return params
-}
-
-const applyArticleResponse = (response: ArticlePage, options: { resetPage?: boolean } = {}) => {
-  articles.value = response.content ?? []
-  totalElements.value = response.totalElements ?? articles.value.length
-  serverTotalPages.value = response.totalPages ?? 0
-  usingFallback.value = Boolean(response.fromFallback)
-
-  if (!usingFallback.value) {
-    const resolvedPage = response.page ?? (response.number ?? 0) + 1
-    currentPage.value = options.resetPage ? 1 : resolvedPage
-  } else if (options.resetPage) {
-    currentPage.value = 1
-  }
-
-  applyFilters({ resetPage: usingFallback.value })
-}
-
-const loadArticles = async (options: { resetPage?: boolean; force?: boolean } = {}) => {
-  isLoading.value = true
-  errorMessage.value = ''
-
-  try {
-    if (usingFallback.value && !options.force) {
-      // 当处于离线模式时不重复请求，除非显式强制刷新
-      applyFilters()
-      return
-    }
-
-    const params = buildArticleQuery()
-    const response = await getArticles(params)
-    applyArticleResponse(response, options)
-    cacheArticlesSnapshot(response)
+    filteredArticles.value = [...articles.value]
   } catch (error) {
     console.error('获取文章失败:', error)
-    const message = error instanceof Error ? error.message : '获取文章失败'
-    errorMessage.value = message
-
-    if (!articles.value.length) {
-      const restored = hydrateArticlesFromCache(true)
-      if (restored) {
-        usingFallback.value = true
-        errorMessage.value = '当前展示离线缓存数据'
-      }
+    // 如果 API 失败，client.ts 已经处理了 Mock 数据降级
+    // 这里可以保留 generateMockArticles 作为最后的兜底，或者直接依赖 client.ts
+    if (articles.value.length === 0) {
+       articles.value = generateMockArticles()
+       filteredArticles.value = [...articles.value]
     }
   } finally {
-    isLoading.value = false
-    hasLoadedOnce.value = true
+    loading.value = false
   }
 }
 
-const applyFilters = (options: { resetPage?: boolean } = {}) => {
+const fetchFilteredArticles = async (filters: BlogFilterOptions) => {
+  // 根据筛选条件过滤文章
+  // 实际项目中应该调用 API
+  loading.value = true
+  try {
+    await new Promise(resolve => setTimeout(resolve, 500))
+    applyFilters(filters)
+  } catch (error) {
+    console.error('筛选文章失败:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+const applyFilters = (filtersOverride?: BlogFilterOptions | null) => {
+  const filters = filtersOverride ?? activeFilters.value
   let filtered = [...articles.value]
 
-  // 分类筛选
-  if (selectedCategory.value) {
-    filtered = filtered.filter(article => 
-      article.category === selectedCategory.value
+  const mappedFilterCategory = filters?.category && filters.category !== 'all'
+    ? (categoryValueMap[filters.category] || filters.category)
+    : ''
+  const effectiveCategory = selectedCategory.value || mappedFilterCategory
+
+  if (effectiveCategory) {
+    filtered = filtered.filter(article => article.category === effectiveCategory)
+  }
+
+  if (filters?.searchQuery) {
+    const keyword = filters.searchQuery.toLowerCase()
+    filtered = filtered.filter(article =>
+      article.title.toLowerCase().includes(keyword) ||
+      article.summary.toLowerCase().includes(keyword) ||
+      article.content.toLowerCase().includes(keyword)
     )
   }
 
-  // 收藏筛选
+  if (filters?.tags?.length) {
+    filtered = filtered.filter(article =>
+      filters.tags.every(tag => article.tags.includes(tag))
+    )
+  }
+
+  if (filters?.featuredOnly) {
+    filtered = filtered.filter(article => article.isFeatured)
+  }
+
+  if (typeof filters?.minReadTime === 'number') {
+    filtered = filtered.filter(article => article.readTime >= filters.minReadTime)
+  }
+
+  if (filters?.author) {
+    filtered = filtered.filter(article => article.author?.name === filters.author)
+  }
+
   if (showBookmarkedOnly.value) {
     filtered = filtered.filter(article => article.bookmarked)
   }
 
   filteredArticles.value = filtered
-  if (options.resetPage) {
-    currentPage.value = 1
-  }
+  currentPage.value = 1
+}
+
+// 生成模拟文章数据
+const generateMockArticles = (): Article[] => {
+  const authors = [
+    { id: 1, name: '张三', avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64&h=64&fit=crop&crop=face' },
+    { id: 2, name: '李四', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=64&h=64&fit=crop&crop=face' },
+    { id: 3, name: '王五', avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=64&h=64&fit=crop&crop=face' }
+  ]
+
+  const categories = ['技术深度', 'DeFi协议', '智能合约', '开发实践', '行业分析', '区块链基础', '共识算法', '项目分享']
+  const tags = ['Solidity', 'DeFi', 'NFT', '智能合约', 'Web3', '共识算法', '加密货币', '区块链', '安全', '钱包']
+
+  return Array.from({ length: 48 }, (_, i) => {
+    const author = authors[Math.floor(Math.random() * authors.length)]
+    const category = categories[Math.floor(Math.random() * categories.length)]
+    const articleTags = tags.sort(() => 0.5 - Math.random()).slice(0, Math.floor(Math.random() * 4) + 2)
+    
+    return {
+      id: (i + 1).toString(),
+      title: `深度解析：${category}技术应用与实践案例 ${i + 1}`,
+      summary: `本文详细探讨了${category}在区块链领域的重要应用，包括技术原理、实施方案和最佳实践...`,
+      content: '文章详细内容...',
+      author,
+      category,
+      tags: articleTags,
+      publishDate: new Date().toISOString().split('T')[0],
+      updateDate: new Date().toISOString().split('T')[0],
+      isPublished: true,
+      publishedAt: new Date(Date.now() - Math.random() * 1000 * 60 * 60 * 24 * 90).toISOString(),
+      readTime: Math.floor(Math.random() * 25) + 5,
+      views: Math.floor(Math.random() * 1000) + 100,
+      likes: Math.floor(Math.random() * 200) + 20,
+      comments: Math.floor(Math.random() * 50) + 5,
+      isFeatured: Math.random() > 0.8,
+      coverImage: `https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&h=250&fit=crop`,
+      bookmarked: Math.random() > 0.7,
+      isLiked: Math.random() > 0.6
+    }
+  })
 }
 
 // 生命周期
 onMounted(() => {
-  if (hydrateArticlesFromCache(true)) {
-    hasLoadedOnce.value = true
-  }
-  loadArticles({ resetPage: true })
+  fetchArticles()
   window.addEventListener('scroll', handleScroll)
 })
 
@@ -721,11 +646,7 @@ onUnmounted(() => {
 })
 
 // 组件引用
-type BlogFilterPublicInstance = {
-  resetFilters?: () => void
-}
-
-const blogFilterRef = ref<BlogFilterPublicInstance | null>(null)
+const blogFilterRef = ref()
 </script>
 
 <style scoped>
@@ -734,11 +655,12 @@ const blogFilterRef = ref<BlogFilterPublicInstance | null>(null)
 }
 
 .page-header {
-  @apply bg-white shadow-sm border-b border-gray-200;
+  @apply relative pb-6;
+  border-bottom: none;
 }
 
 .header-content {
-  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8;
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-white;
 }
 
 .header-text {
@@ -746,11 +668,11 @@ const blogFilterRef = ref<BlogFilterPublicInstance | null>(null)
 }
 
 .page-title {
-  @apply text-4xl font-bold text-gray-900 mb-2;
+  @apply text-4xl font-bold text-white mb-2;
 }
 
 .page-subtitle {
-  @apply text-lg text-gray-600;
+  @apply text-lg text-blue-100;
 }
 
 .header-stats {
@@ -758,15 +680,15 @@ const blogFilterRef = ref<BlogFilterPublicInstance | null>(null)
 }
 
 .stat-item {
-  @apply text-center;
+  @apply text-center bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20;
 }
 
 .stat-number {
-  @apply block text-3xl font-bold text-blue-600;
+  @apply block text-3xl font-bold text-white;
 }
 
 .stat-label {
-  @apply text-sm text-gray-600;
+  @apply text-sm text-blue-100;
 }
 
 .quick-actions {

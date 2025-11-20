@@ -1,151 +1,415 @@
-import type { Meeting } from '@/types/entities'
+import type { Meeting, MeetingAgendaItem, MeetingFile, MeetingIssue } from '@/types/entities'
+
+const baseLocation = '创新创业中心 A315 / 腾讯会议'
+const resourceBase = 'https://static.blockchain-club.cn/meetings'
+
+const defaultAttendees = [
+  { id: 'member-tangmingdi', name: '唐明迪', role: '主持人' },
+  { id: 'member-maxingrui', name: '马鑫蕊', role: '前端讲师' },
+  { id: 'member-zhanghonghao', name: '张鸿昊', role: '后端导师' },
+  { id: 'member-zhaoshuyang', name: '赵舒阳', role: '产品联络' }
+]
+
+const agendaItems = (prefix: string, items: string[], presenters: string[]): MeetingAgendaItem[] =>
+  items.map((title, index) => ({
+    id: `${prefix}-agenda-${index + 1}`,
+    title,
+    presenter: presenters[index] ?? presenters[presenters.length - 1],
+    duration: 30,
+    description: title
+  }))
+
+const buildIssues = (prefix: string, titles: string[], status: MeetingIssue['status'] = 'completed'): MeetingIssue[] =>
+  titles.map((title, index) => ({
+    id: `${prefix}-issue-${index + 1}`,
+    title,
+    status
+  }))
+
+const buildFiles = (prefix: string, resources: Array<{ name: string; type?: string; size?: string; filename: string }>): MeetingFile[] =>
+  resources.map((resource, index) => ({
+    id: `${prefix}-file-${index + 1}`,
+    name: resource.name,
+    type: resource.type ?? resource.filename.split('.').pop() ?? 'pdf',
+    size: resource.size ?? '—',
+    url: `${resourceBase}/${prefix}/${resource.filename}`
+  }))
 
 export const MOCK_MEETINGS: Meeting[] = [
   {
-    id: 'meeting-20241215',
-    title: '区块链技术发展趋势讨论',
-    summary: '聚焦Layer2、跨链与隐私保护的最新研究成果与落地方案。',
-    date: '2024-12-15T14:00:00',
-    time: '14:00',
-    location: '创新中心·会议室A',
+    id: 'meeting-git-basics',
+    title: '版本管理技术 Git',
+    summary: '从版本控制理念到小组协作规范的系统演练。',
+    date: '2024-09-07T19:00:00',
+    time: '19:00',
+    location: baseLocation,
     status: 'completed',
-    types: ['technical', 'weekly'],
-    tags: ['Layer2', '跨链', '隐私计算'],
+    types: ['training', 'workshop'],
+    tags: ['Git', '版本控制'],
+    duration: 120,
+    attendees: defaultAttendees,
+    agenda: agendaItems('git', [
+      'Git 基础概念与版本控制意义',
+      'Clone / Commit / Push / Pull / Branch 实战',
+      '小组协作流程演练'
+    ], ['唐明迪', '刘静雯', '张鸿昊']),
+    decisions: [
+      '统一采用 Git Flow 规范，所有项目必须创建开发分支',
+      '建立共享仓库并同步到 QQ 群资料夹'
+    ],
+    actionItems: [
+      {
+        id: 'git-guide',
+        description: '整理 Git 入门指引并录制 Demo 视频',
+        assignee: '刘静雯',
+        dueDate: '2024-09-10',
+        status: 'in-progress',
+        priority: 'medium'
+      }
+    ],
+    issues: buildIssues('git', [
+      'Git 基础概念（版本控制意义）',
+      '常用命令操作演示（clone / push / pull / branch）',
+      '团队协作规范与冲突解决'
+    ]),
+    files: buildFiles('git-basics', [
+      { name: 'Git 入门讲义.pdf', filename: 'slides.pdf', size: '3.2MB' },
+      { name: 'Git Flow 演示录屏.mp4', filename: 'demo.mp4', type: 'mp4', size: '420MB' }
+    ]),
+    minutes: `${resourceBase}/git-basics/minutes.pdf`,
+    recording: `${resourceBase}/git-basics/recording.mp4`,
+    recorder: '赵舒阳',
+    isPublic: true
+  },
+  {
+    id: 'meeting-frontend-basics',
+    title: '前端语言基础（HTML + CSS + JS）',
+    summary: '梳理 Web 标准、样式布局与 DOM 操作，帮助零基础成员搭建首个页面。',
+    date: '2024-09-14T19:00:00',
+    time: '19:00',
+    location: baseLocation,
+    status: 'completed',
+    types: ['training'],
+    tags: ['HTML', 'CSS', 'JavaScript'],
     duration: 120,
     attendees: [
-      { id: 'u-zhangsan', name: '张三', avatar: '/avatars/zhang.jpg', role: '技术负责人' },
-      { id: 'u-lisi', name: '李四', avatar: '/avatars/li.jpg', role: '研究员' },
-      { id: 'u-wangwu', name: '王五', avatar: '/avatars/wang.jpg', role: '开发成员' }
+      defaultAttendees[1],
+      defaultAttendees[2],
+      { id: 'member-wangmingfu', name: '王明富', role: '移动端代表' }
     ],
-    agenda: [
-      { id: 'agenda-1', title: 'Layer2 扩容方案复盘', presenter: '张三', duration: 30 },
-      { id: 'agenda-2', title: '跨链互操作演示', presenter: '李四', duration: 45 },
-      { id: 'agenda-3', title: '隐私计算落地难点', presenter: '王五', duration: 30 }
+    agenda: agendaItems('frontend-basics', [
+      'HTML 结构与常用语义标签',
+      'CSS 选择器、Flex 布局与响应式技巧',
+      'JavaScript 语法基础与 DOM 交互'
+    ], ['马鑫蕊', '王明富', '马鑫蕊']),
+    decisions: [
+      '建立组件库代码片段，供新同学直接引用',
+      '每周提交一份页面作品，纳入考核'
     ],
-    issues: [
-      { id: 'issue-1', title: 'DeFi 协议安全性加固', status: 'completed' },
-      { id: 'issue-2', title: 'Rollup 节点部署', status: 'in-progress' }
-    ],
-    decisions: ['确定Q1研究重点：隐私与互操作性', '建立跨组协作共享库'],
     actionItems: [
       {
-        id: 'action-1',
-        description: '整理Layer2评估报告',
-        assignee: '李四',
-        dueDate: '2024-12-22',
-        status: 'in-progress',
-        priority: 'high'
-      },
-      {
-        id: 'action-2',
-        description: '搭建跨链演示环境',
-        assignee: '王五',
-        dueDate: '2025-01-05',
+        id: 'frontend-demo',
+        description: '准备「报名落地页」示例仓库',
+        assignee: '马鑫蕊',
+        dueDate: '2024-09-17',
         status: 'pending',
         priority: 'medium'
       }
     ],
-    files: [
-      { id: 'file-1', name: 'Layer2_Progress_Report.pdf', type: 'pdf', size: '2.3MB', url: '/files/meeting_layer2_report.pdf' },
-      { id: 'file-2', name: 'Interoperability_Demo.pptx', type: 'pptx', size: '4.8MB', url: '/files/meeting_interop_demo.pptx' }
-    ],
-    recording: '/recordings/meeting_layer2.mp4',
-    minutes: '/files/meeting_layer2_minutes.md',
-    recorder: '赵六',
-    isPublic: true,
-    createdAt: '2024-12-15T16:20:00',
-    updatedAt: '2024-12-15T16:20:00'
-  },
-  {
-    id: 'meeting-20241208',
-    title: '项目进展汇报与资源规划',
-    summary: '各项目组同步近期进度与风险，规划寒假开发排期。',
-    date: '2024-12-08T15:30:00',
-    time: '15:30',
-    location: '线上会议',
-    status: 'completed',
-    types: ['project', 'weekly'],
-    tags: ['项目管理', '资源协调'],
-    duration: 90,
-    attendees: [
-      { id: 'u-zhangsan', name: '张三', avatar: '/avatars/zhang.jpg', role: '组长' },
-      { id: 'u-zhaoliu', name: '赵六', avatar: '/avatars/zhao.jpg', role: '项目经理' },
-      { id: 'u-qianqi', name: '钱七', avatar: '/avatars/qian.jpg', role: '研发成员' }
-    ],
-    agenda: ['项目A进度更新', '风险与资源需求', '寒假排期'],
-    issues: [
-      { id: 'issue-3', title: '测试环境搭建', status: 'pending' },
-      { id: 'issue-4', title: '智能合约部署计划', status: 'completed' }
-    ],
-    decisions: ['优先完成测试环境上线', '12月完成合约审计'],
-    actionItems: [
-      {
-        id: 'action-3',
-        description: '更新项目A文档与看板',
-        assignee: '赵六',
-        dueDate: '2024-12-12',
-        status: 'pending',
-        priority: 'medium'
-      }
-    ],
-    files: [
-      { id: 'file-3', name: '项目进展汇总.pdf', type: 'pdf', size: '1.8MB', url: '/files/meeting_progress_summary.pdf' }
-    ],
-    recorder: '张三',
+    issues: buildIssues('frontend-basics', [
+      'HTML 结构、语义标签与模块化思维',
+      'CSS 选择器、Flex 布局与响应式技巧',
+      'JavaScript 基础语法与 DOM 交互'
+    ]),
+    files: buildFiles('frontend-basics', [
+      { name: 'HTML & CSS 基础讲义.pdf', filename: 'slides.pdf', size: '4.5MB' },
+      { name: 'DOM 操作 Demo.zip', filename: 'dom-demo.zip', type: 'zip', size: '1.2MB' }
+    ]),
+    minutes: `${resourceBase}/frontend-basics/minutes.pdf`,
+    recording: `${resourceBase}/frontend-basics/recording.mp4`,
+    recorder: '王明富',
     isPublic: true
   },
   {
-    id: 'meeting-20241201',
-    title: '零知识证明论文精读',
-    summary: '深入讨论ZK-SNARKs实现细节与性能优化策略。',
-    date: '2024-12-01T16:00:00',
-    time: '16:00',
-    location: '学术报告厅',
-    status: 'completed',
-    types: ['seminar', 'training'],
-    tags: ['零知识证明', '密码学'],
-    duration: 150,
-    attendees: [
-      { id: 'u-zhangsan', name: '张三', avatar: '/avatars/zhang.jpg' },
-      { id: 'u-sunba', name: '孙八', avatar: '/avatars/sun.jpg' },
-      { id: 'u-zhoujiu', name: '周九', avatar: '/avatars/zhou.jpg' }
-    ],
-    issues: [
-      { id: 'issue-5', title: 'ZK-SNARK 实现挑战', status: 'completed' },
-      { id: 'issue-6', title: '性能优化方案', status: 'in-progress' }
-    ],
-    files: [
-      { id: 'file-4', name: '零知识证明分享.pdf', type: 'pdf', size: '4.2MB', url: '/files/meeting_zkp_share.pdf' },
-      { id: 'file-5', name: '相关论文合集.zip', type: 'zip', size: '15.6MB', url: '/files/meeting_zkp_papers.zip' }
-    ],
-    recording: '/recordings/meeting_zkp.mp4',
-    recorder: '王五',
-    isPublic: true
-  },
-  {
-    id: 'meeting-20231120',
-    title: '年度总结与表彰筹备会',
-    summary: '规划年度总结大会流程及表彰名单，确认物料与宣传安排。',
-    date: '2024-11-20T19:00:00',
+    id: 'meeting-frontend-framework',
+    title: '前端框架简介',
+    summary: '介绍现代前端框架的设计理念，并以 Vue 与 React 做对比演示。',
+    date: '2024-09-21T19:00:00',
     time: '19:00',
-    location: '创新中心·报告厅',
-    status: 'upcoming',
-    types: ['planning'],
-    tags: ['活动策划', '行政事务'],
-    duration: 90,
-    attendees: ['张三', '李四', '赵六', '刘十'],
-    agenda: ['总结大会流程', '表彰名单确认', '宣传物料安排'],
+    location: baseLocation,
+    status: 'completed',
+    types: ['sharing'],
+    tags: ['Vue', 'React', '前端框架'],
+    duration: 120,
+    attendees: [
+      defaultAttendees[1],
+      { id: 'member-liujingwen', name: '刘静雯', role: '讲师' },
+      { id: 'member-baoyunye', name: '包昀烨', role: '前端助教' }
+    ],
+    agenda: agendaItems('frontend-framework', [
+      '框架存在的意义与常见模式',
+      'Vue 组合式 API 上手',
+      'React Hooks 与生态简介'
+    ], ['马鑫蕊', '刘静雯', '包昀烨']),
+    decisions: [
+      '之后的项目统一采用 Vue3 组合式写法',
+      'React 小组负责维护组件库对照表'
+    ],
     actionItems: [
       {
-        id: 'action-4',
-        description: '整理年度成果视频',
-        assignee: '刘十',
-        dueDate: '2024-12-05',
+        id: 'framework-compare',
+        description: '输出 Vue / React API 速查表',
+        assignee: '包昀烨',
+        dueDate: '2024-09-25',
+        status: 'pending',
+        priority: 'low'
+      }
+    ],
+    issues: buildIssues('frontend-framework', [
+      '现代前端框架出现的背景与痛点',
+      'Vue 组合式 API 核心概念与示例',
+      'React Hooks 与生态链介绍'
+    ]),
+    files: buildFiles('frontend-framework', [
+      { name: '前端框架对比 PPT.pdf', filename: 'slides.pdf', size: '6.1MB' },
+      { name: 'Vue & React Demo 代码.zip', filename: 'demos.zip', type: 'zip', size: '2.8MB' }
+    ]),
+    minutes: `${resourceBase}/frontend-framework/minutes.pdf`,
+    recording: `${resourceBase}/frontend-framework/recording.mp4`,
+    recorder: '刘静雯',
+    isPublic: true
+  },
+  {
+    id: 'meeting-client-intro',
+    title: '客户端开发入门',
+    summary: '介绍 Android 工程结构、常用 UI 组件以及调试流程。',
+    date: '2024-09-28T19:00:00',
+    time: '19:00',
+    location: baseLocation,
+    status: 'completed',
+    types: ['training'],
+    tags: ['Android', '客户端开发'],
+    duration: 90,
+    attendees: [
+      { id: 'member-sunchangxiang', name: '孙常翔', role: '主持人' },
+      { id: 'member-wangmingfu', name: '王明富', role: 'Flutter 分享' },
+      { id: 'member-wangyida', name: '王毅达', role: 'Godot 实践' }
+    ],
+    agenda: agendaItems('client', [
+      'Android Studio 环境与调试',
+      '项目结构与模块拆分',
+      '常用 UI 组件与布局示例'
+    ], ['孙常翔', '王明富', '王毅达']),
+    decisions: [
+      '移动端项目采用统一包名规范',
+      '每期例会后同步 Demo APK 到群文件'
+    ],
+    actionItems: [
+      {
+        id: 'client-starter',
+        description: '制作客户端脚手架模板',
+        assignee: '孙常翔',
+        dueDate: '2024-10-03',
+        status: 'in-progress',
+        priority: 'medium'
+      }
+    ],
+    issues: buildIssues('client', [
+      'Android Studio 环境配置与调试技巧',
+      '项目结构划分及模块化实践',
+      '常用 UI 组件与交互范式'
+    ]),
+    files: buildFiles('client-intro', [
+      { name: '客户端入门 PPT.pdf', filename: 'slides.pdf', size: '5.8MB' },
+      { name: 'Demo APK & 源码.zip', filename: 'demo.zip', type: 'zip', size: '18MB' }
+    ]),
+    minutes: `${resourceBase}/client-intro/minutes.pdf`,
+    recording: `${resourceBase}/client-intro/recording.mp4`,
+    recorder: '王毅达',
+    isPublic: true
+  },
+  {
+    id: 'meeting-backend-language',
+    title: '后端语言基础',
+    summary: '覆盖 Java/Golang/Python 基础语法、数据结构与算法思维。',
+    date: '2024-10-12T19:00:00',
+    time: '19:00',
+    location: baseLocation,
+    status: 'completed',
+    types: ['training'],
+    tags: ['Java', 'Golang', 'Python'],
+    duration: 120,
+    attendees: [
+      defaultAttendees[0],
+      { id: 'member-cairuihan', name: '蔡瑞含', role: 'Golang 分享' },
+      { id: 'member-mayuha', name: '马玉灏', role: 'Go 实践' }
+    ],
+    agenda: agendaItems('backend-language', [
+      'Java / Golang 语言特点',
+      'Python 基础语法与数据结构',
+      '算法与数据结构快速复习'
+    ], ['唐明迪', '蔡瑞含', '马玉灏']),
+    decisions: [
+      '设立语言互助小组，彼此 code review',
+      '算法作业并入周报制度'
+    ],
+    actionItems: [
+      {
+        id: 'algo-practice',
+        description: '整理 5 道链表/树结构练习题',
+        assignee: '唐明迪',
+        dueDate: '2024-10-15',
+        status: 'pending',
+        priority: 'medium'
+      }
+    ],
+    issues: buildIssues('backend-language', [
+      'Java / Golang 核心语法与对比',
+      'Python 数据结构与脚本实践',
+      '算法与数据结构复盘'
+    ]),
+    files: buildFiles('backend-language', [
+      { name: '后端语言基础讲义.pdf', filename: 'slides.pdf', size: '7.5MB' },
+      { name: '算法练习题目合集.pdf', filename: 'exercises.pdf', size: '1.9MB' }
+    ]),
+    minutes: `${resourceBase}/backend-language/minutes.pdf`,
+    recording: `${resourceBase}/backend-language/recording.mp4`,
+    recorder: '蔡瑞含',
+    isPublic: true
+  },
+  {
+    id: 'meeting-backend-framework',
+    title: '后端框架及 RESTful 设计',
+    summary: '拆解常见后端框架结构，并以 RESTful API 为例完成一次小型实战。',
+    date: '2024-10-19T19:00:00',
+    time: '19:00',
+    location: baseLocation,
+    status: 'completed',
+    types: ['training'],
+    tags: ['SpringBoot', 'RESTful'],
+    duration: 120,
+    attendees: [
+      defaultAttendees[0],
+      defaultAttendees[2],
+      { id: 'member-renchengda', name: '任诚达', role: 'Python 框架' }
+    ],
+    agenda: agendaItems('backend-framework', [
+      '常见框架的模块拆分',
+      '快速搭建 RESTful API',
+      '接口文档与调试流程'
+    ], ['张鸿昊', '唐明迪', '任诚达']),
+    decisions: [
+      '所有新项目必须附带 OpenAPI 文档',
+      '后端仓库统一接入自动化测试'
+    ],
+    actionItems: [
+      {
+        id: 'rest-demo',
+        description: '发布课程共用的 RESTful Demo 项目',
+        assignee: '张鸿昊',
+        dueDate: '2024-10-22',
         status: 'pending',
         priority: 'high'
       }
     ],
-    recorder: '李四',
+    issues: buildIssues('backend-framework', [
+      '主流后端框架模块拆分思路',
+      'RESTful API 设计规范与示例',
+      '接口文档、调试与自动化测试'
+    ]),
+    files: buildFiles('backend-framework', [
+      { name: '后端框架与 REST 实战 PPT.pdf', filename: 'slides.pdf', size: '8.4MB' },
+      { name: 'RESTful Demo 源码.zip', filename: 'demo.zip', type: 'zip', size: '3.6MB' }
+    ]),
+    minutes: `${resourceBase}/backend-framework/minutes.pdf`,
+    recording: `${resourceBase}/backend-framework/recording.mp4`,
+    recorder: '任诚达',
+    isPublic: true
+  },
+  {
+    id: 'meeting-orm-db',
+    title: 'ORM 框架与数据库操作',
+    summary: '讲解 ORM 思维与常见框架，展示如何简化数据库操作。',
+    date: '2024-10-26T19:00:00',
+    time: '19:00',
+    location: baseLocation,
+    status: 'upcoming',
+    types: ['training'],
+    tags: ['ORM', '数据库'],
+    duration: 90,
+    attendees: defaultAttendees,
+    agenda: agendaItems('orm', [
+      'ORM 的优势与适用场景',
+      '示例：使用 MyBatis / Prisma 读写数据',
+      '数据库调优与常见坑'
+    ], ['张鸿昊', '马鑫蕊', '唐明迪']),
+    actionItems: [
+      {
+        id: 'orm-handout',
+        description: '提前发放 ORM 对照讲义',
+        assignee: '张鸿昊',
+        dueDate: '2024-10-24',
+        status: 'pending',
+        priority: 'medium'
+      }
+    ],
+    issues: buildIssues('orm', [
+      'ORM 核心理念与适用场景',
+      'MyBatis / Prisma 读写示例',
+      '数据库调优与常见坑'
+    ], 'in-progress'),
+    files: buildFiles('orm-db', [
+      { name: 'ORM 对照讲义.pdf', filename: 'slides.pdf', size: '5.1MB' },
+      { name: '数据库调优 Checklist.docx', filename: 'db-checklist.docx', type: 'docx', size: '320KB' }
+    ]),
+    minutes: `${resourceBase}/orm-db/minutes.pdf`,
+    recording: `${resourceBase}/orm-db/recording.mp4`,
+    recorder: '马鑫蕊',
+    isPublic: true
+  },
+  {
+    id: 'meeting-cloud-native',
+    title: '云原生与容器部署',
+    summary: 'Docker / Kubernetes / CI-CD 的一站式入门，帮助团队掌握部署流水线。',
+    date: '2024-11-02T19:00:00',
+    time: '19:00',
+    location: baseLocation,
+    status: 'upcoming',
+    types: ['training'],
+    tags: ['Docker', 'Kubernetes', 'CI/CD'],
+    duration: 120,
+    attendees: [
+      defaultAttendees[0],
+      { id: 'member-sichenfei', name: '司辰飞', role: '平台运维' },
+      { id: 'member-cairuihan', name: '蔡瑞含', role: '后端同学' }
+    ],
+    agenda: agendaItems('cloud', [
+      'Docker 基础与镜像管理',
+      'Kubernetes 工作流简介',
+      'CI/CD 流水线搭建与实战'
+    ], ['司辰飞', '唐明迪', '蔡瑞含']),
+    actionItems: [
+      {
+        id: 'cloud-lab',
+        description: '准备在线实验环境与脚本',
+        assignee: '司辰飞',
+        dueDate: '2024-10-31',
+        status: 'pending',
+        priority: 'high'
+      }
+    ],
+    issues: buildIssues('cloud', [
+      'Docker 核心概念与镜像管理',
+      'Kubernetes 工作流示例',
+      'CI/CD 流水线搭建实战'
+    ], 'pending'),
+    files: buildFiles('cloud-native', [
+      { name: '云原生与容器部署 PPT.pdf', filename: 'slides.pdf', size: '9.6MB' },
+      { name: 'CI/CD Pipeline Demo.zip', filename: 'pipeline-demo.zip', type: 'zip', size: '4.4MB' }
+    ]),
+    minutes: `${resourceBase}/cloud-native/minutes.pdf`,
+    recording: `${resourceBase}/cloud-native/recording.mp4`,
+    recorder: '蔡瑞含',
     isPublic: true
   }
 ]

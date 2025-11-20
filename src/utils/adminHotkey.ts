@@ -1,7 +1,7 @@
 interface AdminHotkeyEvent {
   type: 'trigger' | 'reset'
   timestamp: number
-  data?: any
+  data?: Record<string, unknown>
 }
 
 type AdminHotkeyCallback = (event: AdminHotkeyEvent) => void
@@ -13,7 +13,6 @@ class AdminHotkeyService {
   private resetTimer: number | null = null
   private readonly MAX_SEQUENCE_LENGTH = 10
   private readonly RESET_DELAY = 3000 // 3秒后重置序列
-  private readonly REQUIRED_SEQUENCE = 'ctrlb'
 
   /**
    * 开始监听管理员快捷键

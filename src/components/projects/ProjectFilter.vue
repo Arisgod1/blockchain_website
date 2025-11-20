@@ -221,7 +221,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, watch } from 'vue'
+import {
+  SearchIcon,
+  XIcon,
+  ArrowUpIcon,
+  ArrowDownIcon,
+  RotateCcwIcon,
+  BookmarkIcon,
+  DownloadIcon
+} from '@/components/icons'
 
 // 筛选选项接口
 interface FilterOptions {
@@ -412,13 +421,6 @@ interface Emits {
 const emit = defineEmits<Emits>()
 
 // 图标组件
-const SearchIcon = () => import('@/components/icons').then(m => m.SearchIcon)
-const XIcon = () => import('@/components/icons').then(m => m.XIcon)
-const ArrowUpIcon = () => import('@/components/icons').then(m => m.ArrowUpIcon)
-const ArrowDownIcon = () => import('@/components/icons').then(m => m.ArrowDownIcon)
-const RotateCcwIcon = () => import('@/components/icons').then(m => m.RotateCcwIcon)
-const BookmarkIcon = () => import('@/components/icons').then(m => m.BookmarkIcon)
-const DownloadIcon = () => import('@/components/icons').then(m => m.DownloadIcon)
 </script>
 
 <style scoped>

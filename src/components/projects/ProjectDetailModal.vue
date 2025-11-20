@@ -294,6 +294,21 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import type { Project } from '@/types/entities'
+import {
+  XIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  HeartIcon,
+  EyeIcon,
+  UsersIcon,
+  ClockIcon,
+  CalendarIcon,
+  CalendarCheckIcon,
+  TagIcon,
+  GithubIcon,
+  ExternalLinkIcon,
+  FileTextIcon
+} from '@/components/icons'
 
 interface Props {
   project: Project
@@ -386,13 +401,16 @@ const handleImageError = (event: Event) => {
 }
 
 const toggleLike = () => {
-  props.project.isLiked = !props.project.isLiked
-  if (props.project.isLiked) {
-    props.project.likes = (props.project.likes || 0) + 1
-  } else {
-    props.project.likes = Math.max(0, (props.project.likes || 0) - 1)
+  const isLiked = Boolean(props.project.isLiked)
+  const likes = props.project.likes || 0
+
+  const updatedProject: Project = {
+    ...props.project,
+    isLiked: !isLiked,
+    likes: isLiked ? Math.max(0, likes - 1) : likes + 1
   }
-  emit('like', props.project)
+
+  emit('like', updatedProject)
 }
 
 const showDocumentation = () => {
@@ -400,21 +418,6 @@ const showDocumentation = () => {
     window.open(props.project.documentation, '_blank')
   }
 }
-
-// 图标组件
-const XIcon = () => import('@/components/icons').then(m => m.XIcon)
-const ChevronLeftIcon = () => import('@/components/icons').then(m => m.ChevronLeftIcon)
-const ChevronRightIcon = () => import('@/components/icons').then(m => m.ChevronRightIcon)
-const HeartIcon = () => import('@/components/icons').then(m => m.HeartIcon)
-const EyeIcon = () => import('@/components/icons').then(m => m.EyeIcon)
-const UsersIcon = () => import('@/components/icons').then(m => m.UsersIcon)
-const ClockIcon = () => import('@/components/icons').then(m => m.ClockIcon)
-const CalendarIcon = () => import('@/components/icons').then(m => m.CalendarIcon)
-const CalendarCheckIcon = () => import('@/components/icons').then(m => m.CalendarCheckIcon)
-const TagIcon = () => import('@/components/icons').then(m => m.TagIcon)
-const GithubIcon = () => import('@/components/icons').then(m => m.GithubIcon)
-const ExternalLinkIcon = () => import('@/components/icons').then(m => m.ExternalLinkIcon)
-const FileTextIcon = () => import('@/components/icons').then(m => m.FileTextIcon)
 </script>
 
 <style scoped>

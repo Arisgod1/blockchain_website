@@ -1,7 +1,13 @@
 <template>
   <div class="events-page">
     <!-- 页面头部 -->
-    <header class="relative bg-gradient-to-br from-blue-900 via-purple-900 to-blue-900 text-white overflow-hidden">
+    <header class="gradient-hero flowing-gradient-solstice text-white overflow-hidden">
+      <div class="hero-stars">
+        <span style="top:10%;left:20%;animation-duration:17s" />
+        <span style="top:30%;left:76%;animation-duration:22s;animation-delay:1.3s" />
+        <span style="top:62%;left:28%;animation-duration:16s;animation-delay:2.1s" />
+        <span style="top:78%;left:60%;animation-duration:23s;animation-delay:3s" />
+      </div>
       <!-- 背景装饰 -->
       <div class="absolute inset-0">
         <div class="absolute top-20 left-20 w-32 h-32 bg-blue-500/10 rounded-full blur-xl animate-pulse" />
@@ -563,6 +569,23 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 
+type EventCategory = 'conference' | 'seminar' | 'workshop' | 'summit'
+type EventStatus = 'upcoming' | 'ongoing' | 'completed'
+
+interface EventDetail {
+  id: string
+  title: string
+  description: string
+  date: string
+  location: string
+  category: EventCategory
+  status: EventStatus
+  duration: string
+  attendees: number
+  image: string
+  highlights: string[]
+}
+
 // 页面元数据设置
 onMounted(() => {
   document.title = '会议活动 - 大连理工大学区块链组'
@@ -587,7 +610,7 @@ const itemsPerPage = ref(9)
 const isLoading = ref(false)
 const showDetailModal = ref(false)
 const showRegistrationSuccess = ref(false)
-const selectedEvent = ref(null)
+const selectedEvent = ref<EventDetail | null>(null)
 
 // 导航标签
 const tabs = [
@@ -598,7 +621,7 @@ const tabs = [
 ]
 
 // 活动数据
-const events = ref([
+const events = ref<EventDetail[]>([
   {
     id: '1',
     title: '2025年全球区块链技术峰会',
@@ -780,7 +803,7 @@ const stats = computed(() => {
 })
 
 const eventTypeStats = computed(() => {
-  const categories = {
+  const categories: Record<EventCategory, { label: string; count: number }> = {
     conference: { label: '区块链会议', count: 0 },
     seminar: { label: '学术研讨', count: 0 },
     workshop: { label: '技术工作坊', count: 0 },
@@ -800,7 +823,8 @@ const eventTypeStats = computed(() => {
 })
 
 // 方法
-const formatDate = (dateString: string) => {
+const formatDate = (dateString?: string) => {
+  if (!dateString) return '待定'
   const date = new Date(dateString)
   return date.toLocaleDateString('zh-CN', {
     year: 'numeric',
@@ -811,25 +835,27 @@ const formatDate = (dateString: string) => {
   })
 }
 
-const getStatusClass = (status: string) => {
-  const classes = {
+const getStatusClass = (status?: EventStatus) => {
+  const classes: Record<EventStatus, string> = {
     upcoming: 'bg-blue-100 text-blue-800',
     ongoing: 'bg-green-100 text-green-800',
     completed: 'bg-gray-100 text-gray-800'
   }
-  return classes[status] || 'bg-gray-100 text-gray-800'
+  if (!status) return 'bg-gray-100 text-gray-800'
+  return classes[status]
 }
 
-const getStatusText = (status: string) => {
-  const texts = {
+const getStatusText = (status?: EventStatus) => {
+  const texts: Record<EventStatus, string> = {
     upcoming: '即将开始',
     ongoing: '正在进行',
     completed: '已结束'
   }
-  return texts[status] || '未知'
+  if (!status) return '未知'
+  return texts[status]
 }
 
-const viewEventDetails = (event: any) => {
+const viewEventDetails = (event: EventDetail) => {
   selectedEvent.value = event
   showDetailModal.value = true
 }
@@ -839,7 +865,7 @@ const closeDetailModal = () => {
   selectedEvent.value = null
 }
 
-const registerForEvent = (event: any) => {
+const registerForEvent = (event: EventDetail) => {
   // 模拟报名
   showDetailModal.value = false
   showRegistrationSuccess.value = true
@@ -878,7 +904,6 @@ onMounted(() => {
 <style scoped>
 .events-page {
   min-height: 100vh;
-  background-color: #fafafa;
 }
 
 .shimmer-trails {

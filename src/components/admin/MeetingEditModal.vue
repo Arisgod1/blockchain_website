@@ -416,6 +416,7 @@ interface Props {
 }
 
 interface FormData {
+  id?: string
   title: string
   date: string
   time: string
@@ -435,13 +436,15 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  isCreate: true
+  isCreate: true,
+  meeting: null
 })
 
 const emit = defineEmits<Emits>()
 
 // 响应式数据
 const formData = ref<FormData>({
+  id: undefined,
   title: '',
   date: '',
   time: '',
@@ -480,10 +483,39 @@ const isFormValid = computed(() => {
          formData.value.recorder.trim() !== ''
 })
 
+const normalizeAttendees = (list: Meeting['attendees'] = []): string[] => {
+  return list
+    .map(att => typeof att === 'string' ? att : att?.name ?? '')
+    .filter((value): value is string => Boolean(value))
+}
+
+const normalizeAgenda = (agenda: Meeting['agenda'] = []): string[] => {
+  return agenda
+    .map(item => typeof item === 'string' ? item : item?.title ?? '')
+    .filter((value): value is string => Boolean(value))
+}
+
+const populateFormFromMeeting = (meeting: Meeting) => {
+  formData.value = {
+    id: meeting.id,
+    title: meeting.title ?? '',
+    date: meeting.date ?? new Date().toISOString().split('T')[0],
+    time: meeting.time ?? '',
+    location: meeting.location ?? '',
+    attendees: normalizeAttendees(meeting.attendees),
+    agenda: normalizeAgenda(meeting.agenda),
+    content: meeting.content ?? meeting.summary ?? '',
+    decisions: [...(meeting.decisions ?? [])],
+    actionItems: [...(meeting.actionItems ?? [])],
+    recorder: meeting.recorder ?? '',
+    isPublic: meeting.isPublic ?? true
+  }
+}
+
 // 监听props变化，初始化表单数据
 watch(() => props.meeting, (newMeeting) => {
   if (newMeeting && !props.isCreate) {
-    formData.value = { ...newMeeting }
+    populateFormFromMeeting(newMeeting)
   } else if (props.isCreate) {
     resetForm()
   }
@@ -492,7 +524,7 @@ watch(() => props.meeting, (newMeeting) => {
 watch(() => props.show, (newShow) => {
   if (newShow) {
     if (props.meeting && !props.isCreate) {
-      formData.value = { ...props.meeting }
+      populateFormFromMeeting(props.meeting)
     } else {
       resetForm()
     }
@@ -502,6 +534,7 @@ watch(() => props.show, (newShow) => {
 // 方法
 const resetForm = () => {
   formData.value = {
+    id: undefined,
     title: '',
     date: new Date().toISOString().split('T')[0],
     time: '14:00',
@@ -589,12 +622,12 @@ const removeActionItem = (index: number) => {
   formData.value.actionItems.splice(index, 1)
 }
 
-const updateActionStatus = (index: number, status: string) => {
-  formData.value.actionItems[index].status = status as any
+const updateActionStatus = (index: number, status: ActionItem['status']) => {
+  formData.value.actionItems[index].status = status
 }
 
-const updateActionPriority = (index: number, priority: string) => {
-  formData.value.actionItems[index].priority = priority as any
+const updateActionPriority = (index: number, priority: ActionItem['priority']) => {
+  formData.value.actionItems[index].priority = priority
 }
 
 const handleSave = async () => {
@@ -617,7 +650,7 @@ const handleSave = async () => {
     
     const meeting: Meeting = {
       ...formData.value,
-      id: props.isCreate ? Date.now().toString() : formData.value.id,
+      id: props.isCreate ? Date.now().toString() : formData.value.id || props.meeting?.id || Date.now().toString(),
       attachments: [] // 默认空数组
     }
     

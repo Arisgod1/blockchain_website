@@ -16,118 +16,6 @@ export interface Member {
   isActive: boolean
 }
 
-export interface RoleOption {
-  id: string
-  name: string
-  count?: number
-}
-
-export interface Announcement {
-  id: string
-  title: string
-  description: string
-  link?: string
-  createdAt: string
-  type?: 'info' | 'warning' | 'success'
-}
-
-export interface EventItem {
-  id: string
-  title: string
-  type: 'conference' | 'hackathon' | 'sharing' | 'workshop' | string
-  description?: string
-  startAt: string
-  endAt?: string
-  location?: string
-  topics?: string[]
-  registrationLink?: string
-  coverImage?: string
-  status?: 'draft' | 'upcoming' | 'ongoing' | 'finished' | 'open' | 'closed'
-  isPublic?: boolean
-}
-
-export interface HomeHero {
-  title: string
-  subtitle?: string
-  backgroundImage?: string
-  ctaText?: string
-  ctaLink?: string
-}
-
-export interface HomeStats {
-  members: number
-  projects: number
-  articles: number
-  meetings: number
-}
-
-export interface HomeData {
-  hero: HomeHero
-  stats: HomeStats
-  featuredProjects: Project[]
-  upcomingEvents: EventItem[]
-  announcements: Announcement[]
-}
-
-export interface TimelineEntry {
-  year: string
-  title: string
-  description: string
-  achievements?: string[]
-}
-
-export interface PartnerProfile {
-  id: string
-  name: string
-  logo?: string
-  url?: string
-  description?: string
-}
-
-export interface MentorProfile {
-  id: string
-  name: string
-  title?: string
-  avatar?: string
-  bio?: string
-  contact?: string
-}
-
-export interface AboutData {
-  mission: string
-  vision: string
-  timeline: TimelineEntry[]
-  partners: PartnerProfile[]
-  mentors: MentorProfile[]
-}
-
-export interface ContactInfo {
-  address: string
-  email: string
-  phone?: string
-  mapEmbedUrl?: string
-  socials?: Record<string, string>
-  qrCodes?: Array<{ label: string; image: string }>
-  geo?: { lat: number; lng: number }
-}
-
-export interface ContactMessagePayload {
-  name: string
-  email: string
-  topic: string
-  message: string
-  consent: boolean
-}
-
-export interface ContactMessage extends ContactMessagePayload {
-  id: string
-  status: 'new' | 'processing' | 'done'
-  handler?: string
-  handlerNote?: string
-  createdAt: string
-  updatedAt: string
-}
-
 // 项目相关类型
 /**
  * ProjectDto
@@ -172,30 +60,13 @@ export enum Status {
     Planning = "PLANNING",
 }
 
-export interface ProjectPage extends PaginatedResponse<Project> {
-  content: Project[]
-  totalElements: number
-  totalPages: number
-  size: number
-  number: number
-  first: boolean
-  last: boolean
-  numberOfElements: number
-  empty: boolean
-  sort?: Record<string, unknown>
-  pageable?: Record<string, unknown>
-  fromFallback?: boolean
-}
-
 // 博客文章类型
 export interface ArticleAuthor {
-  id?: string | number
-  name: string
+  id?: string
+  name?: string
   avatar?: string
   title?: string
-  profileUrl?: string
-  email?: string
-  description?: string
+  bio?: string
 }
 
 export interface Article {
@@ -203,12 +74,12 @@ export interface Article {
   title: string
   summary: string
   content: string
-  author: ArticleAuthor
+  author?: ArticleAuthor | null
   tags: string[]
   category: string
-  publishDate: string | Date
-  publishedAt?: string | Date
-  updateDate: string | Date
+  publishDate: string
+  publishedAt?: string
+  updateDate: string
   readTime: number
   isPublished: boolean
   views: number
@@ -216,65 +87,28 @@ export interface Article {
   image?: string
   coverImage?: string
   isFeatured?: boolean
-  featured?: boolean
   excerpt?: string
   description?: string
   comments?: number
   isLiked?: boolean
-  liked?: boolean
   bookmarked?: boolean
-  thumbnail?: string
-  difficulty?: 'beginner' | 'intermediate' | 'advanced' | 'expert' | string
-}
-
-export interface ArticlePage extends PaginatedResponse<Article> {
-  content: Article[]
-  totalElements: number
-  totalPages: number
-  size: number
-  number: number
-  first: boolean
-  last: boolean
-  numberOfElements: number
-  empty: boolean
-  sort?: Record<string, unknown>
-  pageable?: Record<string, unknown>
-  fromFallback?: boolean
 }
 
 // 会议记录类型
-export interface MeetingAttendee {
-  id?: string
-  name: string
-  avatar?: string
-  role?: string
-  title?: string
-  email?: string
-}
-
-export interface MeetingIssue {
+export interface Meeting {
   id: string
   title: string
-  status: 'pending' | 'in-progress' | 'completed' | 'blocked' | string
-  owner?: string
-  notes?: string
-}
-
-export interface MeetingFile {
-  id: string
-  name: string
-  type: string
-  size: string
-  url: string
-  uploadedAt?: string
-}
-
-export interface MeetingAgendaItem {
-  id?: string
-  title: string
-  presenter?: string
-  duration?: number
-  description?: string
+  date: string
+  time: string
+  location?: string
+  attendees: string[]
+  agenda: string[]
+  content: string
+  decisions: string[]
+  actionItems: ActionItem[]
+  attachments: string[]
+  recorder: string
+  isPublic: boolean
 }
 
 // 行动项类型
@@ -285,50 +119,6 @@ export interface ActionItem {
   dueDate: string
   status: 'pending' | 'in-progress' | 'completed' | 'overdue'
   priority: 'low' | 'medium' | 'high'
-}
-
-export interface Meeting {
-  id: string
-  title: string
-  summary?: string
-  description?: string
-  date: string
-  time?: string
-  location?: string
-  status?: 'upcoming' | 'ongoing' | 'completed' | 'cancelled' | string
-  types?: string[]
-  tags?: string[]
-  duration?: number
-  recorder?: string
-  attendees: Array<string | MeetingAttendee>
-  attendeeNotes?: string
-  agenda?: Array<string | MeetingAgendaItem>
-  issues?: MeetingIssue[]
-  decisions?: string[]
-  actionItems?: ActionItem[]
-  files?: MeetingFile[]
-  attachments?: string[]
-  recording?: string
-  minutes?: string
-  content?: string
-  isPublic?: boolean
-  createdAt?: string
-  updatedAt?: string
-}
-
-export interface MeetingPage extends PaginatedResponse<Meeting> {
-  content: Meeting[]
-  totalElements: number
-  totalPages: number
-  size: number
-  number: number
-  first: boolean
-  last: boolean
-  numberOfElements: number
-  empty: boolean
-  sort?: Record<string, unknown>
-  pageable?: Record<string, unknown>
-  fromFallback?: boolean
 }
 
 // 内容管理类型
@@ -362,36 +152,6 @@ export interface ApiResponse<T = unknown> {
   message?: string
   error?: string
   timestamp: string
-}
-
-export interface PaginatedResponse<T> {
-  items: T[]
-  total: number
-  page: number
-  pageSize: number
-  pages?: number
-  facets?: Record<string, unknown>
-  filters?: Record<string, unknown>
-  totals?: Record<string, unknown>
-}
-
-export interface MemberListFilters {
-  page?: number
-  pageSize?: number
-  search?: string
-  role?: string
-  skills?: string[]
-  status?: 'active' | 'inactive'
-  sortBy?: 'name' | 'joinDate' | 'projectCount' | 'role'
-  sortOrder?: 'asc' | 'desc'
-  isActive?: boolean
-}
-
-export interface MemberListResponse extends PaginatedResponse<Member> {
-  filters?: {
-    roles?: RoleOption[]
-    skills?: string[]
-  }
 }
 
 // 分页类型
@@ -432,28 +192,31 @@ export interface AdminUser {
   rememberMe?: boolean
 }
 
-export interface AdminLoginPayload {
-  username: string
-  password: string
-  otpCode?: string
-}
+export type AdminEntity = 'meetings' | 'members' | 'projects' | 'articles' | 'files' | 'logs' | 'dashboard'
 
-export interface AdminAuthResponse {
-  token: string
-  expiresIn: number
-  user: AdminUser
-}
+export type AdminAction =
+  | 'create'
+  | 'update'
+  | 'delete'
+  | 'refresh'
+  | 'duplicate'
+  | 'import'
+  | 'export'
+  | 'login'
+  | 'logout'
 
-export interface FileAsset {
+export interface AdminOperationLog {
   id: string
-  name: string
-  type: 'image' | 'doc' | 'slide' | 'other' | string
-  size: number
-  uploader?: string
-  tags?: string[]
-  downloadUrl: string
-  previewUrl?: string
-  checksum?: string
-  createdAt: string
-  expiresAt?: string
+  entity: AdminEntity
+  action: AdminAction
+  targetId?: string | number
+  operator?: string
+  result: 'success' | 'failure'
+  message: string
+  timestamp: string
+  metadata?: Record<string, unknown>
+}
+
+export type AdminLogPayload = Omit<AdminOperationLog, 'id' | 'timestamp' | 'result'> & {
+  result?: AdminOperationLog['result']
 }

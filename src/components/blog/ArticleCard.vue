@@ -78,14 +78,14 @@
           </span>
           <span
             class="stat"
-            :title="`${article.likes || 0} 个赞`"
+            :title="`${likes || 0} 个赞`"
           >
             <HeartIcon 
               class="stat-icon" 
-              :class="{ liked: article.isLiked }"
+              :class="{ liked }"
               @click.stop="toggleLike"
             />
-            {{ formatNumber(article.likes || 0) }}
+            {{ formatNumber(likes || 0) }}
           </span>
           <span
             class="stat"
@@ -108,7 +108,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import type { Article } from '@/types/entities'
 
 interface Props {
@@ -125,16 +125,26 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
+const liked = ref(Boolean(props.article.isLiked))
+const likes = ref(props.article.likes ?? 0)
+
+watch(() => props.article, (newArticle) => {
+  liked.value = Boolean(newArticle.isLiked)
+  likes.value = newArticle.likes ?? 0
+}, { immediate: true })
+
+const article = computed(() => props.article)
+
 // 方法
 const navigateToArticle = () => {
   emit('select', props.article)
 }
 
-const formatDate = (dateString: string) => {
-  if (!dateString) return '未知日期'
+const formatDate = (dateInput: string | Date | undefined) => {
+  if (!dateInput) return '未知日期'
+  const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput
   
   try {
-    const date = new Date(dateString)
     const now = new Date()
     const diffTime = now.getTime() - date.getTime()
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
@@ -156,7 +166,7 @@ const formatDate = (dateString: string) => {
       return `${years}年前`
     }
   } catch {
-    return dateString
+    return typeof dateInput === 'string' ? dateInput : dateInput.toString()
   }
 }
 
@@ -192,13 +202,13 @@ const handleAuthorAvatarError = (event: Event) => {
 }
 
 const toggleLike = () => {
-  props.article.isLiked = !props.article.isLiked
-  if (props.article.isLiked) {
-    props.article.likes = (props.article.likes || 0) + 1
-  } else {
-    props.article.likes = Math.max(0, (props.article.likes || 0) - 1)
-  }
-  emit('like', props.article)
+  liked.value = !liked.value
+  likes.value = liked.value ? likes.value + 1 : Math.max(0, likes.value - 1)
+  emit('like', {
+    ...props.article,
+    isLiked: liked.value,
+    likes: likes.value
+  })
 }
 
 const tagClicked = (tag: string) => {
@@ -208,12 +218,9 @@ const tagClicked = (tag: string) => {
 const shareArticle = () => {
   emit('share', props.article)
 }
-
-// 创建响应式的 article 引用
-const article = props.article
 </script>
 
-<style scoped>
+<style scoped lang="postcss">
 .article-card {
   @apply bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden cursor-pointer transform transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
 }
@@ -355,6 +362,7 @@ const article = props.article
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -362,6 +370,7 @@ const article = props.article
 .line-clamp-3 {
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

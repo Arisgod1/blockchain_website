@@ -72,7 +72,7 @@ const normalizeMeetingPage = (data?: MeetingPage | Meeting[]): MeetingPage => {
 }
 
 // 获取分页例会列表
-export const getMeetings = async (params?: Record<string, any>): Promise<MeetingPage> => {
+export const getMeetings = async (params?: Record<string, unknown>): Promise<MeetingPage> => {
   const res = await apiService.get<MeetingPage | Meeting[]>('/api/meetings', { params })
   if (!res.success) throw new Error(res.message || '获取例会列表失败')
   return normalizeMeetingPage(res.data)

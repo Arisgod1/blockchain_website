@@ -170,7 +170,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive } from 'vue'
+import { ref, onMounted, onUnmounted, reactive } from 'vue'
 import { getArticles, createArticle, updateArticle, deleteArticle } from '@/api/article'
 import type { Article } from '@/types/entities'
 import BaseButton from '@/components/common/BaseButton.vue'
@@ -178,6 +178,8 @@ import BaseCard from '@/components/common/BaseCard.vue'
 import BaseModal from '@/components/common/BaseModal.vue'
 import BasePagination from '@/components/common/BasePagination.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
+import { onAdminRefresh } from '@/utils/adminEvents'
+import { recordAdminOperation } from '@/composables/useAdminLogs'
 
 const articles = ref<Article[]>([])
 const loading = ref(false)
@@ -188,6 +190,21 @@ const totalPages = ref(1)
 const totalElements = ref(0)
 const showEditModal = ref(false)
 const editingArticle = ref<Article | null>(null)
+const cleanupFns: Array<() => void> = []
+
+type ArticleLogAction = 'create' | 'update' | 'delete' | 'refresh'
+
+const logArticleAction = (action: ArticleLogAction, message: string, result: 'success' | 'failure' = 'success', targetId?: string | number) => {
+  recordAdminOperation({
+    entity: 'articles',
+    action,
+    message,
+    targetId,
+    result
+  }).catch((error) => {
+    console.warn('记录文章操作日志失败:', error)
+  })
+}
 
 const formData = reactive<Partial<Article>>({
   title: '',
@@ -219,6 +236,7 @@ const fetchArticles = async () => {
 
 const handleRefresh = () => {
   fetchArticles()
+  logArticleAction('refresh', '手动刷新文章列表')
 }
 
 const handlePageChange = (page: number) => {
@@ -249,8 +267,10 @@ const handleDelete = async (article: Article) => {
   try {
     await deleteArticle(article.id)
     fetchArticles()
+    logArticleAction('delete', `删除文章「${article.title}」`, 'success', article.id)
   } catch (error) {
     alert('删除失败')
+    logArticleAction('delete', `删除文章「${article.title}」失败`, 'failure', article.id)
   }
 }
 
@@ -258,14 +278,18 @@ const saveArticle = async () => {
   saving.value = true
   try {
     if (editingArticle.value) {
-      await updateArticle(editingArticle.value.id, formData)
+      const updated = await updateArticle(editingArticle.value.id, formData)
+      logArticleAction('update', `更新文章「${updated.title ?? editingArticle.value.title}」`, 'success', editingArticle.value.id)
     } else {
-      await createArticle(formData)
+      const created = await createArticle(formData)
+      logArticleAction('create', `创建文章「${created.title ?? formData.title}」`, 'success', created.id)
     }
     showEditModal.value = false
     fetchArticles()
   } catch (error) {
     alert('保存失败')
+    const action: ArticleLogAction = editingArticle.value ? 'update' : 'create'
+    logArticleAction(action, `保存文章「${formData.title || '未命名文章'}」失败`, 'failure', editingArticle.value?.id)
   } finally {
     saving.value = false
   }
@@ -273,6 +297,17 @@ const saveArticle = async () => {
 
 onMounted(() => {
   fetchArticles()
+  const stopRefresh = onAdminRefresh((detail) => {
+    if (detail.entity === 'all' || detail.entity === 'articles') {
+      fetchArticles()
+      logArticleAction('refresh', `全局触发 ${detail.action ?? 'refresh'} 同步文章数据`)
+    }
+  })
+  cleanupFns.push(stopRefresh)
+})
+
+onUnmounted(() => {
+  cleanupFns.forEach((stop) => stop())
 })
 </script>
 

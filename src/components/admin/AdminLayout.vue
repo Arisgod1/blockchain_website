@@ -241,13 +241,7 @@
             v-else-if="activeTab === 'logs'"
             class="tab-content"
           >
-            <div class="coming-soon">
-              <div class="coming-soon-icon">
-                📄
-              </div>
-              <h2>操作日志</h2>
-              <p>该功能正在开发中，敬请期待...</p>
-            </div>
+            <AdminLogViewer />
           </div>
 
           <!-- 默认标签页 -->
@@ -295,7 +289,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+ import { ref, onMounted, onUnmounted } from 'vue'
 import { useHead } from '@vueuse/head'
 import { BaseButton, BaseModal } from '@/components/common'
 import AdminMeetingManager from '@/components/admin/AdminMeetingManager.vue'
@@ -303,6 +297,8 @@ import AdminMemberManager from '@/components/admin/AdminMemberManager.vue'
 import AdminProjectManager from '@/components/admin/AdminProjectManager.vue'
 import AdminArticleManager from '@/components/admin/AdminArticleManager.vue'
 import AdminFileManager from '@/components/admin/AdminFileManager.vue'
+import AdminLogViewer from '@/components/admin/AdminLogViewer.vue'
+import { dispatchAdminRefresh } from '@/utils/adminEvents'
 import type { AdminUser } from '@/types/entities'
 
 // 设置页面元数据
@@ -357,8 +353,7 @@ const handleKeyboardShortcuts = (event: KeyboardEvent) => {
 
 // 方法
 const handleRefresh = () => {
-  // 触发子组件的刷新事件
-  window.dispatchEvent(new CustomEvent('admin-refresh'))
+  dispatchAdminRefresh({ entity: 'all', action: 'refresh' })
 }
 
 const handleCloseAdmin = () => {

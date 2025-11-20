@@ -1,7 +1,13 @@
 <template>
   <div class="contact-page">
     <!-- 页面头部 -->
-    <header class="relative bg-gradient-to-br from-purple-900 via-blue-900 to-purple-900 text-white overflow-hidden">
+    <header class="gradient-hero flowing-gradient-horizon text-white overflow-hidden">
+      <div class="hero-stars">
+        <span style="top:14%;left:16%;animation-duration:18s" />
+        <span style="top:32%;left:82%;animation-duration:21s;animation-delay:1.1s" />
+        <span style="top:60%;left:30%;animation-duration:16s;animation-delay:2.6s" />
+        <span style="top:78%;left:64%;animation-duration:24s;animation-delay:3.4s" />
+      </div>
       <!-- 背景装饰 -->
       <div class="absolute inset-0">
         <div class="absolute top-10 left-10 w-20 h-20 bg-purple-500/10 rounded-full blur-xl animate-pulse" />

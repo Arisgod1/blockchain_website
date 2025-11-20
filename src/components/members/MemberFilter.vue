@@ -162,12 +162,16 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>()
 
-const localFilters = ref<FilterOptions>({
+const defaultFilters: FilterOptions = {
   search: '',
   role: 'all',
   skills: [],
   sortBy: 'name',
-  isActive: undefined,
+  isActive: undefined
+}
+
+const localFilters = ref<FilterOptions>({
+  ...defaultFilters,
   ...props.filters
 })
 
@@ -236,7 +240,7 @@ const updateFilters = () => {
 }
 </script>
 
-<style scoped>
+<style scoped lang="postcss">
 .member-filter {
   @apply bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-6;
 }

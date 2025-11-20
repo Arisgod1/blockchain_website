@@ -27,12 +27,12 @@
       
       <!-- 进度条（可选） -->
       <div
-        v-if="showProgress && progress >= 0"
+        v-if="shouldShowProgress"
         class="w-64 bg-neutral-200 rounded-full h-2 overflow-hidden"
       >
         <div 
           class="h-full bg-gradient-to-r from-primary-600 to-secondary-600 transition-all duration-300 ease-out rounded-full"
-          :style="{ width: `${progress}%` }"
+          :style="{ width: `${clampedProgress}%` }"
         />
       </div>
       
@@ -66,10 +66,8 @@ const props = withDefaults(defineProps<Props>(), {
   progress: 0
 })
 
-// 计算进度百分比
-const progressPercentage = computed(() => {
-  return Math.max(0, Math.min(100, props.progress))
-})
+const clampedProgress = computed(() => Math.max(0, Math.min(100, props.progress)))
+const shouldShowProgress = computed(() => props.showProgress && props.progress >= 0)
 </script>
 
 <style scoped>

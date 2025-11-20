@@ -188,14 +188,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive } from 'vue'
+import { ref, onMounted, onUnmounted, reactive } from 'vue'
 import { getProjects, createProject, updateProject, deleteProject } from '@/api/project'
-import type { Project } from '@/types/entities'
+import { Category, Status, type Project } from '@/types/entities'
 import BaseButton from '@/components/common/BaseButton.vue'
 import BaseCard from '@/components/common/BaseCard.vue'
 import BaseModal from '@/components/common/BaseModal.vue'
 import BasePagination from '@/components/common/BasePagination.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
+import { onAdminRefresh } from '@/utils/adminEvents'
+import { recordAdminOperation } from '@/composables/useAdminLogs'
 
 const projects = ref<Project[]>([])
 const loading = ref(false)
@@ -204,12 +206,27 @@ const currentPage = ref(1)
 const totalPages = ref(1)
 const showEditModal = ref(false)
 const editingProject = ref<Project | null>(null)
+const cleanupFns: Array<() => void> = []
+
+type ProjectLogAction = 'create' | 'update' | 'delete' | 'refresh'
+
+const logProjectAction = (action: ProjectLogAction, message: string, result: 'success' | 'failure' = 'success', targetId?: string | number) => {
+  recordAdminOperation({
+    entity: 'projects',
+    action,
+    message,
+    targetId,
+    result
+  }).catch((error) => {
+    console.warn('记录项目操作日志失败:', error)
+  })
+}
 
 const formData = reactive<Partial<Project>>({
   name: '',
   description: '',
-  category: 'DEVELOPMENT' as any,
-  status: 'PLANNING' as any,
+  category: Category.Development,
+  status: Status.Planning,
   progress: 0
 })
 
@@ -234,6 +251,7 @@ const fetchProjects = async () => {
 
 const handleRefresh = () => {
   fetchProjects()
+  logProjectAction('refresh', '手动刷新项目列表')
 }
 
 const handlePageChange = (page: number) => {
@@ -246,8 +264,8 @@ const handleCreate = () => {
   Object.assign(formData, {
     name: '',
     description: '',
-    category: 'DEVELOPMENT',
-    status: 'PLANNING',
+    category: Category.Development,
+    status: Status.Planning,
     progress: 0
   })
   showEditModal.value = true
@@ -264,8 +282,10 @@ const handleDelete = async (project: Project) => {
   try {
     await deleteProject(project.id!)
     fetchProjects()
+    logProjectAction('delete', `删除项目「${project.name}」`, 'success', project.id)
   } catch (error) {
     alert('删除失败')
+    logProjectAction('delete', `删除项目「${project.name}」失败`, 'failure', project.id)
   }
 }
 
@@ -273,14 +293,18 @@ const saveProject = async () => {
   saving.value = true
   try {
     if (editingProject.value) {
-      await updateProject(editingProject.value.id!, formData)
+      const updated = await updateProject(editingProject.value.id!, formData)
+      logProjectAction('update', `更新项目「${updated.name ?? editingProject.value.name}」`, 'success', editingProject.value.id)
     } else {
-      await createProject(formData)
+      const created = await createProject(formData)
+      logProjectAction('create', `创建项目「${created.name ?? formData.name}」`, 'success', created.id)
     }
     showEditModal.value = false
     fetchProjects()
   } catch (error) {
     alert('保存失败')
+    const action: ProjectLogAction = editingProject.value ? 'update' : 'create'
+    logProjectAction(action, `保存项目「${formData.name || '未命名项目'}」失败`, 'failure', editingProject.value?.id)
   } finally {
     saving.value = false
   }
@@ -288,6 +312,17 @@ const saveProject = async () => {
 
 onMounted(() => {
   fetchProjects()
+  const stopRefresh = onAdminRefresh((detail) => {
+    if (detail.entity === 'all' || detail.entity === 'projects') {
+      fetchProjects()
+      logProjectAction('refresh', `全局触发 ${detail.action ?? 'refresh'} 同步项目数据`)
+    }
+  })
+  cleanupFns.push(stopRefresh)
+})
+
+onUnmounted(() => {
+  cleanupFns.forEach((stop) => stop())
 })
 </script>
 

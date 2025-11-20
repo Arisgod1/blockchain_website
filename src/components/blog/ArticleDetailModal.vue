@@ -75,7 +75,7 @@
           <div class="overlay-content">
             <span
               class="difficulty-badge"
-              :class="`difficulty-${article.difficulty}`"
+              :class="`difficulty-${article.difficulty || 'intermediate'}`"
             >
               {{ getDifficultyLabel(article.difficulty) }}
             </span>
@@ -176,7 +176,7 @@
         </div>
         <div class="stat-card">
           <div class="stat-value">
-            {{ formatNumber(article.comments ?? 0) }}
+            {{ formatNumber(article.comments) }}
           </div>
           <div class="stat-label">
             评论数
@@ -268,11 +268,69 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import type { Article } from '@/types/entities'
+import type { Component } from 'vue'
+import {
+  XIcon,
+  StarIcon,
+  EyeIcon,
+  ClockIcon,
+  HeartIcon,
+  BookmarkIcon,
+  ShareIcon,
+  HashIcon,
+  WeiboIcon,
+  MessageCircleIcon,
+  CopyIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  CodeIcon,
+  CoinsIcon,
+  FileTextIcon,
+  ToolIcon,
+  TrendingUpIcon,
+  LayersIcon,
+  GitBranchIcon,
+  FolderIcon
+} from '@/components/icons'
+
+// 文章接口
+interface Author {
+  id: number
+  name: string
+  avatar: string
+}
+
+interface DetailedArticle {
+  id: string
+  title: string
+  summary: string
+  content: string
+  author: Author
+  category: string
+  tags: string[]
+  publishDate: string
+  publishedAt: string
+  updateDate: string
+  isPublished: boolean
+  readTime: number
+  views: number
+  likes: number
+  comments: number
+  featured?: boolean
+  isFeatured?: boolean
+  difficulty?: 'beginner' | 'intermediate' | 'advanced' | 'expert'
+  thumbnail?: string
+  coverImage?: string
+  excerpt?: string
+  description?: string
+  bookmarked?: boolean
+  liked?: boolean
+  isLiked?: boolean
+}
 
 // Props
 interface Props {
-  article: Article
+  article: DetailedArticle
   show: boolean
 }
 
@@ -283,7 +341,7 @@ interface Emits {
   'close': []
   'like': [articleId: string]
   'bookmark': [articleId: string]
-  'share': [article: Article, platform: string]
+  'share': [article: DetailedArticle, platform: string]
 }
 
 const emit = defineEmits<Emits>()
@@ -330,17 +388,10 @@ const filterByTag = (tag: string) => {
   // 这里可以实现标签筛选功能
 }
 
-const parseDateInput = (value?: string | Date) => {
-  if (!value) return null
-  if (value instanceof Date) return value
-  const parsed = new Date(value)
-  return Number.isNaN(parsed.getTime()) ? null : parsed
-}
-
-const formatDate = (value?: string | Date) => {
-  const date = parseDateInput(value) ?? new Date()
+const formatDate = (date: string | Date) => {
+  const value = typeof date === 'string' ? new Date(date) : date
   const now = new Date()
-  const diffTime = Math.abs(now.getTime() - date.getTime())
+  const diffTime = Math.abs(now.getTime() - value.getTime())
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
   
   if (diffDays === 1) {
@@ -351,7 +402,7 @@ const formatDate = (value?: string | Date) => {
     const weeks = Math.floor(diffDays / 7)
     return `${weeks} 周前`
   } else {
-    return date.toLocaleDateString('zh-CN', {
+    return value.toLocaleDateString('zh-CN', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -367,7 +418,7 @@ const formatNumber = (num: number) => {
 }
 
 const getCategoryIcon = (category: string) => {
-  const iconMap = {
+  const iconMap: Record<string, Component> = {
     '技术深度': CodeIcon,
     'DeFi协议': CoinsIcon,
     '智能合约': FileTextIcon,
@@ -376,9 +427,8 @@ const getCategoryIcon = (category: string) => {
     '区块链基础': LayersIcon,
     '共识算法': GitBranchIcon,
     '项目分享': FolderIcon
-  } as const
-
-  return iconMap[category as keyof typeof iconMap] || FileTextIcon
+  }
+  return iconMap[category] || FileTextIcon
 }
 
 const getDifficultyLabel = (difficulty?: string) => {
@@ -388,7 +438,7 @@ const getDifficultyLabel = (difficulty?: string) => {
     'advanced': '高级',
     'expert': '专家'
   }
-  return (difficulty ? labelMap[difficulty] : undefined) || '中级'
+  return labelMap[difficulty || 'intermediate'] || '中级'
 }
 
 // 点击外部关闭分享菜单
@@ -399,30 +449,6 @@ document.addEventListener('click', (e) => {
   }
 })
 
-// 图标组件
-const XIcon = () => import('@/components/icons').then(m => m.XIcon)
-const StarIcon = () => import('@/components/icons').then(m => m.StarIcon)
-const EyeIcon = () => import('@/components/icons').then(m => m.EyeIcon)
-const ClockIcon = () => import('@/components/icons').then(m => m.ClockIcon)
-const HeartIcon = () => import('@/components/icons').then(m => m.HeartIcon)
-const BookmarkIcon = () => import('@/components/icons').then(m => m.BookmarkIcon)
-const ShareIcon = () => import('@/components/icons').then(m => m.ShareIcon)
-const ChevronLeftIcon = () => import('@/components/icons').then(m => m.ChevronLeftIcon)
-const ChevronRightIcon = () => import('@/components/icons').then(m => m.ChevronRightIcon)
-const HashIcon = () => import('@/components/icons').then(m => m.HashIcon)
-const WeiboIcon = () => import('@/components/icons').then(m => m.WeiboIcon)
-const MessageCircleIcon = () => import('@/components/icons').then(m => m.MessageCircleIcon)
-const CopyIcon = () => import('@/components/icons').then(m => m.CopyIcon)
-
-// Category icons
-const CodeIcon = () => import('@/components/icons').then(m => m.CodeIcon)
-const CoinsIcon = () => import('@/components/icons').then(m => m.CoinsIcon)
-const FileTextIcon = () => import('@/components/icons').then(m => m.FileTextIcon)
-const ToolIcon = () => import('@/components/icons').then(m => m.ToolIcon)
-const TrendingUpIcon = () => import('@/components/icons').then(m => m.TrendingUpIcon)
-const LayersIcon = () => import('@/components/icons').then(m => m.LayersIcon)
-const GitBranchIcon = () => import('@/components/icons').then(m => m.GitBranchIcon)
-const FolderIcon = () => import('@/components/icons').then(m => m.FolderIcon)
 </script>
 
 <style scoped>
