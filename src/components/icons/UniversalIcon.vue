@@ -1,6 +1,9 @@
 <template>
   <!-- 通用图标占位符组件 -->
-  <span class="icon-placeholder" :style="iconStyle">
+  <span
+    class="icon-placeholder"
+    :style="iconStyle"
+  >
     {{ getIconSymbol() }}
   </span>
 </template>

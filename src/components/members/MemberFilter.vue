@@ -10,11 +10,11 @@
           placeholder="搜索成员姓名或技能..."
           class="search-input"
           @input="handleSearch"
-        />
+        >
         <button
           v-if="localFilters.search"
-          @click="clearSearch"
           class="clear-btn"
+          @click="clearSearch"
         >
           <XIcon />
         </button>
@@ -23,7 +23,9 @@
 
     <!-- 角色筛选 -->
     <div class="filter-section">
-      <h4 class="filter-title">角色分类</h4>
+      <h4 class="filter-title">
+        角色分类
+      </h4>
       <div class="filter-chips">
         <button
           v-for="role in roles"
@@ -33,14 +35,19 @@
           @click="selectRole(role.id)"
         >
           {{ role.name }}
-          <span class="count" v-if="role.count !== undefined">({{ role.count }})</span>
+          <span
+            v-if="role.count !== undefined"
+            class="count"
+          >({{ role.count }})</span>
         </button>
       </div>
     </div>
 
     <!-- 技术栈筛选 -->
     <div class="filter-section">
-      <h4 class="filter-title">技术栈</h4>
+      <h4 class="filter-title">
+        技术栈
+      </h4>
       <div class="filter-chips">
         <button
           v-for="tech in techStacks"
@@ -56,30 +63,42 @@
 
     <!-- 排序选项 -->
     <div class="filter-section">
-      <h4 class="filter-title">排序方式</h4>
+      <h4 class="filter-title">
+        排序方式
+      </h4>
       <select
         v-model="localFilters.sortBy"
         class="sort-select"
         @change="handleSortChange"
       >
-        <option value="name">按姓名排序</option>
-        <option value="joinDate">按加入时间</option>
-        <option value="projectCount">按项目数量</option>
-        <option value="role">按角色</option>
+        <option value="name">
+          按姓名排序
+        </option>
+        <option value="joinDate">
+          按加入时间
+        </option>
+        <option value="projectCount">
+          按项目数量
+        </option>
+        <option value="role">
+          按角色
+        </option>
       </select>
     </div>
 
     <!-- 活跃状态 -->
     <div class="filter-section">
-      <h4 class="filter-title">成员状态</h4>
+      <h4 class="filter-title">
+        成员状态
+      </h4>
       <div class="status-toggle">
         <label class="toggle-item">
           <input
             v-model="localFilters.isActive"
             type="checkbox"
             @change="handleStatusChange"
-          />
-          <span class="toggle-switch"></span>
+          >
+          <span class="toggle-switch" />
           <span class="toggle-label">仅显示活跃成员</span>
         </label>
       </div>
@@ -88,8 +107,8 @@
     <!-- 清除筛选 -->
     <div class="filter-actions">
       <button
-        @click="clearAllFilters"
         class="clear-all-btn"
+        @click="clearAllFilters"
       >
         <RefreshCcwIcon />
         清除所有筛选

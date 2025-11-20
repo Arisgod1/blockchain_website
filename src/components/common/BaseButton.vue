@@ -35,22 +35,25 @@
     <!-- 前置图标 -->
     <slot name="icon-left">
       <component 
-        v-if="iconLeft && !loading" 
         :is="iconLeft" 
+        v-if="iconLeft && !loading" 
         :class="iconLeftClasses"
       />
     </slot>
 
     <!-- 按钮文字 -->
-    <span v-if="$slots.default || text" :class="textClasses">
+    <span
+      v-if="$slots.default || text"
+      :class="textClasses"
+    >
       <slot>{{ text }}</slot>
     </span>
 
     <!-- 后置图标 -->
     <slot name="icon-right">
       <component 
-        v-if="iconRight" 
         :is="iconRight" 
+        v-if="iconRight" 
         :class="iconRightClasses"
       />
     </slot>

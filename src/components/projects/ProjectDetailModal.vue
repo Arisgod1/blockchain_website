@@ -1,18 +1,29 @@
 <template>
-  <div class="project-detail-modal" @click.self="$emit('close')">
+  <div
+    class="project-detail-modal"
+    @click.self="$emit('close')"
+  >
     <div class="modal-content">
       <!-- 模态框头部 -->
       <div class="modal-header">
         <div class="header-info">
-          <h2 class="project-title">{{ project.title }}</h2>
+          <h2 class="project-title">
+            {{ project.title }}
+          </h2>
           <div class="project-badges">
-            <span class="status-badge" :class="`status-${project.status}`">
+            <span
+              class="status-badge"
+              :class="`status-${project.status}`"
+            >
               {{ getStatusText(project.status) }}
             </span>
             <span class="category-badge">{{ project.category }}</span>
           </div>
         </div>
-        <button @click="$emit('close')" class="close-btn">
+        <button
+          class="close-btn"
+          @click="$emit('close')"
+        >
           <XIcon />
         </button>
       </div>
@@ -23,49 +34,64 @@
           <!-- 左侧内容 -->
           <div class="left-content">
             <!-- 项目图片轮播 -->
-            <div class="project-gallery" v-if="project.images && project.images.length > 0">
+            <div
+              v-if="project.images && project.images.length > 0"
+              class="project-gallery"
+            >
               <div class="main-image">
                 <img 
                   :src="currentImage" 
                   :alt="project.title"
                   @error="handleImageError"
-                />
+                >
                 <button 
                   v-if="project.images.length > 1"
-                  @click="previousImage"
                   class="nav-btn prev-btn"
+                  @click="previousImage"
                 >
                   <ChevronLeftIcon />
                 </button>
                 <button 
                   v-if="project.images.length > 1"
-                  @click="nextImage"
                   class="nav-btn next-btn"
+                  @click="nextImage"
                 >
                   <ChevronRightIcon />
                 </button>
               </div>
-              <div v-if="project.images.length > 1" class="image-thumbnails">
+              <div
+                v-if="project.images.length > 1"
+                class="image-thumbnails"
+              >
                 <button
                   v-for="(image, index) in project.images"
                   :key="index"
-                  @click="currentImageIndex = index"
                   :class="['thumbnail', { active: index === currentImageIndex }]"
+                  @click="currentImageIndex = index"
                 >
-                  <img :src="image" :alt="`项目截图 ${index + 1}`" />
+                  <img
+                    :src="image"
+                    :alt="`项目截图 ${index + 1}`"
+                  >
                 </button>
               </div>
             </div>
 
             <!-- 项目描述 -->
             <div class="project-description">
-              <h3 class="section-title">项目描述</h3>
-              <p class="description-text">{{ project.description }}</p>
+              <h3 class="section-title">
+                项目描述
+              </h3>
+              <p class="description-text">
+                {{ project.description }}
+              </p>
             </div>
 
             <!-- 技术栈 -->
             <div class="tech-stack-section">
-              <h3 class="section-title">技术栈</h3>
+              <h3 class="section-title">
+                技术栈
+              </h3>
               <div class="tech-tags">
                 <span 
                   v-for="tech in project.techStack" 
@@ -78,11 +104,19 @@
             </div>
 
             <!-- 项目进度 -->
-            <div v-if="project.status !== 'completed'" class="project-progress-section">
-              <h3 class="section-title">开发进度</h3>
+            <div
+              v-if="project.status !== 'completed'"
+              class="project-progress-section"
+            >
+              <h3 class="section-title">
+                开发进度
+              </h3>
               <div class="progress-info">
                 <div class="progress-bar">
-                  <div class="progress-fill" :style="{ width: `${project.progress}%` }"></div>
+                  <div
+                    class="progress-fill"
+                    :style="{ width: `${project.progress}%` }"
+                  />
                 </div>
                 <span class="progress-text">{{ project.progress }}% 完成</span>
               </div>
@@ -93,34 +127,52 @@
           <div class="right-content">
             <!-- 项目统计 -->
             <div class="project-stats">
-              <h3 class="section-title">项目统计</h3>
+              <h3 class="section-title">
+                项目统计
+              </h3>
               <div class="stats-grid">
                 <div class="stat-item">
                   <HeartIcon class="stat-icon" />
                   <div class="stat-content">
-                    <div class="stat-value">{{ project.likes || 0 }}</div>
-                    <div class="stat-label">点赞数</div>
+                    <div class="stat-value">
+                      {{ project.likes || 0 }}
+                    </div>
+                    <div class="stat-label">
+                      点赞数
+                    </div>
                   </div>
                 </div>
                 <div class="stat-item">
                   <EyeIcon class="stat-icon" />
                   <div class="stat-content">
-                    <div class="stat-value">{{ project.views || 0 }}</div>
-                    <div class="stat-label">查看数</div>
+                    <div class="stat-value">
+                      {{ project.views || 0 }}
+                    </div>
+                    <div class="stat-label">
+                      查看数
+                    </div>
                   </div>
                 </div>
                 <div class="stat-item">
                   <UsersIcon class="stat-icon" />
                   <div class="stat-content">
-                    <div class="stat-value">{{ project.teamSize || '未知' }}</div>
-                    <div class="stat-label">团队规模</div>
+                    <div class="stat-value">
+                      {{ project.teamSize || '未知' }}
+                    </div>
+                    <div class="stat-label">
+                      团队规模
+                    </div>
                   </div>
                 </div>
                 <div class="stat-item">
                   <ClockIcon class="stat-icon" />
                   <div class="stat-content">
-                    <div class="stat-value">{{ getDuration() }}</div>
-                    <div class="stat-label">开发周期</div>
+                    <div class="stat-value">
+                      {{ getDuration() }}
+                    </div>
+                    <div class="stat-label">
+                      开发周期
+                    </div>
                   </div>
                 </div>
               </div>
@@ -128,35 +180,57 @@
 
             <!-- 项目信息 -->
             <div class="project-info">
-              <h3 class="section-title">项目信息</h3>
+              <h3 class="section-title">
+                项目信息
+              </h3>
               <div class="info-list">
                 <div class="info-item">
                   <CalendarIcon class="info-icon" />
                   <div class="info-content">
-                    <div class="info-label">开始时间</div>
-                    <div class="info-value">{{ formatDate(project.startDate) }}</div>
+                    <div class="info-label">
+                      开始时间
+                    </div>
+                    <div class="info-value">
+                      {{ formatDate(project.startDate) }}
+                    </div>
                   </div>
                 </div>
-                <div v-if="project.endDate" class="info-item">
+                <div
+                  v-if="project.endDate"
+                  class="info-item"
+                >
                   <CalendarCheckIcon class="info-icon" />
                   <div class="info-content">
-                    <div class="info-label">预计完成</div>
-                    <div class="info-value">{{ formatDate(project.endDate) }}</div>
+                    <div class="info-label">
+                      预计完成
+                    </div>
+                    <div class="info-value">
+                      {{ formatDate(project.endDate) }}
+                    </div>
                   </div>
                 </div>
                 <div class="info-item">
                   <TagIcon class="info-icon" />
                   <div class="info-content">
-                    <div class="info-label">项目分类</div>
-                    <div class="info-value">{{ project.category }}</div>
+                    <div class="info-label">
+                      项目分类
+                    </div>
+                    <div class="info-value">
+                      {{ project.category }}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
             <!-- 贡献者 -->
-            <div v-if="project.contributors && project.contributors.length > 0" class="contributors-section">
-              <h3 class="section-title">团队成员</h3>
+            <div
+              v-if="project.contributors && project.contributors.length > 0"
+              class="contributors-section"
+            >
+              <h3 class="section-title">
+                团队成员
+              </h3>
               <div class="contributors-list">
                 <span 
                   v-for="contributor in project.contributors" 
@@ -175,9 +249,9 @@
       <div class="modal-footer">
         <div class="footer-actions">
           <button 
-            @click="toggleLike"
             class="action-btn like-btn"
             :class="{ liked: project.isLiked }"
+            @click="toggleLike"
           >
             <HeartIcon class="action-icon" />
             {{ project.isLiked ? '已点赞' : '点赞' }}
@@ -204,8 +278,8 @@
             </a>
             <button 
               v-if="project.documentation"
-              @click="showDocumentation"
               class="action-btn link-btn"
+              @click="showDocumentation"
             >
               <FileTextIcon class="action-icon" />
               技术文档

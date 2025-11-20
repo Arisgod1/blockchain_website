@@ -11,7 +11,9 @@
             ☰
           </button>
           <div class="logo-section">
-            <h1 class="admin-title">管理员后台</h1>
+            <h1 class="admin-title">
+              管理员后台
+            </h1>
           </div>
         </div>
 
@@ -19,15 +21,15 @@
           <div class="header-actions">
             <button 
               class="action-btn refresh-btn"
-              @click="handleRefresh"
               title="刷新数据"
+              @click="handleRefresh"
             >
               🔄
             </button>
             <button 
               class="action-btn close-admin-btn"
-              @click="handleCloseAdmin"
               title="退出管理员模式"
+              @click="handleCloseAdmin"
             >
               🚪
             </button>
@@ -51,17 +53,25 @@
       >
         <nav class="sidebar-nav">
           <div class="nav-section">
-            <h3 class="nav-section-title" v-if="!sidebarCollapsed">功能管理</h3>
+            <h3
+              v-if="!sidebarCollapsed"
+              class="nav-section-title"
+            >
+              功能管理
+            </h3>
             <ul class="nav-list">
               <li class="nav-item">
                 <button
                   class="nav-link"
                   :class="{ active: activeTab === 'meetings' }"
-                  @click="activeTab = 'meetings'"
                   title="例会管理"
+                  @click="activeTab = 'meetings'"
                 >
                   <span class="nav-icon">📋</span>
-                  <span class="nav-text" v-if="!sidebarCollapsed">例会管理</span>
+                  <span
+                    v-if="!sidebarCollapsed"
+                    class="nav-text"
+                  >例会管理</span>
                 </button>
               </li>
               
@@ -69,11 +79,14 @@
                 <button
                   class="nav-link"
                   :class="{ active: activeTab === 'members' }"
-                  @click="activeTab = 'members'"
                   title="成员管理"
+                  @click="activeTab = 'members'"
                 >
                   <span class="nav-icon">👥</span>
-                  <span class="nav-text" v-if="!sidebarCollapsed">成员管理</span>
+                  <span
+                    v-if="!sidebarCollapsed"
+                    class="nav-text"
+                  >成员管理</span>
                 </button>
               </li>
               
@@ -81,11 +94,14 @@
                 <button
                   class="nav-link"
                   :class="{ active: activeTab === 'projects' }"
-                  @click="activeTab = 'projects'"
                   title="项目管理"
+                  @click="activeTab = 'projects'"
                 >
                   <span class="nav-icon">📊</span>
-                  <span class="nav-text" v-if="!sidebarCollapsed">项目管理</span>
+                  <span
+                    v-if="!sidebarCollapsed"
+                    class="nav-text"
+                  >项目管理</span>
                 </button>
               </li>
               
@@ -93,11 +109,14 @@
                 <button
                   class="nav-link"
                   :class="{ active: activeTab === 'articles' }"
-                  @click="activeTab = 'articles'"
                   title="内容管理"
+                  @click="activeTab = 'articles'"
                 >
                   <span class="nav-icon">📝</span>
-                  <span class="nav-text" v-if="!sidebarCollapsed">内容管理</span>
+                  <span
+                    v-if="!sidebarCollapsed"
+                    class="nav-text"
+                  >内容管理</span>
                 </button>
               </li>
 
@@ -105,28 +124,39 @@
                 <button
                   class="nav-link"
                   :class="{ active: activeTab === 'files' }"
-                  @click="activeTab = 'files'"
                   title="文件管理"
+                  @click="activeTab = 'files'"
                 >
                   <span class="nav-icon">📁</span>
-                  <span class="nav-text" v-if="!sidebarCollapsed">文件管理</span>
+                  <span
+                    v-if="!sidebarCollapsed"
+                    class="nav-text"
+                  >文件管理</span>
                 </button>
               </li>
             </ul>
           </div>
 
           <div class="nav-section">
-            <h3 class="nav-section-title" v-if="!sidebarCollapsed">系统设置</h3>
+            <h3
+              v-if="!sidebarCollapsed"
+              class="nav-section-title"
+            >
+              系统设置
+            </h3>
             <ul class="nav-list">
               <li class="nav-item">
                 <button
                   class="nav-link"
                   :class="{ active: activeTab === 'settings' }"
-                  @click="activeTab = 'settings'"
                   title="系统设置"
+                  @click="activeTab = 'settings'"
                 >
                   <span class="nav-icon">⚙️</span>
-                  <span class="nav-text" v-if="!sidebarCollapsed">系统设置</span>
+                  <span
+                    v-if="!sidebarCollapsed"
+                    class="nav-text"
+                  >系统设置</span>
                 </button>
               </li>
               
@@ -134,11 +164,14 @@
                 <button
                   class="nav-link"
                   :class="{ active: activeTab === 'logs' }"
-                  @click="activeTab = 'logs'"
                   title="操作日志"
+                  @click="activeTab = 'logs'"
                 >
                   <span class="nav-icon">📄</span>
-                  <span class="nav-text" v-if="!sidebarCollapsed">操作日志</span>
+                  <span
+                    v-if="!sidebarCollapsed"
+                    class="nav-text"
+                  >操作日志</span>
                 </button>
               </li>
             </ul>
@@ -150,50 +183,78 @@
       <main class="admin-main">
         <div class="main-content">
           <!-- 例会管理 -->
-          <div v-if="activeTab === 'meetings'" class="tab-content">
+          <div
+            v-if="activeTab === 'meetings'"
+            class="tab-content"
+          >
             <AdminMeetingManager />
           </div>
 
           <!-- 成员管理 -->
-          <div v-else-if="activeTab === 'members'" class="tab-content">
+          <div
+            v-else-if="activeTab === 'members'"
+            class="tab-content"
+          >
             <AdminMemberManager />
           </div>
 
           <!-- 项目管理 -->
-          <div v-else-if="activeTab === 'projects'" class="tab-content">
+          <div
+            v-else-if="activeTab === 'projects'"
+            class="tab-content"
+          >
             <AdminProjectManager />
           </div>
 
           <!-- 内容管理 -->
-          <div v-else-if="activeTab === 'articles'" class="tab-content">
+          <div
+            v-else-if="activeTab === 'articles'"
+            class="tab-content"
+          >
             <AdminArticleManager />
           </div>
 
           <!-- 文件管理 -->
-          <div v-else-if="activeTab === 'files'" class="tab-content">
+          <div
+            v-else-if="activeTab === 'files'"
+            class="tab-content"
+          >
             <AdminFileManager />
           </div>
 
           <!-- 系统设置 -->
-          <div v-else-if="activeTab === 'settings'" class="tab-content">
+          <div
+            v-else-if="activeTab === 'settings'"
+            class="tab-content"
+          >
             <div class="coming-soon">
-              <div class="coming-soon-icon">⚙️</div>
+              <div class="coming-soon-icon">
+                ⚙️
+              </div>
               <h2>系统设置</h2>
               <p>该功能正在开发中，敬请期待...</p>
             </div>
           </div>
 
           <!-- 操作日志 -->
-          <div v-else-if="activeTab === 'logs'" class="tab-content">
+          <div
+            v-else-if="activeTab === 'logs'"
+            class="tab-content"
+          >
             <div class="coming-soon">
-              <div class="coming-soon-icon">📄</div>
+              <div class="coming-soon-icon">
+                📄
+              </div>
               <h2>操作日志</h2>
               <p>该功能正在开发中，敬请期待...</p>
             </div>
           </div>
 
           <!-- 默认标签页 -->
-          <div v-else class="tab-content">
+          <div
+            v-else
+            class="tab-content"
+          >
             <div class="welcome-section">
               <h2>欢迎使用管理员后台</h2>
               <p>选择左侧菜单开始管理功能</p>
@@ -210,7 +271,9 @@
       size="sm"
     >
       <p>确定要退出管理员后台吗？</p>
-      <p class="warning-text">退出后需要重新验证身份才能进入。</p>
+      <p class="warning-text">
+        退出后需要重新验证身份才能进入。
+      </p>
 
       <template #footer>
         <BaseButton 

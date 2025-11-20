@@ -3,10 +3,16 @@
     <div class="manager-header">
       <h2>文章管理</h2>
       <div class="header-actions">
-        <BaseButton variant="primary" @click="handleCreate">
+        <BaseButton
+          variant="primary"
+          @click="handleCreate"
+        >
           + 新建文章
         </BaseButton>
-        <BaseButton variant="secondary" @click="handleRefresh">
+        <BaseButton
+          variant="secondary"
+          @click="handleRefresh"
+        >
           刷新
         </BaseButton>
       </div>
@@ -14,15 +20,24 @@
 
     <div class="articles-section">
       <BaseCard class="content-card">
-        <div v-if="loading" class="loading-container">
+        <div
+          v-if="loading"
+          class="loading-container"
+        >
           <LoadingSpinner />
         </div>
         
-        <div v-else-if="articles.length === 0" class="empty-state">
+        <div
+          v-else-if="articles.length === 0"
+          class="empty-state"
+        >
           <p>暂无文章数据</p>
         </div>
 
-        <div v-else class="articles-table-container">
+        <div
+          v-else
+          class="articles-table-container"
+        >
           <table class="data-table">
             <thead>
               <tr>
@@ -36,7 +51,10 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="article in articles" :key="article.id">
+              <tr
+                v-for="article in articles"
+                :key="article.id"
+              >
                 <td>{{ article.id }}</td>
                 <td>{{ article.title }}</td>
                 <td>{{ article.author?.name || '未知' }}</td>
@@ -48,15 +66,28 @@
                   </span>
                 </td>
                 <td class="actions-cell">
-                  <button class="action-btn edit" @click="handleEdit(article)">编辑</button>
-                  <button class="action-btn delete" @click="handleDelete(article)">删除</button>
+                  <button
+                    class="action-btn edit"
+                    @click="handleEdit(article)"
+                  >
+                    编辑
+                  </button>
+                  <button
+                    class="action-btn delete"
+                    @click="handleDelete(article)"
+                  >
+                    删除
+                  </button>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
         
-        <div class="pagination-container" v-if="totalPages > 1">
+        <div
+          v-if="totalPages > 1"
+          class="pagination-container"
+        >
           <BasePagination 
             :current="currentPage" 
             :total="totalElements"
@@ -67,34 +98,71 @@
       </BaseCard>
     </div>
 
-    <BaseModal v-model:show="showEditModal" :title="editingArticle ? '编辑文章' : '新建文章'">
-      <form @submit.prevent="saveArticle" class="edit-form">
+    <BaseModal
+      v-model:show="showEditModal"
+      :title="editingArticle ? '编辑文章' : '新建文章'"
+    >
+      <form
+        class="edit-form"
+        @submit.prevent="saveArticle"
+      >
         <div class="form-group">
           <label>标题</label>
-          <input v-model="formData.title" type="text" required class="form-input" />
+          <input
+            v-model="formData.title"
+            type="text"
+            required
+            class="form-input"
+          >
         </div>
         <div class="form-group">
           <label>摘要</label>
-          <textarea v-model="formData.summary" class="form-textarea"></textarea>
+          <textarea
+            v-model="formData.summary"
+            class="form-textarea"
+          />
         </div>
         <div class="form-group">
           <label>内容</label>
-          <textarea v-model="formData.content" class="form-textarea content-editor"></textarea>
+          <textarea
+            v-model="formData.content"
+            class="form-textarea content-editor"
+          />
         </div>
         <div class="form-group">
           <label>分类</label>
-          <input v-model="formData.category" type="text" class="form-input" />
+          <input
+            v-model="formData.category"
+            type="text"
+            class="form-input"
+          >
         </div>
         <div class="form-group">
           <label>状态</label>
           <div class="checkbox-group">
-            <input type="checkbox" v-model="formData.isPublished" id="isPublished" />
+            <input
+              id="isPublished"
+              v-model="formData.isPublished"
+              type="checkbox"
+            >
             <label for="isPublished">发布</label>
           </div>
         </div>
         <div class="form-actions">
-          <BaseButton type="button" variant="secondary" @click="showEditModal = false">取消</BaseButton>
-          <BaseButton type="submit" variant="primary" :loading="saving">保存</BaseButton>
+          <BaseButton
+            type="button"
+            variant="secondary"
+            @click="showEditModal = false"
+          >
+            取消
+          </BaseButton>
+          <BaseButton
+            type="submit"
+            variant="primary"
+            :loading="saving"
+          >
+            保存
+          </BaseButton>
         </div>
       </form>
     </BaseModal>

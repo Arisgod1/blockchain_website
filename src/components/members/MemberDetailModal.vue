@@ -5,10 +5,15 @@
     size="lg"
     @close="$emit('close')"
   >
-    <div v-if="member" class="member-detail-content">
+    <div
+      v-if="member"
+      class="member-detail-content"
+    >
       <!-- 基本信息 -->
       <div class="detail-section">
-        <h3 class="section-title">基本信息</h3>
+        <h3 class="section-title">
+          基本信息
+        </h3>
         <div class="info-grid">
           <div class="info-item">
             <label>姓名：</label>
@@ -43,14 +48,23 @@
       </div>
 
       <!-- 个人简介 -->
-      <div class="detail-section" v-if="member.bio">
-        <h3 class="section-title">个人简介</h3>
-        <p class="bio-text">{{ member.bio }}</p>
+      <div
+        v-if="member.bio"
+        class="detail-section"
+      >
+        <h3 class="section-title">
+          个人简介
+        </h3>
+        <p class="bio-text">
+          {{ member.bio }}
+        </p>
       </div>
 
       <!-- 技能 -->
       <div class="detail-section">
-        <h3 class="section-title">技能特长</h3>
+        <h3 class="section-title">
+          技能特长
+        </h3>
         <div class="skills-container">
           <span 
             v-for="skill in member.skills" 
@@ -63,8 +77,13 @@
       </div>
 
       <!-- 社交链接 -->
-      <div class="detail-section" v-if="member.github || member.linkedin">
-        <h3 class="section-title">社交链接</h3>
+      <div
+        v-if="member.github || member.linkedin"
+        class="detail-section"
+      >
+        <h3 class="section-title">
+          社交链接
+        </h3>
         <div class="social-links">
           <a 
             v-if="member.github"
@@ -88,13 +107,21 @@
       </div>
 
       <!-- 头像 -->
-      <div class="detail-section" v-if="member.avatar">
-        <h3 class="section-title">头像</h3>
+      <div
+        v-if="member.avatar"
+        class="detail-section"
+      >
+        <h3 class="section-title">
+          头像
+        </h3>
         <div class="avatar-container">
-          <img 
-            :src="member.avatar" 
-            :alt="member.name"
+          <BaseAvatar
             class="detail-avatar"
+            :src="member.avatar"
+            :alt="member.name"
+            :fallback-text="member.name"
+            size="96"
+            ring
           />
         </div>
       </div>
@@ -113,7 +140,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { BaseModal, BaseButton } from '@/components/common'
+import { BaseModal, BaseButton, BaseAvatar } from '@/components/common'
 import type { Member } from '@/types/entities'
 
 interface Props {
@@ -286,11 +313,11 @@ const show = computed({
 }
 
 .detail-avatar {
-  width: 8rem;
-  height: 8rem;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 4px solid #f3f4f6;
+  @apply w-24 h-24 rounded-full border-4 border-gray-100;
+}
+
+.detail-avatar :deep(.avatar-image) {
+  @apply rounded-full;
 }
 
 /* 滚动条样式 */

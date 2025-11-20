@@ -5,11 +5,17 @@
     size="lg"
     @close="$emit('close')"
   >
-    <form id="member-edit-form" @submit.prevent="handleSubmit" class="member-edit-form">
+    <form
+      id="member-edit-form"
+      class="member-edit-form"
+      @submit.prevent="handleSubmit"
+    >
       <div class="form-content">
         <!-- 基本信息 -->
         <div class="form-section">
-          <h3 class="section-title">基本信息</h3>
+          <h3 class="section-title">
+            基本信息
+          </h3>
           
           <div class="form-row">
             <div class="form-group">
@@ -21,8 +27,11 @@
                 class="form-input"
                 placeholder="请输入成员姓名"
                 required
-              />
-              <span class="error-message" v-if="errors.name">{{ errors.name }}</span>
+              >
+              <span
+                v-if="errors.name"
+                class="error-message"
+              >{{ errors.name }}</span>
             </div>
             
             <div class="form-group">
@@ -34,8 +43,11 @@
                 class="form-input"
                 placeholder="请输入职位"
                 required
-              />
-              <span class="error-message" v-if="errors.role">{{ errors.role }}</span>
+              >
+              <span
+                v-if="errors.role"
+                class="error-message"
+              >{{ errors.role }}</span>
             </div>
           </div>
 
@@ -47,15 +59,33 @@
                 v-model="form.grade"
                 class="form-input"
               >
-                <option value="">请选择年级</option>
-                <option value="大一">大一</option>
-                <option value="大二">大二</option>
-                <option value="大三">大三</option>
-                <option value="大四">大四</option>
-                <option value="研一">研一</option>
-                <option value="研二">研二</option>
-                <option value="研三">研三</option>
-                <option value="博士">博士</option>
+                <option value="">
+                  请选择年级
+                </option>
+                <option value="大一">
+                  大一
+                </option>
+                <option value="大二">
+                  大二
+                </option>
+                <option value="大三">
+                  大三
+                </option>
+                <option value="大四">
+                  大四
+                </option>
+                <option value="研一">
+                  研一
+                </option>
+                <option value="研二">
+                  研二
+                </option>
+                <option value="研三">
+                  研三
+                </option>
+                <option value="博士">
+                  博士
+                </option>
               </select>
             </div>
             
@@ -68,8 +98,11 @@
                 class="form-input"
                 placeholder="请输入邮箱地址"
                 required
-              />
-              <span class="error-message" v-if="errors.email">{{ errors.email }}</span>
+              >
+              <span
+                v-if="errors.email"
+                class="error-message"
+              >{{ errors.email }}</span>
             </div>
           </div>
 
@@ -82,8 +115,11 @@
                 type="date"
                 class="form-input"
                 required
-              />
-              <span class="error-message" v-if="errors.joinDate">{{ errors.joinDate }}</span>
+              >
+              <span
+                v-if="errors.joinDate"
+                class="error-message"
+              >{{ errors.joinDate }}</span>
             </div>
             
             <div class="form-group">
@@ -93,8 +129,12 @@
                 v-model="form.isActive"
                 class="form-input"
               >
-                <option :value="true">活跃</option>
-                <option :value="false">非活跃</option>
+                <option :value="true">
+                  活跃
+                </option>
+                <option :value="false">
+                  非活跃
+                </option>
               </select>
             </div>
           </div>
@@ -107,8 +147,11 @@
               type="url"
               class="form-input"
               placeholder="请输入头像图片链接"
-            />
-            <span class="error-message" v-if="errors.avatar">{{ errors.avatar }}</span>
+            >
+            <span
+              v-if="errors.avatar"
+              class="error-message"
+            >{{ errors.avatar }}</span>
           </div>
 
           <div class="form-group">
@@ -119,13 +162,15 @@
               class="form-textarea"
               rows="3"
               placeholder="请输入个人简介（可选）"
-            ></textarea>
+            />
           </div>
         </div>
 
         <!-- 技能 -->
         <div class="form-section">
-          <h3 class="section-title">技能特长</h3>
+          <h3 class="section-title">
+            技能特长
+          </h3>
           <div class="form-group">
             <label>技能列表 <span class="required">*</span></label>
             <div class="skills-input-container">
@@ -135,18 +180,21 @@
                 class="form-input"
                 placeholder="输入技能后按回车添加"
                 @keydown.enter.prevent="addSkill"
-              />
+              >
               <button
                 type="button"
                 class="add-skill-btn"
-                @click="addSkill"
                 :disabled="!newSkill.trim()"
+                @click="addSkill"
               >
                 添加
               </button>
             </div>
             
-            <div class="skills-list" v-if="form.skills && form.skills.length > 0">
+            <div
+              v-if="form.skills && form.skills.length > 0"
+              class="skills-list"
+            >
               <div 
                 v-for="(skill, index) in form.skills" 
                 :key="index"
@@ -163,16 +211,24 @@
               </div>
             </div>
             
-            <div class="empty-skills" v-else>
+            <div
+              v-else
+              class="empty-skills"
+            >
               暂无技能，点击上方输入框添加技能
             </div>
-            <span class="error-message" v-if="errors.skills">{{ errors.skills }}</span>
+            <span
+              v-if="errors.skills"
+              class="error-message"
+            >{{ errors.skills }}</span>
           </div>
         </div>
 
         <!-- 社交链接 -->
         <div class="form-section">
-          <h3 class="section-title">社交链接</h3>
+          <h3 class="section-title">
+            社交链接
+          </h3>
           
           <div class="form-group">
             <label for="github">GitHub 链接</label>
@@ -182,7 +238,7 @@
               type="url"
               class="form-input"
               placeholder="https://github.com/username"
-            />
+            >
           </div>
           
           <div class="form-group">
@@ -193,7 +249,7 @@
               type="url"
               class="form-input"
               placeholder="https://linkedin.com/in/username"
-            />
+            >
           </div>
         </div>
       </div>
@@ -355,9 +411,6 @@ const handleSubmit = async () => {
   saving.value = true
   
   try {
-    // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
     const memberData: Member = {
       id: form.value.id || `member_${Date.now()}`,
       name: form.value.name!.trim(),
@@ -372,7 +425,7 @@ const handleSubmit = async () => {
       joinDate: form.value.joinDate!,
       isActive: form.value.isActive!
     }
-    
+
     emit('save', memberData)
   } catch (error) {
     console.error('保存成员信息失败:', error)

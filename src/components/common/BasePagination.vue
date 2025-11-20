@@ -1,8 +1,18 @@
 <template>
-  <nav :class="navClasses" role="navigation" aria-label="分页导航">
+  <nav
+    :class="navClasses"
+    role="navigation"
+    aria-label="分页导航"
+  >
     <!-- 每页显示数量选择器 -->
-    <div v-if="showPageSize" :class="pageSizeContainerClasses">
-      <label :for="pageSizeId" :class="pageSizeLabelClasses">
+    <div
+      v-if="showPageSize"
+      :class="pageSizeContainerClasses"
+    >
+      <label
+        :for="pageSizeId"
+        :class="pageSizeLabelClasses"
+      >
         每页显示
       </label>
       <select
@@ -30,15 +40,28 @@
         :class="getPageButtonClasses(false, true)"
         @click="goToPage(displayedCurrent - 1)"
       >
-        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        <svg
+          class="w-4 h-4 mr-1"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M15 19l-7-7 7-7"
+          />
         </svg>
         上一页
       </button>
 
       <!-- 页码按钮 -->
       <div :class="pageNumbersClasses">
-        <template v-for="(page, index) in visiblePages" :key="index">
+        <template
+          v-for="(page, index) in visiblePages"
+          :key="index"
+        >
           <!-- 省略号 -->
           <span 
             v-if="page === '...'" 
@@ -65,14 +88,27 @@
         @click="goToPage(displayedCurrent + 1)"
       >
         下一页
-        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        <svg
+          class="w-4 h-4 ml-1"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 5l7 7-7 7"
+          />
         </svg>
       </button>
     </div>
 
     <!-- 分页信息 -->
-    <div v-if="showInfo" :class="infoClasses">
+    <div
+      v-if="showInfo"
+      :class="infoClasses"
+    >
       显示第 <span :class="infoHighlightClasses">{{ startItem }}</span> - <span :class="infoHighlightClasses">{{ endItem }}</span> 条，
       共 <span :class="infoHighlightClasses">{{ total }}</span> 条记录
     </div>
@@ -134,7 +170,7 @@ const visiblePages = computed(() => {
   const half = Math.floor(props.maxVisiblePages / 2)
   
   let start = Math.max(1, displayedCurrent.value - half)
-  let end = Math.min(totalPages.value, start + props.maxVisiblePages - 1)
+  const end = Math.min(totalPages.value, start + props.maxVisiblePages - 1)
   
   if (end - start + 1 < props.maxVisiblePages) {
     start = Math.max(1, end - props.maxVisiblePages + 1)

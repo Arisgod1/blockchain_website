@@ -6,7 +6,10 @@
     @update:model-value="$emit('update:show', $event)"
     @close="$emit('update:show', false)"
   >
-    <form @submit.prevent="handleLogin" class="admin-login-form">
+    <form
+      class="admin-login-form"
+      @submit.prevent="handleLogin"
+    >
       <div class="form-group">
         <label for="username">用户名</label>
         <BaseInput
@@ -34,15 +37,18 @@
       <div class="form-group">
         <label class="checkbox-label">
           <input 
-            type="checkbox" 
-            v-model="formData.rememberMe"
+            v-model="formData.rememberMe" 
+            type="checkbox"
             class="checkbox-input"
-          />
+          >
           <span class="checkbox-text">记住登录状态</span>
         </label>
       </div>
 
-      <div v-if="loginError" class="error-message">
+      <div
+        v-if="loginError"
+        class="error-message"
+      >
         {{ loginError }}
       </div>
     </form>

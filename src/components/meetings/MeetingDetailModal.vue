@@ -7,33 +7,48 @@
     >
       <div 
         class="modal-content"
-        @click.stop
         role="dialog"
         aria-labelledby="modal-title"
         aria-modal="true"
+        @click.stop
       >
         <!-- 模态框头部 -->
         <div class="modal-header">
           <div class="header-content">
-            <h2 id="modal-title" class="modal-title">
+            <h2
+              id="modal-title"
+              class="modal-title"
+            >
               {{ meeting?.title || '会议详情' }}
             </h2>
             <div class="meeting-meta">
               <div class="meta-item">
-                <svg class="meta-icon" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+                <svg
+                  class="meta-icon"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z" />
                 </svg>
                 {{ formatDate(meeting?.date) }}
               </div>
               <div class="meta-item">
-                <svg class="meta-icon" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M12,7C13.4,7 14.8,8.6 14.8,10V11.5C15.4,11.5 16,12.1 16,12.7V16.7C16,17.4 15.4,18 14.7,18H9.3C8.6,18 8,17.4 8,16.7V12.7C8,12.1 8.6,11.5 9.2,11.5V10C9.2,8.6 10.6,7 12,7M12,8.2C11.2,8.2 10.4,8.7 10.4,10V11H13.6V10C13.6,8.7 12.8,8.2 12,8.2Z"/>
+                <svg
+                  class="meta-icon"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M12,7C13.4,7 14.8,8.6 14.8,10V11.5C15.4,11.5 16,12.1 16,12.7V16.7C16,17.4 15.4,18 14.7,18H9.3C8.6,18 8,17.4 8,16.7V12.7C8,12.1 8.6,11.5 9.2,11.5V10C9.2,8.6 10.6,7 12,7M12,8.2C11.2,8.2 10.4,8.7 10.4,10V11H13.6V10C13.6,8.7 12.8,8.2 12,8.2Z" />
                 </svg>
                 {{ formatDuration(meeting?.duration) }}
               </div>
               <div class="meta-item">
-                <svg class="meta-icon" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                <svg
+                  class="meta-icon"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
                 </svg>
                 {{ getStatusText(meeting?.status) }}
               </div>
@@ -43,11 +58,15 @@
           <!-- 关闭按钮 -->
           <button 
             class="modal-close"
-            @click="handleClose"
             aria-label="关闭详情"
+            @click="handleClose"
           >
-            <svg class="close-icon" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            <svg
+              class="close-icon"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
             </svg>
           </button>
         </div>
@@ -55,8 +74,13 @@
         <!-- 模态框内容 -->
         <div class="modal-body">
           <!-- 标签 -->
-          <div v-if="meeting?.tags && meeting.tags.length > 0" class="tags-section">
-            <div class="tags-title">会议标签</div>
+          <div
+            v-if="meeting?.tags && meeting.tags.length > 0"
+            class="tags-section"
+          >
+            <div class="tags-title">
+              会议标签
+            </div>
             <div class="tags-list">
               <span 
                 v-for="tag in meeting.tags" 
@@ -69,20 +93,32 @@
           </div>
 
           <!-- 会议摘要 -->
-          <div v-if="meeting?.summary" class="summary-section">
-            <h3 class="section-title">会议摘要</h3>
-            <p class="summary-text">{{ meeting.summary }}</p>
+          <div
+            v-if="meeting?.summary"
+            class="summary-section"
+          >
+            <h3 class="section-title">
+              会议摘要
+            </h3>
+            <p class="summary-text">
+              {{ meeting.summary }}
+            </p>
           </div>
 
           <!-- 会议详情 -->
           <div class="details-grid">
             <!-- 参与者 -->
-            <div v-if="meeting?.attendees && meeting.attendees.length > 0" class="detail-section">
-              <h3 class="section-title">参与者 ({{ meeting.attendees.length }}人)</h3>
+            <div
+              v-if="normalizedAttendees.length"
+              class="detail-section"
+            >
+              <h3 class="section-title">
+                参与者 ({{ normalizedAttendees.length }}人)
+              </h3>
               <div class="attendees-list">
                 <div 
-                  v-for="attendee in meeting.attendees" 
-                  :key="attendee.id"
+                  v-for="(attendee, index) in normalizedAttendees" 
+                  :key="attendee.id || `attendee-${index}`"
                   class="attendee-item"
                 >
                   <div class="attendee-avatar">
@@ -92,45 +128,85 @@
                       :alt="attendee.name"
                       @error="handleAvatarError"
                     >
-                    <div v-else class="avatar-placeholder">
+                    <div
+                      v-else
+                      class="avatar-placeholder"
+                    >
                       {{ getInitials(attendee.name) }}
                     </div>
                   </div>
                   <div class="attendee-info">
-                    <div class="attendee-name">{{ attendee.name }}</div>
-                    <div v-if="attendee.role" class="attendee-role">{{ attendee.role }}</div>
+                    <div class="attendee-name">
+                      {{ attendee.name }}
+                    </div>
+                    <div
+                      v-if="attendee.role"
+                      class="attendee-role"
+                    >
+                      {{ attendee.role }}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
             <!-- 会议议题 -->
-            <div v-if="meeting?.issues && meeting.issues.length > 0" class="detail-section">
-              <h3 class="section-title">会议议题 ({{ meeting.issues.length }}项)</h3>
+            <div
+              v-if="meeting?.issues && meeting.issues.length > 0"
+              class="detail-section"
+            >
+              <h3 class="section-title">
+                会议议题 ({{ meeting.issues.length }}项)
+              </h3>
               <div class="issues-list">
                 <div 
                   v-for="issue in meeting.issues" 
                   :key="issue.id"
                   class="issue-item"
                 >
-                  <div class="issue-status" :class="`status-${issue.status}`">
-                    <svg class="status-icon" viewBox="0 0 24 24" fill="currentColor">
-                      <path v-if="issue.status === 'completed'" d="M12,2C6.48,2 2,6.48 2,12s4.48,10 10,10s10,-4.48 10,-10S17.52,2 12,2zM10,17l-5,-5l1.41,-1.41L10,14.17l7.59,-7.59L19,8L10,17z"/>
-                      <path v-else-if="issue.status === 'in-progress'" d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M11,6H13V12H11V6M11,14H13V16H11V14Z"/>
-                      <path v-else d="M12,2C6.48,2 2,6.48 2,12s4.48,10 10,10s10,-4.48 10,-10S17.52,2 12,2zM12,20c-4.41,0 -8,-3.59 -8,-8s3.59,-8 8,-8s8,3.59 8,8S16.41,20 12,20zM12,6c-3.31,0 -6,2.69 -6,6s2.69,6 6,6s6,-2.69 6,-6S15.31,6 12,6z"/>
+                  <div
+                    class="issue-status"
+                    :class="`status-${issue.status}`"
+                  >
+                    <svg
+                      class="status-icon"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
+                      <path
+                        v-if="issue.status === 'completed'"
+                        d="M12,2C6.48,2 2,6.48 2,12s4.48,10 10,10s10,-4.48 10,-10S17.52,2 12,2zM10,17l-5,-5l1.41,-1.41L10,14.17l7.59,-7.59L19,8L10,17z"
+                      />
+                      <path
+                        v-else-if="issue.status === 'in-progress'"
+                        d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M11,6H13V12H11V6M11,14H13V16H11V14Z"
+                      />
+                      <path
+                        v-else
+                        d="M12,2C6.48,2 2,6.48 2,12s4.48,10 10,10s10,-4.48 10,-10S17.52,2 12,2zM12,20c-4.41,0 -8,-3.59 -8,-8s3.59,-8 8,-8s8,3.59 8,8S16.41,20 12,20zM12,6c-3.31,0 -6,2.69 -6,6s2.69,6 6,6s6,-2.69 6,-6S15.31,6 12,6z"
+                      />
                     </svg>
                   </div>
                   <div class="issue-content">
-                    <div class="issue-title">{{ issue.title }}</div>
-                    <div class="issue-status-text">{{ getIssueStatusText(issue.status) }}</div>
+                    <div class="issue-title">
+                      {{ issue.title }}
+                    </div>
+                    <div class="issue-status-text">
+                      {{ getIssueStatusText(issue.status) }}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
             <!-- 会议文件 -->
-            <div v-if="meeting?.files && meeting.files.length > 0" class="detail-section">
-              <h3 class="section-title">会议文件 ({{ meeting.files.length }}个)</h3>
+            <div
+              v-if="meeting?.files && meeting.files.length > 0"
+              class="detail-section"
+            >
+              <h3 class="section-title">
+                会议文件 ({{ meeting.files.length }}个)
+              </h3>
               <div class="files-list">
                 <div 
                   v-for="file in meeting.files" 
@@ -139,20 +215,29 @@
                   @click="handleFileClick(file)"
                 >
                   <div class="file-icon">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
                       <path :d="getFileIcon(file.type)" />
                     </svg>
                   </div>
                   <div class="file-info">
-                    <div class="file-name">{{ file.name }}</div>
+                    <div class="file-name">
+                      {{ file.name }}
+                    </div>
                     <div class="file-meta">
                       <span class="file-type">{{ getFileTypeText(file.type) }}</span>
                       <span class="file-size">{{ file.size }}</span>
                     </div>
                   </div>
                   <div class="file-action">
-                    <svg class="action-icon" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 16l-6-6h12z"/>
+                    <svg
+                      class="action-icon"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
+                      <path d="M12 16l-6-6h12z" />
                     </svg>
                   </div>
                 </div>
@@ -160,11 +245,20 @@
             </div>
 
             <!-- 会议地点 -->
-            <div v-if="meeting?.location" class="detail-section">
-              <h3 class="section-title">会议地点</h3>
+            <div
+              v-if="meeting?.location"
+              class="detail-section"
+            >
+              <h3 class="section-title">
+                会议地点
+              </h3>
               <div class="location-info">
-                <svg class="location-icon" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                <svg
+                  class="location-icon"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
                 </svg>
                 {{ meeting.location }}
               </div>
@@ -181,8 +275,12 @@
               class="action-btn action-secondary"
               @click="handleViewRecording"
             >
-              <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M8 5v14l11-7z"/>
+              <svg
+                class="btn-icon"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path d="M8 5v14l11-7z" />
               </svg>
               查看会议记录
             </button>
@@ -193,8 +291,12 @@
               class="action-btn action-secondary"
               @click="handleViewMinutes"
             >
-              <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+              <svg
+                class="btn-icon"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
               </svg>
               查看详细纪要
             </button>
@@ -205,8 +307,12 @@
               class="action-btn action-primary"
               @click="handleViewFiles"
             >
-              <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+              <svg
+                class="btn-icon"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
               </svg>
               查看所有文件 ({{ meeting.files.length }})
             </button>
@@ -218,44 +324,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-
-interface Attendee {
-  id: string
-  name: string
-  avatar?: string
-  role?: string
-}
-
-interface Issue {
-  id: string
-  title: string
-  status: 'completed' | 'in-progress' | 'pending'
-}
-
-interface File {
-  id: string
-  name: string
-  type: string
-  size: string
-  url: string
-}
-
-interface Meeting {
-  id: string
-  title: string
-  date: string
-  summary?: string
-  status: string
-  attendees?: Attendee[]
-  duration?: number
-  issues?: Issue[]
-  files?: File[]
-  tags?: string[]
-  location?: string
-  recording?: string
-  minutes?: string
-}
+import { watch, computed } from 'vue'
+import type { Meeting, MeetingAttendee, MeetingFile } from '@/types/entities'
 
 interface Props {
   meeting: Meeting | null
@@ -275,6 +345,19 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>()
 
+const normalizedAttendees = computed<MeetingAttendee[]>(() => {
+  const list = props.meeting?.attendees ?? []
+  return list.map((attendee, index) => {
+    if (typeof attendee === 'string') {
+      return {
+        id: `${props.meeting?.id}-attendee-${index}`,
+        name: attendee
+      }
+    }
+    return attendee
+  })
+})
+
 // 方法
 const handleClose = () => {
   emit('close')
@@ -284,7 +367,7 @@ const handleBackdropClick = () => {
   emit('close')
 }
 
-const handleFileClick = (file: File) => {
+const handleFileClick = (file: MeetingFile) => {
   // 打开文件
   if (file.url) {
     window.open(file.url, '_blank')
@@ -292,13 +375,13 @@ const handleFileClick = (file: File) => {
 }
 
 const handleViewFiles = () => {
-  if (props.meeting) {
+  if (props.meeting?.files?.length) {
     emit('view-files', props.meeting)
   }
 }
 
 const handleViewRecording = () => {
-  if (props.meeting) {
+  if (props.meeting?.recording) {
     emit('view-recording', props.meeting)
   }
 }
@@ -381,7 +464,8 @@ const getFileIcon = (type: string): string => {
   return iconMap[type as keyof typeof iconMap] || 'M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z'
 }
 
-const getInitials = (name: string): string => {
+const getInitials = (name?: string): string => {
+  if (!name) return '成员'
   return name
     .split(' ')
     .map(word => word.charAt(0))
@@ -409,7 +493,7 @@ watch(() => props.isOpen, (isOpen) => {
 })
 </script>
 
-<style scoped>
+<style scoped lang="postcss">
 /* 模态框基础样式 */
 .meeting-detail-modal {
   @apply fixed inset-0 z-50 flex items-center justify-center p-4

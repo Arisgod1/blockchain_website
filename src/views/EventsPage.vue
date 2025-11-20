@@ -4,9 +4,14 @@
     <header class="relative bg-gradient-to-br from-blue-900 via-purple-900 to-blue-900 text-white overflow-hidden">
       <!-- 背景装饰 -->
       <div class="absolute inset-0">
-        <div class="absolute top-20 left-20 w-32 h-32 bg-blue-500/10 rounded-full blur-xl animate-pulse"></div>
-        <div class="absolute bottom-20 right-20 w-40 h-40 bg-purple-500/10 rounded-full blur-xl animate-pulse delay-1000"></div>
-        <div class="absolute top-1/2 left-1/4 w-24 h-24 bg-orange-500/10 rounded-full blur-xl animate-pulse delay-500"></div>
+        <div class="absolute top-20 left-20 w-32 h-32 bg-blue-500/10 rounded-full blur-xl animate-pulse" />
+        <div class="absolute bottom-20 right-20 w-40 h-40 bg-purple-500/10 rounded-full blur-xl animate-pulse delay-1000" />
+        <div class="absolute top-1/2 left-1/4 w-24 h-24 bg-orange-500/10 rounded-full blur-xl animate-pulse delay-500" />
+      </div>
+      <div class="absolute inset-0 shimmer-trails">
+        <span class="shimmer-band band-a" />
+        <span class="shimmer-band band-b" />
+        <span class="shimmer-band band-c" />
       </div>
       
       <div class="relative z-10 container mx-auto px-4 py-24">
@@ -20,16 +25,28 @@
           </p>
           <div class="flex justify-center gap-8">
             <div class="text-center">
-              <div class="text-3xl font-bold text-orange-300">{{ stats.totalEvents }}</div>
-              <div class="text-sm text-blue-200">年度活动</div>
+              <div class="text-3xl font-bold text-orange-300">
+                {{ stats.totalEvents }}
+              </div>
+              <div class="text-sm text-blue-200">
+                年度活动
+              </div>
             </div>
             <div class="text-center">
-              <div class="text-3xl font-bold text-green-300">{{ stats.totalParticipants }}+</div>
-              <div class="text-sm text-blue-200">参与人次</div>
+              <div class="text-3xl font-bold text-green-300">
+                {{ stats.totalParticipants }}+
+              </div>
+              <div class="text-sm text-blue-200">
+                参与人次
+              </div>
             </div>
             <div class="text-center">
-              <div class="text-3xl font-bold text-yellow-300">{{ stats.upcomingEvents }}</div>
-              <div class="text-sm text-blue-200">即将举行</div>
+              <div class="text-3xl font-bold text-yellow-300">
+                {{ stats.upcomingEvents }}
+              </div>
+              <div class="text-sm text-blue-200">
+                即将举行
+              </div>
             </div>
           </div>
         </div>
@@ -43,13 +60,13 @@
           <button
             v-for="tab in tabs"
             :key="tab.id"
-            @click="activeTab = tab.id"
             class="py-4 px-2 border-b-2 font-medium text-sm transition-colors"
             :class="[
               activeTab === tab.id 
                 ? 'border-blue-500 text-blue-600' 
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             ]"
+            @click="activeTab = tab.id"
           >
             {{ tab.name }}
           </button>
@@ -64,8 +81,18 @@
         <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
           <div class="flex-1 max-w-md">
             <div class="relative">
-              <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              <svg
+                class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
               </svg>
               <input
                 v-model="searchQuery"
@@ -81,21 +108,39 @@
               v-model="selectedCategory"
               class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="">全部分类</option>
-              <option value="conference">区块链会议</option>
-              <option value="seminar">学术研讨</option>
-              <option value="workshop">技术工作坊</option>
-              <option value="summit">行业峰会</option>
+              <option value="">
+                全部分类
+              </option>
+              <option value="conference">
+                区块链会议
+              </option>
+              <option value="seminar">
+                学术研讨
+              </option>
+              <option value="workshop">
+                技术工作坊
+              </option>
+              <option value="summit">
+                行业峰会
+              </option>
             </select>
             
             <select 
               v-model="selectedStatus"
               class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="">全部状态</option>
-              <option value="upcoming">即将开始</option>
-              <option value="ongoing">正在进行</option>
-              <option value="completed">已结束</option>
+              <option value="">
+                全部状态
+              </option>
+              <option value="upcoming">
+                即将开始
+              </option>
+              <option value="ongoing">
+                正在进行
+              </option>
+              <option value="completed">
+                已结束
+              </option>
             </select>
           </div>
         </div>
@@ -109,8 +154,12 @@
             :key="stat.type"
             class="bg-white rounded-lg p-6 shadow-sm border text-center"
           >
-            <div class="text-2xl font-bold text-gray-800 mb-2">{{ stat.count }}</div>
-            <div class="text-sm text-gray-600">{{ stat.label }}</div>
+            <div class="text-2xl font-bold text-gray-800 mb-2">
+              {{ stat.count }}
+            </div>
+            <div class="text-sm text-gray-600">
+              {{ stat.label }}
+            </div>
           </div>
         </div>
       </section>
@@ -118,19 +167,34 @@
       <!-- 活动列表 -->
       <section>
         <!-- 加载状态 -->
-        <div v-if="isLoading" class="flex items-center justify-center py-12">
-          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div
+          v-if="isLoading"
+          class="flex items-center justify-center py-12"
+        >
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
         </div>
 
         <!-- 空状态 -->
-        <div v-else-if="filteredEvents.length === 0" class="text-center py-12">
-          <div class="text-6xl mb-4">🔍</div>
-          <h3 class="text-xl font-semibold text-gray-800 mb-2">没有找到活动</h3>
-          <p class="text-gray-600">请尝试调整筛选条件或搜索关键词</p>
+        <div
+          v-else-if="filteredEvents.length === 0"
+          class="text-center py-12"
+        >
+          <div class="text-6xl mb-4">
+            🔍
+          </div>
+          <h3 class="text-xl font-semibold text-gray-800 mb-2">
+            没有找到活动
+          </h3>
+          <p class="text-gray-600">
+            请尝试调整筛选条件或搜索关键词
+          </p>
         </div>
 
         <!-- 活动网格 -->
-        <div v-else class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div
+          v-else
+          class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
           <div
             v-for="event in paginatedEvents"
             :key="event.id"
@@ -161,8 +225,18 @@
             <!-- 活动信息 -->
             <div class="p-6">
               <div class="flex items-center text-sm text-gray-500 mb-2">
-                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                <svg
+                  class="w-4 h-4 mr-1"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
                 </svg>
                 {{ formatDate(event.date) }}
               </div>
@@ -177,15 +251,40 @@
               
               <div class="flex items-center justify-between">
                 <div class="flex items-center text-sm text-gray-500">
-                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  <svg
+                    class="w-4 h-4 mr-1"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                    />
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
                   </svg>
                   {{ event.location }}
                 </div>
                 <div class="flex items-center text-sm text-gray-500">
-                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                  <svg
+                    class="w-4 h-4 mr-1"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
+                    />
                   </svg>
                   {{ event.attendees }}人
                 </div>
@@ -194,15 +293,15 @@
               <div class="mt-4 pt-4 border-t border-gray-100">
                 <div class="flex gap-2">
                   <button 
-                    @click="viewEventDetails(event)"
                     class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                    @click="viewEventDetails(event)"
                   >
                     查看详情
                   </button>
                   <button 
                     v-if="event.status === 'upcoming'"
-                    @click="registerForEvent(event)"
                     class="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+                    @click="registerForEvent(event)"
                   >
                     立即报名
                   </button>
@@ -213,12 +312,15 @@
         </div>
 
         <!-- 分页 -->
-        <div v-if="totalPages > 1" class="flex justify-center mt-12">
+        <div
+          v-if="totalPages > 1"
+          class="flex justify-center mt-12"
+        >
           <nav class="flex space-x-2">
             <button
-              @click="currentPage--"
               :disabled="currentPage === 1"
               class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              @click="currentPage--"
             >
               上一页
             </button>
@@ -226,17 +328,17 @@
             <button
               v-for="page in visiblePages"
               :key="page"
-              @click="currentPage = page"
               class="px-4 py-2 border rounded-lg"
               :class="page === currentPage ? 'bg-blue-600 text-white border-blue-600' : 'border-gray-300 hover:bg-gray-50'"
+              @click="currentPage = page"
             >
               {{ page }}
             </button>
             
             <button
-              @click="currentPage++"
               :disabled="currentPage === totalPages"
               class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              @click="currentPage++"
             >
               下一页
             </button>
@@ -262,11 +364,21 @@
             class="w-full h-64 object-cover rounded-t-2xl"
           >
           <button 
-            @click="closeDetailModal"
             class="absolute top-4 right-4 w-8 h-8 bg-black/50 text-white rounded-full flex items-center justify-center hover:bg-black/70"
+            @click="closeDetailModal"
           >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
@@ -282,48 +394,105 @@
             <span class="text-sm text-gray-500">{{ selectedEvent?.category }}</span>
           </div>
           
-          <h2 class="text-2xl font-bold text-gray-800 mb-4">{{ selectedEvent?.title }}</h2>
+          <h2 class="text-2xl font-bold text-gray-800 mb-4">
+            {{ selectedEvent?.title }}
+          </h2>
           
           <div class="space-y-4 mb-6">
             <div class="flex items-center text-gray-600">
-              <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              <svg
+                class="w-5 h-5 mr-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
               </svg>
               {{ formatDate(selectedEvent?.date) }}
             </div>
             
             <div class="flex items-center text-gray-600">
-              <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              <svg
+                class="w-5 h-5 mr-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                />
               </svg>
               {{ selectedEvent?.location }}
             </div>
             
             <div class="flex items-center text-gray-600">
-              <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              <svg
+                class="w-5 h-5 mr-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
               {{ selectedEvent?.duration }}
             </div>
             
             <div class="flex items-center text-gray-600">
-              <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+              <svg
+                class="w-5 h-5 mr-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
+                />
               </svg>
               {{ selectedEvent?.attendees }}人已报名
             </div>
           </div>
           
           <div class="mb-6">
-            <h3 class="font-semibold text-gray-800 mb-2">活动详情</h3>
-            <p class="text-gray-600 leading-relaxed">{{ selectedEvent?.description }}</p>
+            <h3 class="font-semibold text-gray-800 mb-2">
+              活动详情
+            </h3>
+            <p class="text-gray-600 leading-relaxed">
+              {{ selectedEvent?.description }}
+            </p>
           </div>
           
           <div class="mb-6">
-            <h3 class="font-semibold text-gray-800 mb-2">活动亮点</h3>
+            <h3 class="font-semibold text-gray-800 mb-2">
+              活动亮点
+            </h3>
             <ul class="text-gray-600 space-y-1">
-              <li v-for="highlight in selectedEvent?.highlights" :key="highlight" class="flex items-start">
+              <li
+                v-for="highlight in selectedEvent?.highlights"
+                :key="highlight"
+                class="flex items-start"
+              >
                 <span class="text-blue-500 mr-2">•</span>
                 {{ highlight }}
               </li>
@@ -333,14 +502,14 @@
           <div class="flex gap-4">
             <button 
               v-if="selectedEvent?.status === 'upcoming'"
-              @click="registerForEvent(selectedEvent)"
               class="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              @click="registerForEvent(selectedEvent)"
             >
               立即报名
             </button>
             <button 
-              @click="shareEvent"
               class="flex-1 border border-gray-300 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+              @click="shareEvent"
             >
               分享活动
             </button>
@@ -360,15 +529,29 @@
         @click.stop
       >
         <div class="w-16 h-16 bg-green-500 rounded-full mx-auto mb-4 flex items-center justify-center">
-          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          <svg
+            class="w-8 h-8 text-white"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 13l4 4L19 7"
+            />
           </svg>
         </div>
-        <h3 class="text-xl font-bold text-gray-800 mb-2">报名成功！</h3>
-        <p class="text-gray-600 mb-6">您已成功报名该活动，我们将通过邮件发送详细信息。</p>
+        <h3 class="text-xl font-bold text-gray-800 mb-2">
+          报名成功！
+        </h3>
+        <p class="text-gray-600 mb-6">
+          您已成功报名该活动，我们将通过邮件发送详细信息。
+        </p>
         <button 
-          @click="showRegistrationSuccess = false"
           class="bg-blue-600 text-white py-2 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+          @click="showRegistrationSuccess = false"
         >
           确定
         </button>
@@ -698,11 +881,65 @@ onMounted(() => {
   background-color: #fafafa;
 }
 
+.shimmer-trails {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  mix-blend-mode: screen;
+}
+
+.shimmer-band {
+  position: absolute;
+  top: -20%;
+  width: 40%;
+  height: 160%;
+  border-radius: 9999px;
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0));
+  filter: blur(4px);
+  opacity: 0.35;
+  animation: shimmerMove 10s linear infinite;
+  --band-rotation: 0deg;
+  transform: rotate(var(--band-rotation));
+}
+
+.band-a {
+  left: -15%;
+  --band-rotation: -12deg;
+}
+
+.band-b {
+  left: 25%;
+  --band-rotation: 6deg;
+  animation-delay: 1.5s;
+}
+
+.band-c {
+  right: -10%;
+  --band-rotation: 18deg;
+  animation-delay: 3s;
+}
+
+@keyframes shimmerMove {
+  0% {
+    transform: rotate(var(--band-rotation)) translateX(-140%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: rotate(var(--band-rotation)) translateX(140%);
+    opacity: 0;
+  }
+}
+
 /* 文本截断 */
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+  line-clamp: 2;
   overflow: hidden;
 }
 

@@ -7,15 +7,24 @@
       :class="labelClasses"
     >
       {{ label }}
-      <span v-if="required" :class="requiredClasses">*</span>
+      <span
+        v-if="required"
+        :class="requiredClasses"
+      >*</span>
     </label>
 
     <!-- 输入框容器 -->
     <div :class="inputContainerClasses">
       <!-- 前置图标 -->
-      <div v-if="$slots.prefix || prefix" :class="prefixClasses">
+      <div
+        v-if="$slots.prefix || prefix"
+        :class="prefixClasses"
+      >
         <slot name="prefix">
-          <component v-if="prefix" :is="prefix" />
+          <component
+            :is="prefix"
+            v-if="prefix"
+          />
         </slot>
       </div>
 
@@ -38,7 +47,7 @@
         @blur="handleBlur"
         @focus="handleFocus"
         @keydown="handleKeydown"
-      />
+      >
 
       <!-- 后置图标和操作 -->
       <div :class="suffixClasses">
@@ -49,14 +58,27 @@
           :class="clearButtonClasses"
           @click="handleClear"
         >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </button>
         
         <!-- 后缀图标 -->
         <slot name="suffix">
-          <component v-if="suffix" :is="suffix" />
+          <component
+            :is="suffix"
+            v-if="suffix"
+          />
         </slot>
 
         <!-- 密码显示/隐藏按钮 -->
@@ -66,21 +88,62 @@
           :class="toggleButtonClasses"
           @click="togglePasswordVisibility"
         >
-          <svg v-if="passwordVisible" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+          <svg
+            v-if="passwordVisible"
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+            />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+            />
           </svg>
-          <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+          <svg
+            v-else
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
+            />
           </svg>
         </button>
       </div>
     </div>
 
     <!-- 错误信息 -->
-    <div v-if="error || $slots.error" :class="errorClasses">
-      <svg v-if="error" class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    <div
+      v-if="error || $slots.error"
+      :class="errorClasses"
+    >
+      <svg
+        v-if="error"
+        class="w-4 h-4 mr-1"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+        />
       </svg>
       <slot name="error">
         {{ error }}
@@ -88,8 +151,13 @@
     </div>
 
     <!-- 提示信息 -->
-    <div v-if="hint && !$slots.error && !error" :class="hintClasses">
-      <slot name="hint">{{ hint }}</slot>
+    <div
+      v-if="hint && !$slots.error && !error"
+      :class="hintClasses"
+    >
+      <slot name="hint">
+        {{ hint }}
+      </slot>
     </div>
   </div>
 </template>

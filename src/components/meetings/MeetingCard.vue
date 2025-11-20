@@ -12,23 +12,32 @@
     <!-- 会议卡片头部 -->
     <div class="meeting-card-header">
       <div class="meeting-date-info">
-        <div class="date-main">{{ formatDate(meeting.date) }}</div>
-        <div class="date-sub">{{ getRelativeTime(meeting.date) }}</div>
+        <div class="date-main">
+          {{ formatDate(meeting.date) }}
+        </div>
+        <div class="date-sub">
+          {{ getRelativeTime(meeting.date) }}
+        </div>
       </div>
       <div class="meeting-status">
         <span 
           class="status-badge"
-          :class="`status-${meeting.status}`"
+          :class="`status-${meeting.status || 'completed'}`"
         >
-          {{ getStatusText(meeting.status) }}
+          {{ getStatusText(meeting.status ?? 'completed') }}
         </span>
       </div>
     </div>
 
     <!-- 会议标题和类型 -->
     <div class="meeting-title-section">
-      <h3 class="meeting-title">{{ meeting.title }}</h3>
-      <div class="meeting-type-tags">
+      <h3 class="meeting-title">
+        {{ meeting.title }}
+      </h3>
+      <div
+        v-if="meeting.types?.length"
+        class="meeting-type-tags"
+      >
         <span 
           v-for="type in meeting.types" 
           :key="type"
@@ -41,29 +50,46 @@
 
     <!-- 会议内容预览 -->
     <div class="meeting-content">
-      <p class="meeting-summary">{{ meeting.summary }}</p>
+      <p class="meeting-summary">
+        {{ meeting.summary || '暂无会议摘要' }}
+      </p>
       
       <!-- 参与人员 -->
-      <div class="meeting-attendees" v-if="meeting.attendees">
+      <div
+        v-if="displayAttendees.length"
+        class="meeting-attendees"
+      >
         <div class="attendees-avatar-list">
-          <img
-            v-for="attendee in meeting.attendees.slice(0, 5)"
-            :key="attendee.id"
-            :src="attendee.avatar"
-            :alt="attendee.name"
-            class="attendee-avatar"
-            :title="attendee.name"
-          />
-          <div 
-            v-if="meeting.attendees.length > 5"
-            class="attendee-more"
-            :title="`还有 ${meeting.attendees.length - 5} 人参与`"
+          <div
+            v-for="(attendee, index) in displayAttendees.slice(0, 5)"
+            :key="attendee.id || `${meeting.id}-attendee-${index}`"
+            class="attendee-avatar-wrapper"
           >
-            +{{ meeting.attendees.length - 5 }}
+            <img
+              v-if="attendee.avatar"
+              :src="attendee.avatar"
+              :alt="attendee.name"
+              class="attendee-avatar"
+              :title="attendee.name"
+            >
+            <div
+              v-else
+              class="attendee-avatar placeholder"
+              :title="attendee.name"
+            >
+              {{ getInitials(attendee.name) }}
+            </div>
+          </div>
+          <div 
+            v-if="displayAttendees.length > 5"
+            class="attendee-more"
+            :title="`还有 ${displayAttendees.length - 5} 人参与`"
+          >
+            +{{ displayAttendees.length - 5 }}
           </div>
         </div>
         <span class="attendees-count">
-          {{ meeting.attendees.length }} 人参与
+          {{ displayAttendees.length }} 人参与
         </span>
       </div>
     </div>
@@ -71,27 +97,42 @@
     <!-- 会议统计信息 -->
     <div class="meeting-stats">
       <div class="stat-item">
-        <svg class="stat-icon" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+        <svg
+          class="stat-icon"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+        >
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
         </svg>
         <span class="stat-text">{{ meeting.issues?.length || 0 }} 议题</span>
       </div>
       <div class="stat-item">
-        <svg class="stat-icon" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+        <svg
+          class="stat-icon"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+        >
+          <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
         </svg>
         <span class="stat-text">{{ meeting.files?.length || 0 }} 文件</span>
       </div>
       <div class="stat-item">
-        <svg class="stat-icon" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12,2A3,3 0 0,1 15,5V11A3,3 0 0,1 12,14A3,3 0 0,1 9,11V5A3,3 0 0,1 12,2M19,11C19,14.53 16.39,17.44 13,17.93V21H11V17.93C7.61,17.44 5,14.53 5,11H7A5,5 0 0,0 12,16A5,5 0 0,0 17,11H19Z"/>
+        <svg
+          class="stat-icon"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+        >
+          <path d="M12,2A3,3 0 0,1 15,5V11A3,3 0 0,1 12,14A3,3 0 0,1 9,11V5A3,3 0 0,1 12,2M19,11C19,14.53 16.39,17.44 13,17.93V21H11V17.93C7.61,17.44 5,14.53 5,11H7A5,5 0 0,0 12,16A5,5 0 0,0 17,11H19Z" />
         </svg>
         <span class="stat-text">{{ formatDuration(meeting.duration) }}</span>
       </div>
     </div>
 
     <!-- 标签列表 -->
-    <div class="meeting-tags" v-if="meeting.tags?.length">
+    <div
+      v-if="meeting.tags?.length"
+      class="meeting-tags"
+    >
       <span 
         v-for="tag in meeting.tags" 
         :key="tag"
@@ -103,23 +144,34 @@
     </div>
 
     <!-- 操作按钮 -->
-    <div class="meeting-actions" v-show="isHovered">
+    <div
+      v-show="isHovered"
+      class="meeting-actions"
+    >
       <button 
         class="action-btn action-view"
         @click.stop="handleViewDetail"
       >
-        <svg class="action-icon" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+        <svg
+          class="action-icon"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+        >
+          <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
         </svg>
         查看详情
       </button>
       <button 
+        v-if="meeting.files?.length"
         class="action-btn action-files"
         @click.stop="handleViewFiles"
-        v-if="meeting.files?.length"
       >
-        <svg class="action-icon" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+        <svg
+          class="action-icon"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+        >
+          <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
         </svg>
         相关文件
       </button>
@@ -128,40 +180,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-
-// 会议类型定义
-interface Meeting {
-  id: string
-  title: string
-  date: string
-  summary: string
-  status: 'upcoming' | 'ongoing' | 'completed' | 'cancelled'
-  types: string[]
-  attendees: Array<{
-    id: string
-    name: string
-    avatar: string
-    role?: string
-  }>
-  duration: number // 分钟
-  issues?: Array<{
-    id: string
-    title: string
-    status: string
-  }>
-  files?: Array<{
-    id: string
-    name: string
-    type: string
-    size: string
-    url: string
-  }>
-  tags?: string[]
-  location?: string
-  recording?: string
-  minutes?: string
-}
+import { ref, computed } from 'vue'
+import type { Meeting, MeetingAttendee } from '@/types/entities'
 
 interface Props {
   meeting: Meeting
@@ -181,6 +201,24 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<Emits>()
 
 const isHovered = ref(false)
+
+const displayAttendees = computed<MeetingAttendee[]>(() => {
+  const list = props.meeting.attendees ?? []
+  return list.map((attendee, index) => {
+    if (typeof attendee === 'string') {
+      return {
+        id: `${props.meeting.id}-attendee-${index}`,
+        name: attendee
+      }
+    }
+    return attendee
+  })
+})
+
+const getInitials = (name?: string) => {
+  if (!name) return '成员'
+  return name.slice(0, 1).toUpperCase()
+}
 
 // 格式化日期
 const formatDate = (dateString: string): string => {
@@ -244,7 +282,8 @@ const getTypeText = (type: string): string => {
 }
 
 // 格式化时长
-const formatDuration = (minutes: number): string => {
+const formatDuration = (minutes?: number): string => {
+  if (!minutes) return '—'
   if (minutes < 60) return `${minutes}分钟`
   const hours = Math.floor(minutes / 60)
   const remainingMinutes = minutes % 60
@@ -280,7 +319,7 @@ const handleViewFiles = () => {
 }
 </script>
 
-<style scoped>
+<style scoped lang="postcss">
 /* 基础样式 */
 .meeting-card {
   @apply relative bg-white rounded-xl shadow-md hover:shadow-xl 
@@ -366,6 +405,14 @@ const handleViewFiles = () => {
 
 .attendee-avatar {
   @apply w-8 h-8 rounded-full border-2 border-white object-cover;
+}
+
+.attendee-avatar.placeholder {
+  @apply flex items-center justify-center text-xs font-semibold text-gray-600 bg-gray-200;
+}
+
+.attendee-avatar-wrapper {
+  @apply w-8 h-8 rounded-full border-2 border-white overflow-hidden bg-gray-100;
 }
 
 .attendee-more {

@@ -1,16 +1,25 @@
 <template>
-  <article class="article-card" @click="navigateToArticle">
+  <article
+    class="article-card"
+    @click="navigateToArticle"
+  >
     <div class="article-image">
       <img 
         :src="article.coverImage || '/images/default-article.jpg'" 
         :alt="article.title"
-        @error="handleImageError"
         loading="lazy"
-      />
-      <div class="article-category" :class="`category-${getCategoryClass(article.category)}`">
+        @error="handleImageError"
+      >
+      <div
+        class="article-category"
+        :class="`category-${getCategoryClass(article.category)}`"
+      >
         {{ article.category }}
       </div>
-      <div v-if="article.isFeatured" class="featured-badge">
+      <div
+        v-if="article.isFeatured"
+        class="featured-badge"
+      >
         <StarIcon />
         精选
       </div>
@@ -28,7 +37,7 @@
               :alt="article.author?.name || '匿名作者'" 
               class="author-avatar"
               @error="handleAuthorAvatarError"
-            />
+            >
             <span class="author-name">{{ article.author?.name || '匿名作者' }}</span>
           </div>
           <time class="article-date">{{ formatDate(article.publishedAt) }}</time>
@@ -36,7 +45,9 @@
         </div>
       </header>
       
-      <p class="article-excerpt">{{ article.excerpt || article.description }}</p>
+      <p class="article-excerpt">
+        {{ article.excerpt || article.description }}
+      </p>
       
       <footer class="article-footer">
         <div class="article-tags">
@@ -58,11 +69,17 @@
         </div>
         
         <div class="article-stats">
-          <span class="stat" :title="`${article.views || 0} 次浏览`">
+          <span
+            class="stat"
+            :title="`${article.views || 0} 次浏览`"
+          >
             <EyeIcon class="stat-icon" />
             {{ formatNumber(article.views || 0) }}
           </span>
-          <span class="stat" :title="`${article.likes || 0} 个赞`">
+          <span
+            class="stat"
+            :title="`${article.likes || 0} 个赞`"
+          >
             <HeartIcon 
               class="stat-icon" 
               :class="{ liked: article.isLiked }"
@@ -70,14 +87,17 @@
             />
             {{ formatNumber(article.likes || 0) }}
           </span>
-          <span class="stat" :title="`${article.comments || 0} 条评论`">
+          <span
+            class="stat"
+            :title="`${article.comments || 0} 条评论`"
+          >
             <MessageCircleIcon class="stat-icon" />
             {{ formatNumber(article.comments || 0) }}
           </span>
           <button 
             class="share-btn"
-            @click.stop="shareArticle"
             title="分享文章"
+            @click.stop="shareArticle"
           >
             <ShareIcon />
           </button>

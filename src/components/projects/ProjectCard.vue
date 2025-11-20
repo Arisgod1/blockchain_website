@@ -7,24 +7,33 @@
   >
     <div class="project-image">
       <img 
-        :src="project.images?.[0] || '/images/default-project.png'" 
-        :alt="project.title"
+        :src="coverImage" 
+        :alt="projectTitle"
         @error="handleImageError"
-      />
-      <div class="status-badge" :class="`status-${project.status}`">
-        {{ getStatusText(project.status) }}
+      >
+      <div
+        class="status-badge"
+        :class="`status-${statusClass}`"
+      >
+        {{ getStatusText(statusClass) }}
       </div>
-      <div class="project-overlay" v-show="showDetails">
+      <div
+        v-show="showDetails && techStack.length"
+        class="project-overlay"
+      >
         <div class="tech-stack">
           <span 
-            v-for="tech in project.techStack.slice(0, 4)" 
+            v-for="tech in techStack.slice(0, 4)" 
             :key="tech" 
             class="tech-tag"
           >
             {{ tech }}
           </span>
-          <span v-if="project.techStack.length > 4" class="tech-tag">
-            +{{ project.techStack.length - 4 }}
+          <span
+            v-if="techStack.length > 4"
+            class="tech-tag"
+          >
+            +{{ techStack.length - 4 }}
           </span>
         </div>
       </div>
@@ -32,18 +41,28 @@
     
     <div class="project-content">
       <div class="project-header">
-        <h3 class="project-title">{{ project.title }}</h3>
-        <span class="project-category">{{ project.category }}</span>
+        <h3 class="project-title">
+          {{ projectTitle }}
+        </h3>
+        <span class="project-category">{{ categoryLabel }}</span>
       </div>
       
-      <p class="project-description">{{ project.shortDescription || project.description }}</p>
+      <p class="project-description">
+        {{ projectDescription }}
+      </p>
       
-      <div class="project-progress" v-if="project.status !== 'completed'">
+      <div
+        v-if="statusClass !== 'completed'"
+        class="project-progress"
+      >
         <div class="progress-info">
           <div class="progress-bar">
-            <div class="progress-fill" :style="{ width: `${project.progress}%` }"></div>
+            <div
+              class="progress-fill"
+              :style="{ width: `${progressValue}%` }"
+            />
           </div>
-          <span class="progress-text">{{ project.progress }}% 完成</span>
+          <span class="progress-text">{{ progressValue }}% 完成</span>
         </div>
       </div>
       
@@ -53,14 +72,17 @@
             <CalendarIcon class="meta-icon" />
             {{ formatDate(project.startDate) }}
           </span>
-          <span v-if="project.endDate" class="date-item">
+          <span
+            v-if="project.endDate"
+            class="date-item"
+          >
             <CalendarCheckIcon class="meta-icon" />
             {{ formatDate(project.endDate) }}
           </span>
         </div>
         <div class="project-team">
           <UsersIcon class="meta-icon" />
-          {{ project.teamSize || '1-5'}}人团队
+          {{ teamSizeLabel }}人团队
         </div>
       </div>
       
@@ -86,8 +108,8 @@
             :href="project.githubUrl" 
             target="_blank" 
             class="link-btn"
-            @click.stop
             :title="'GitHub 仓库'"
+            @click.stop
           >
             <GithubIcon />
           </a>
@@ -96,16 +118,16 @@
             :href="project.demoUrl" 
             target="_blank" 
             class="link-btn"
-            @click.stop
             :title="'在线演示'"
+            @click.stop
           >
             <ExternalLinkIcon />
           </a>
           <button 
-            v-if="project.documentation"
+            v-if="documentationLink"
             class="link-btn"
-            @click.stop="showDocumentation"
             title="技术文档"
+            @click.stop="showDocumentation"
           >
             <FileTextIcon />
           </button>
@@ -116,7 +138,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import type { Project } from '@/types/entities'
 import { 
   GithubIcon, 
@@ -144,28 +166,97 @@ const emit = defineEmits<Emits>()
 
 const showDetails = ref(false)
 
+const coverImage = computed(() => {
+  return props.project.images?.[0]
+    || props.project.imageUrl
+    || props.project.coverImage
+    || '/images/default-project.png'
+})
+
+const projectTitle = computed(() => {
+  return props.project.title || props.project.name || '未命名项目'
+})
+
+const projectDescription = computed(() => {
+  return props.project.shortDescription
+    || props.project.summary
+    || props.project.description
+    || '暂无项目简介'
+})
+
+const techStack = computed(() => {
+  return Array.isArray(props.project.techStack) ? props.project.techStack : []
+})
+
+const normalizeStatus = (status: string | undefined): string => {
+  if (!status) return 'planning'
+  const key = status.toLowerCase()
+  if (key.includes('progress')) return 'in-progress'
+  if (key.includes('complete')) return 'completed'
+  if (key.includes('pause') || key.includes('hold')) return 'paused'
+  if (key.includes('ongoing')) return 'ongoing'
+  if (key.includes('plan')) return 'planning'
+  return key
+}
+
+const statusClass = computed(() => normalizeStatus(props.project.status as string))
+
+const categoryLabel = computed(() => {
+  const category = props.project.category
+  if (!category) return '未分类'
+  const lookup: Record<string, string> = {
+    collaboration: '协作项目',
+    competition: '竞赛项目',
+    development: '开发项目',
+    education: '教育项目',
+    research: '研究项目'
+  }
+  const key = category.toString().toLowerCase()
+  return lookup[key] || category.toString()
+})
+
+const progressValue = computed(() => {
+  const value = Number(props.project.progress ?? 0)
+  if (!Number.isFinite(value)) return 0
+  return Math.min(100, Math.max(0, Math.round(value)))
+})
+
+const teamSizeLabel = computed(() => {
+  if (props.project.teamSize) return String(props.project.teamSize)
+  if (Array.isArray(props.project.contributors) && props.project.contributors.length) {
+    return String(props.project.contributors.length)
+  }
+  return '1-5'
+})
+
+const documentationLink = computed(() => {
+  return props.project.documentation || props.project.documentationUrl || null
+})
+
 // 获取状态文本
 const getStatusText = (status: string) => {
   const statusMap: Record<string, string> = {
     'planning': '规划中',
     'in-progress': '开发中',
     'completed': '已完成',
-    'paused': '已暂停'
+    'paused': '已暂停',
+    'ongoing': '进行中'
   }
-  return statusMap[status] || status
+  return statusMap[status] || props.project.status || status
 }
 
 // 格式化日期
-const formatDate = (dateString: string) => {
-  if (!dateString) return '未知'
+const formatDate = (dateInput?: string | Date) => {
+  if (!dateInput) return '未知'
   
   try {
-    const date = new Date(dateString)
+    const date = dateInput instanceof Date ? dateInput : new Date(dateInput)
+    if (Number.isNaN(date.getTime())) return '未知'
     const year = date.getFullYear()
     const month = date.getMonth() + 1
     return `${year}年${month}月`
   } catch {
-    return dateString
+    return typeof dateInput === 'string' ? dateInput : '未知'
   }
 }
 

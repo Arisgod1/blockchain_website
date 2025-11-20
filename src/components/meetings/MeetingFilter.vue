@@ -3,8 +3,12 @@
     <!-- 搜索框 -->
     <div class="filter-section search-section">
       <div class="search-input-wrapper">
-        <svg class="search-icon" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+        <svg
+          class="search-icon"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+        >
+          <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
         </svg>
         <input
           v-model="searchQuery"
@@ -12,14 +16,18 @@
           placeholder="搜索会议标题、内容..."
           class="search-input"
           @input="handleSearch"
-        />
+        >
         <button 
           v-if="searchQuery"
           class="search-clear"
           @click="clearSearch"
         >
-          <svg class="clear-icon" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+          <svg
+            class="clear-icon"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
           </svg>
         </button>
       </div>
@@ -27,7 +35,9 @@
 
     <!-- 筛选条件 -->
     <div class="filter-section filters-section">
-      <h3 class="filter-title">筛选条件</h3>
+      <h3 class="filter-title">
+        筛选条件
+      </h3>
       
       <!-- 会议状态 -->
       <div class="filter-group">
@@ -44,7 +54,7 @@
               :value="status.value"
               class="filter-checkbox"
               @change="handleFilterChange"
-            />
+            >
             <span class="filter-text">{{ status.label }}</span>
             <span class="filter-count">({{ getStatusCount(status.value) }})</span>
           </label>
@@ -66,7 +76,7 @@
               :value="type.value"
               class="filter-checkbox"
               @change="handleFilterChange"
-            />
+            >
             <span class="filter-text">{{ type.label }}</span>
             <span class="filter-count">({{ getTypeCount(type.value) }})</span>
           </label>
@@ -88,7 +98,7 @@
               :value="size.value"
               class="filter-checkbox"
               @change="handleFilterChange"
-            />
+            >
             <span class="filter-text">{{ size.label }}</span>
             <span class="filter-count">({{ getAttendeeSizeCount(size.value) }})</span>
           </label>
@@ -104,14 +114,14 @@
             type="date"
             class="date-input"
             @change="handleFilterChange"
-          />
+          >
           <span class="date-separator">至</span>
           <input
             v-model="dateRange.end"
             type="date"
             class="date-input"
             @change="handleFilterChange"
-          />
+          >
         </div>
       </div>
 
@@ -134,7 +144,9 @@
 
     <!-- 排序选项 -->
     <div class="filter-section sort-section">
-      <h3 class="filter-title">排序方式</h3>
+      <h3 class="filter-title">
+        排序方式
+      </h3>
       <div class="sort-options">
         <button
           v-for="option in sortOptions"
@@ -151,7 +163,7 @@
             viewBox="0 0 24 24"
             fill="currentColor"
           >
-            <path d="M7 14l5-5 5 5z"/>
+            <path d="M7 14l5-5 5 5z" />
           </svg>
         </button>
       </div>
@@ -165,8 +177,13 @@
     </div>
 
     <!-- 活跃筛选器显示 -->
-    <div class="active-filters" v-if="hasActiveFilters">
-      <h3 class="filter-title">当前筛选</h3>
+    <div
+      v-if="hasActiveFilters"
+      class="active-filters"
+    >
+      <h3 class="filter-title">
+        当前筛选
+      </h3>
       <div class="active-filter-tags">
         <div 
           v-for="status in selectedStatuses"
@@ -174,9 +191,16 @@
           class="active-filter-tag"
         >
           <span class="filter-text">{{ getStatusText(status) }}</span>
-          <button class="filter-remove" @click="removeStatus(status)">
-            <svg class="remove-icon" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+          <button
+            class="filter-remove"
+            @click="removeStatus(status)"
+          >
+            <svg
+              class="remove-icon"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
             </svg>
           </button>
         </div>
@@ -186,9 +210,16 @@
           class="active-filter-tag"
         >
           <span class="filter-text">{{ getTypeText(type) }}</span>
-          <button class="filter-remove" @click="removeType(type)">
-            <svg class="remove-icon" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+          <button
+            class="filter-remove"
+            @click="removeType(type)"
+          >
+            <svg
+              class="remove-icon"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
             </svg>
           </button>
         </div>
@@ -198,13 +229,23 @@
           class="active-filter-tag"
         >
           <span class="filter-text">{{ tag }}</span>
-          <button class="filter-remove" @click="removeTag(tag)">
-            <svg class="remove-icon" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+          <button
+            class="filter-remove"
+            @click="removeTag(tag)"
+          >
+            <svg
+              class="remove-icon"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
             </svg>
           </button>
         </div>
-        <button class="clear-all-filters" @click="clearAllFilters">
+        <button
+          class="clear-all-filters"
+          @click="clearAllFilters"
+        >
           清除全部
         </button>
       </div>
@@ -221,6 +262,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
+import type { Meeting } from '@/types/entities'
 
 // 筛选选项数据
 const statusOptions = [
@@ -278,23 +320,15 @@ interface FilterOptions {
   attendeeSizes?: string[]
   tags?: string[]
   dateRange?: {
-    start: string
-    end: string
+    start?: string
+    end?: string
   }
   sortBy?: string
   sortDirection?: 'asc' | 'desc'
 }
 
 interface Props {
-  meetings?: Array<{
-    id: string
-    status: string
-    types: string[]
-    attendees?: any[]
-    date: string
-    duration: number
-    tags?: string[]
-  }>
+  meetings?: Meeting[]
   initialFilters?: FilterOptions
 }
 
@@ -303,7 +337,17 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  meetings: () => []
+  meetings: () => [],
+  initialFilters: () => ({
+    searchQuery: '',
+    statuses: [],
+    types: [],
+    attendeeSizes: [],
+    tags: [],
+    dateRange: undefined,
+    sortBy: 'date',
+    sortDirection: 'desc'
+  })
 })
 
 const emit = defineEmits<Emits>()
@@ -330,7 +374,7 @@ const getStatusCount = (status: string): number => {
 }
 
 const getTypeCount = (type: string): number => {
-  return props.meetings?.filter(m => m.types.includes(type)).length || 0
+  return props.meetings?.filter(m => (m.types ?? []).includes(type)).length || 0
 }
 
 const getAttendeeSizeCount = (size: string): number => {
@@ -452,8 +496,9 @@ const initializeFilters = () => {
     selectedTypes.value = filters.types || []
     selectedAttendeeSizes.value = filters.attendeeSizes || []
     selectedTags.value = filters.tags || []
-    if (filters.dateRange) {
-      dateRange.value = filters.dateRange
+    dateRange.value = {
+      start: filters.dateRange?.start || '',
+      end: filters.dateRange?.end || ''
     }
     sortBy.value = filters.sortBy || 'date'
     sortDirection.value = filters.sortDirection || 'desc'
@@ -462,9 +507,13 @@ const initializeFilters = () => {
 
 // 监听初始筛选器变化
 watch(() => props.initialFilters, initializeFilters, { immediate: true })
+
+defineExpose({
+  resetFilters: clearAllFilters
+})
 </script>
 
-<style scoped>
+<style scoped lang="postcss">
 /* 基础样式 */
 .meeting-filter {
   @apply bg-white rounded-xl shadow-md border border-gray-100 p-6;

@@ -6,10 +6,15 @@
     @update:show="$emit('update:show', $event)"
     @close="$emit('update:show', false)"
   >
-    <form @submit.prevent="handleSave" class="meeting-edit-form">
+    <form
+      class="meeting-edit-form"
+      @submit.prevent="handleSave"
+    >
       <!-- 基本信息 -->
       <div class="form-section">
-        <h3 class="section-title">基本信息</h3>
+        <h3 class="section-title">
+          基本信息
+        </h3>
         
         <div class="form-row">
           <div class="form-group">
@@ -74,7 +79,9 @@
 
       <!-- 参与人员 -->
       <div class="form-section">
-        <h3 class="section-title">参与人员</h3>
+        <h3 class="section-title">
+          参与人员
+        </h3>
         
         <div class="attendees-section">
           <div class="attendees-input">
@@ -93,7 +100,10 @@
             </BaseButton>
           </div>
           
-          <div v-if="formData.attendees.length > 0" class="attendees-list">
+          <div
+            v-if="formData.attendees.length > 0"
+            class="attendees-list"
+          >
             <span 
               v-for="(attendee, index) in formData.attendees"
               :key="index"
@@ -114,7 +124,9 @@
 
       <!-- 会议议程 -->
       <div class="form-section">
-        <h3 class="section-title">会议议程</h3>
+        <h3 class="section-title">
+          会议议程
+        </h3>
         
         <div class="agenda-section">
           <div class="agenda-input">
@@ -133,7 +145,10 @@
             </BaseButton>
           </div>
           
-          <ol v-if="formData.agenda.length > 0" class="agenda-list">
+          <ol
+            v-if="formData.agenda.length > 0"
+            class="agenda-list"
+          >
             <li 
               v-for="(agendaItem, index) in formData.agenda"
               :key="index"
@@ -154,7 +169,9 @@
 
       <!-- 会议内容 -->
       <div class="form-section">
-        <h3 class="section-title">会议内容</h3>
+        <h3 class="section-title">
+          会议内容
+        </h3>
         
         <div class="form-group">
           <label for="content">会议记录 *</label>
@@ -166,13 +183,15 @@
             placeholder="请详细记录会议讨论内容..."
             :error="errors.content"
             required
-          ></textarea>
+          />
         </div>
       </div>
 
       <!-- 会议决策 -->
       <div class="form-section">
-        <h3 class="section-title">会议决策</h3>
+        <h3 class="section-title">
+          会议决策
+        </h3>
         
         <div class="decisions-section">
           <div class="decisions-input">
@@ -191,7 +210,10 @@
             </BaseButton>
           </div>
           
-          <ul v-if="formData.decisions.length > 0" class="decisions-list">
+          <ul
+            v-if="formData.decisions.length > 0"
+            class="decisions-list"
+          >
             <li 
               v-for="(decision, index) in formData.decisions"
               :key="index"
@@ -212,7 +234,9 @@
 
       <!-- 行动项 -->
       <div class="form-section">
-        <h3 class="section-title">行动项</h3>
+        <h3 class="section-title">
+          行动项
+        </h3>
         
         <div class="action-items-section">
           <div class="action-item-form">
@@ -251,9 +275,15 @@
                   v-model="newActionItem.priority"
                   class="priority-select"
                 >
-                  <option value="low">低</option>
-                  <option value="medium">中</option>
-                  <option value="high">高</option>
+                  <option value="low">
+                    低
+                  </option>
+                  <option value="medium">
+                    中
+                  </option>
+                  <option value="high">
+                    高
+                  </option>
                 </select>
               </div>
               
@@ -269,7 +299,10 @@
             </div>
           </div>
           
-          <div v-if="formData.actionItems.length > 0" class="action-items-list">
+          <div
+            v-if="formData.actionItems.length > 0"
+            class="action-items-list"
+          >
             <div 
               v-for="(item, index) in formData.actionItems"
               :key="index"
@@ -288,10 +321,18 @@
                     class="status-select"
                     @change="updateActionStatus(index, item.status)"
                   >
-                    <option value="pending">待办</option>
-                    <option value="in-progress">进行中</option>
-                    <option value="completed">已完成</option>
-                    <option value="overdue">已逾期</option>
+                    <option value="pending">
+                      待办
+                    </option>
+                    <option value="in-progress">
+                      进行中
+                    </option>
+                    <option value="completed">
+                      已完成
+                    </option>
+                    <option value="overdue">
+                      已逾期
+                    </option>
                   </select>
                   
                   <select 
@@ -299,9 +340,15 @@
                     class="priority-select"
                     @change="updateActionPriority(index, item.priority)"
                   >
-                    <option value="low">低</option>
-                    <option value="medium">中</option>
-                    <option value="high">高</option>
+                    <option value="low">
+                      低
+                    </option>
+                    <option value="medium">
+                      中
+                    </option>
+                    <option value="high">
+                      高
+                    </option>
                   </select>
                   
                   <button 
@@ -320,15 +367,17 @@
 
       <!-- 其他设置 -->
       <div class="form-section">
-        <h3 class="section-title">其他设置</h3>
+        <h3 class="section-title">
+          其他设置
+        </h3>
         
         <div class="form-group">
           <label class="checkbox-label">
             <input 
-              type="checkbox" 
-              v-model="formData.isPublic"
+              v-model="formData.isPublic" 
+              type="checkbox"
               class="checkbox-input"
-            />
+            >
             <span class="checkbox-text">公开可见</span>
           </label>
         </div>

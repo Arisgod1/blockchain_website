@@ -10,11 +10,11 @@
           placeholder="搜索文章标题、内容、作者..."
           class="search-input"
           @input="handleSearch"
-        />
+        >
         <button 
           v-if="searchQuery"
-          @click="clearSearch"
           class="clear-btn"
+          @click="clearSearch"
         >
           <XIcon />
         </button>
@@ -33,7 +33,11 @@
             :class="['category-tag', { active: selectedCategory === category.value }]"
             @click="selectCategory(category.value)"
           >
-            <component :is="category.icon" v-if="category.icon" class="category-icon" />
+            <component
+              :is="category.icon"
+              v-if="category.icon"
+              class="category-icon"
+            />
             {{ category.label }}
           </button>
         </div>
@@ -47,8 +51,8 @@
             v-for="tag in popularTags"
             :key="tag.name"
             :class="['tag-cloud-item', { active: selectedTags.includes(tag.name) }]"
-            @click="toggleTag(tag.name)"
             :style="{ fontSize: `${Math.max(0.8, Math.min(1.4, tag.weight))}rem` }"
+            @click="toggleTag(tag.name)"
           >
             {{ tag.name }}
             <span class="tag-count">{{ tag.count }}</span>
@@ -60,8 +64,14 @@
       <div class="filter-group">
         <label class="filter-label">作者</label>
         <div class="author-filters">
-          <select v-model="selectedAuthor" @change="handleAuthorChange" class="author-select">
-            <option value="">全部作者</option>
+          <select
+            v-model="selectedAuthor"
+            class="author-select"
+            @change="handleAuthorChange"
+          >
+            <option value="">
+              全部作者
+            </option>
             <option 
               v-for="author in authors" 
               :key="author.id"
@@ -77,13 +87,29 @@
       <div class="filter-group">
         <label class="filter-label">发布时间</label>
         <div class="date-filters">
-          <select v-model="selectedDateRange" @change="handleDateRangeChange" class="date-select">
-            <option value="">全部时间</option>
-            <option value="today">今天</option>
-            <option value="week">最近一周</option>
-            <option value="month">最近一月</option>
-            <option value="quarter">最近三月</option>
-            <option value="year">最近一年</option>
+          <select
+            v-model="selectedDateRange"
+            class="date-select"
+            @change="handleDateRangeChange"
+          >
+            <option value="">
+              全部时间
+            </option>
+            <option value="today">
+              今天
+            </option>
+            <option value="week">
+              最近一周
+            </option>
+            <option value="month">
+              最近一月
+            </option>
+            <option value="quarter">
+              最近三月
+            </option>
+            <option value="year">
+              最近一年
+            </option>
           </select>
         </div>
       </div>
@@ -92,17 +118,31 @@
       <div class="filter-group">
         <label class="filter-label">排序方式</label>
         <div class="sort-options">
-          <select v-model="sortBy" @change="handleSortChange" class="sort-select">
-            <option value="publishedAt">发布时间</option>
-            <option value="views">浏览量</option>
-            <option value="likes">点赞数</option>
-            <option value="comments">评论数</option>
-            <option value="readTime">阅读时间</option>
+          <select
+            v-model="sortBy"
+            class="sort-select"
+            @change="handleSortChange"
+          >
+            <option value="publishedAt">
+              发布时间
+            </option>
+            <option value="views">
+              浏览量
+            </option>
+            <option value="likes">
+              点赞数
+            </option>
+            <option value="comments">
+              评论数
+            </option>
+            <option value="readTime">
+              阅读时间
+            </option>
           </select>
           <button 
-            @click="toggleSortOrder"
             class="sort-order-btn"
             :class="{ desc: sortOrder === 'desc' }"
+            @click="toggleSortOrder"
           >
             <ArrowUpIcon v-if="sortOrder === 'asc'" />
             <ArrowDownIcon v-else />
@@ -120,12 +160,15 @@
             class="difficulty-option"
           >
             <input
+              v-model="selectedDifficulties"
               type="checkbox"
               :value="level.value"
-              v-model="selectedDifficulties"
               @change="handleDifficultyChange"
-            />
-            <span class="difficulty-text" :class="`difficulty-${level.value}`">
+            >
+            <span
+              class="difficulty-text"
+              :class="`difficulty-${level.value}`"
+            >
               {{ level.label }}
             </span>
           </label>
@@ -134,8 +177,13 @@
     </div>
 
     <!-- 活跃标签显示 -->
-    <div v-if="selectedTags.length > 0" class="active-filters">
-      <div class="active-filters-label">已选标签:</div>
+    <div
+      v-if="selectedTags.length > 0"
+      class="active-filters"
+    >
+      <div class="active-filters-label">
+        已选标签:
+      </div>
       <div class="active-tags">
         <span 
           v-for="tag in selectedTags" 
@@ -147,7 +195,10 @@
           <XIcon class="remove-tag-icon" />
         </span>
       </div>
-      <button @click="clearAllTags" class="clear-all-tags">
+      <button
+        class="clear-all-tags"
+        @click="clearAllTags"
+      >
         清除全部
       </button>
     </div>
@@ -168,22 +219,35 @@
 
     <!-- 快速操作 -->
     <div class="filter-actions">
-      <button @click="resetFilters" class="reset-btn">
+      <button
+        class="reset-btn"
+        @click="resetFilters"
+      >
         <RotateCcwIcon />
         重置筛选
       </button>
-      <button @click="toggleAdvanced" class="advanced-btn" :class="{ active: showAdvanced }">
+      <button
+        class="advanced-btn"
+        :class="{ active: showAdvanced }"
+        @click="toggleAdvanced"
+      >
         <SettingsIcon />
         高级筛选
       </button>
-      <button @click="saveFilters" class="save-btn">
+      <button
+        class="save-btn"
+        @click="saveFilters"
+      >
         <BookmarkIcon />
         保存筛选
       </button>
     </div>
 
     <!-- 高级筛选面板 -->
-    <div v-if="showAdvanced" class="advanced-panel">
+    <div
+      v-if="showAdvanced"
+      class="advanced-panel"
+    >
       <div class="advanced-group">
         <label class="filter-label">最短阅读时间</label>
         <input 
@@ -193,7 +257,7 @@
           max="30" 
           class="time-range"
           @input="handleTimeRangeChange"
-        />
+        >
         <div class="range-labels">
           <span>1分钟</span>
           <span>{{ minReadTime }}分钟</span>
@@ -206,20 +270,20 @@
         <div class="featured-filter">
           <label class="featured-option">
             <input
-              type="radio"
               v-model="featuredFilter"
+              type="radio"
               value=""
               @change="handleFeaturedChange"
-            />
+            >
             <span>全部</span>
           </label>
           <label class="featured-option">
             <input
-              type="radio"
               v-model="featuredFilter"
+              type="radio"
               value="featured"
               @change="handleFeaturedChange"
-            />
+            >
             <span>仅精选</span>
           </label>
         </div>
@@ -229,7 +293,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, watch } from 'vue'
 
 // 筛选选项接口
 interface FilterOptions {
@@ -439,6 +503,10 @@ const ArrowDownIcon = () => import('@/components/icons').then(m => m.ArrowDownIc
 const RotateCcwIcon = () => import('@/components/icons').then(m => m.RotateCcwIcon)
 const SettingsIcon = () => import('@/components/icons').then(m => m.SettingsIcon)
 const BookmarkIcon = () => import('@/components/icons').then(m => m.BookmarkIcon)
+
+defineExpose({
+  resetFilters
+})
 </script>
 
 <style scoped>

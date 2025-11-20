@@ -4,9 +4,9 @@
     <header class="relative bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 text-white overflow-hidden">
       <!-- 背景装饰 -->
       <div class="absolute inset-0">
-        <div class="absolute top-10 left-10 w-20 h-20 bg-blue-500/10 rounded-full blur-xl animate-pulse"></div>
-        <div class="absolute bottom-10 right-10 w-32 h-32 bg-orange-500/10 rounded-full blur-xl animate-pulse delay-1000"></div>
-        <div class="absolute top-1/2 left-1/3 w-16 h-16 bg-purple-500/10 rounded-full blur-xl animate-pulse delay-500"></div>
+        <div class="absolute top-10 left-10 w-20 h-20 bg-blue-500/10 rounded-full blur-xl animate-pulse" />
+        <div class="absolute bottom-10 right-10 w-32 h-32 bg-orange-500/10 rounded-full blur-xl animate-pulse delay-1000" />
+        <div class="absolute top-1/2 left-1/3 w-16 h-16 bg-purple-500/10 rounded-full blur-xl animate-pulse delay-500" />
       </div>
       
       <div class="relative z-10 container mx-auto px-4 py-20">
@@ -20,16 +20,28 @@
           </p>
           <div class="flex justify-center gap-8">
             <div class="text-center">
-              <div class="text-3xl font-bold text-orange-300">2019</div>
-              <div class="text-sm text-blue-200">成立年份</div>
+              <div class="text-3xl font-bold text-orange-300">
+                2019
+              </div>
+              <div class="text-sm text-blue-200">
+                成立年份
+              </div>
             </div>
             <div class="text-center">
-              <div class="text-3xl font-bold text-green-300">5+</div>
-              <div class="text-sm text-blue-200">研究领域</div>
+              <div class="text-3xl font-bold text-green-300">
+                5+
+              </div>
+              <div class="text-sm text-blue-200">
+                研究领域
+              </div>
             </div>
             <div class="text-center">
-              <div class="text-3xl font-bold text-purple-300">28</div>
-              <div class="text-sm text-blue-200">团队成员</div>
+              <div class="text-3xl font-bold text-purple-300">
+                28
+              </div>
+              <div class="text-sm text-blue-200">
+                团队成员
+              </div>
             </div>
           </div>
         </div>
@@ -41,7 +53,9 @@
       <!-- 团队介绍 -->
       <section class="mb-20">
         <div class="max-w-6xl mx-auto">
-          <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">团队介绍</h2>
+          <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">
+            团队介绍
+          </h2>
           <div class="grid md:grid-cols-2 gap-12 items-center">
             <div class="space-y-6">
               <div class="prose prose-lg text-gray-600">
@@ -67,8 +81,12 @@
                   <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold">
                     DUTS
                   </div>
-                  <h3 class="text-xl font-semibold text-gray-800">大连理工大学区块链组</h3>
-                  <p class="text-sm text-gray-500">Blockchain Research Group</p>
+                  <h3 class="text-xl font-semibold text-gray-800">
+                    大连理工大学区块链组
+                  </h3>
+                  <p class="text-sm text-gray-500">
+                    Blockchain Club
+                  </p>
                 </div>
                 
                 <div class="space-y-4">
@@ -98,16 +116,30 @@
       <!-- 使命与愿景 -->
       <section class="mb-20">
         <div class="max-w-6xl mx-auto">
-          <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">使命与愿景</h2>
+          <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">
+            使命与愿景
+          </h2>
           <div class="grid md:grid-cols-3 gap-8">
             <!-- 使命 -->
             <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-8 text-center">
               <div class="w-16 h-16 bg-blue-500 rounded-full mx-auto mb-6 flex items-center justify-center">
-                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                <svg
+                  class="w-8 h-8 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
               </div>
-              <h3 class="text-xl font-semibold text-blue-800 mb-4">使命</h3>
+              <h3 class="text-xl font-semibold text-blue-800 mb-4">
+                使命
+              </h3>
               <p class="text-blue-700 leading-relaxed">
                 致力于区块链技术的研究与应用创新，
                 推动分布式系统技术发展，为构建可信数字社会贡献力量。
@@ -117,12 +149,29 @@
             <!-- 愿景 -->
             <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl p-8 text-center">
               <div class="w-16 h-16 bg-orange-500 rounded-full mx-auto mb-6 flex items-center justify-center">
-                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                <svg
+                  class="w-8 h-8 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  />
                 </svg>
               </div>
-              <h3 class="text-xl font-semibold text-orange-800 mb-4">愿景</h3>
+              <h3 class="text-xl font-semibold text-orange-800 mb-4">
+                愿景
+              </h3>
               <p class="text-orange-700 leading-relaxed">
                 成为国内领先的区块链技术研究团队，
                 在学术研究、技术创新、人才培养等方面发挥示范作用。
@@ -132,11 +181,23 @@
             <!-- 价值观 -->
             <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-8 text-center">
               <div class="w-16 h-16 bg-green-500 rounded-full mx-auto mb-6 flex items-center justify-center">
-                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                <svg
+                  class="w-8 h-8 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                  />
                 </svg>
               </div>
-              <h3 class="text-xl font-semibold text-green-800 mb-4">价值观</h3>
+              <h3 class="text-xl font-semibold text-green-800 mb-4">
+                价值观
+              </h3>
               <p class="text-green-700 leading-relaxed">
                 诚信、创新、协作、开放，
                 秉承学术严谨态度，追求技术创新突破，倡导团队合作精神。
@@ -149,7 +210,9 @@
       <!-- 研究方向 -->
       <section class="mb-20">
         <div class="max-w-6xl mx-auto">
-          <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">研究方向</h2>
+          <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">
+            研究方向
+          </h2>
           <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div 
               v-for="(field, index) in researchFields" 
@@ -163,9 +226,13 @@
                 >
                   {{ field.icon }}
                 </div>
-                <h3 class="text-lg font-semibold text-gray-800 ml-4">{{ field.title }}</h3>
+                <h3 class="text-lg font-semibold text-gray-800 ml-4">
+                  {{ field.title }}
+                </h3>
               </div>
-              <p class="text-gray-600 leading-relaxed">{{ field.description }}</p>
+              <p class="text-gray-600 leading-relaxed">
+                {{ field.description }}
+              </p>
             </div>
           </div>
         </div>
@@ -174,10 +241,12 @@
       <!-- 发展历程 -->
       <section class="mb-20">
         <div class="max-w-4xl mx-auto">
-          <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">发展历程</h2>
+          <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">
+            发展历程
+          </h2>
           <div class="relative">
             <!-- 时间线 -->
-            <div class="absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-500 to-orange-500"></div>
+            <div class="absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-500 to-orange-500" />
             
             <div class="space-y-8">
               <div 
@@ -186,19 +255,27 @@
                 class="relative flex items-start"
               >
                 <!-- 时间点 -->
-                <div class="relative z-10 w-8 h-8 rounded-full flex items-center justify-center border-4 border-white shadow-lg"
-                     :class="milestone.colorClass">
-                  <div class="w-3 h-3 bg-white rounded-full"></div>
+                <div
+                  class="relative z-10 w-8 h-8 rounded-full flex items-center justify-center border-4 border-white shadow-lg"
+                  :class="milestone.colorClass"
+                >
+                  <div class="w-3 h-3 bg-white rounded-full" />
                 </div>
                 
                 <!-- 内容 -->
                 <div class="ml-8 bg-white rounded-lg shadow-md border border-gray-100 p-6 flex-1">
                   <div class="flex items-center justify-between mb-2">
-                    <h3 class="text-xl font-semibold text-gray-800">{{ milestone.year }}</h3>
-                    <span class="px-3 py-1 text-xs font-medium rounded-full"
-                          :class="milestone.badgeClass">{{ milestone.event }}</span>
+                    <h3 class="text-xl font-semibold text-gray-800">
+                      {{ milestone.year }}
+                    </h3>
+                    <span
+                      class="px-3 py-1 text-xs font-medium rounded-full"
+                      :class="milestone.badgeClass"
+                    >{{ milestone.event }}</span>
                   </div>
-                  <p class="text-gray-600">{{ milestone.description }}</p>
+                  <p class="text-gray-600">
+                    {{ milestone.description }}
+                  </p>
                 </div>
               </div>
             </div>
@@ -209,7 +286,9 @@
       <!-- 联系信息 -->
       <section class="text-center">
         <div class="max-w-2xl mx-auto">
-          <h2 class="text-3xl font-bold mb-8 text-gray-800">加入我们</h2>
+          <h2 class="text-3xl font-bold mb-8 text-gray-800">
+            加入我们
+          </h2>
           <p class="text-lg text-gray-600 mb-8 leading-relaxed">
             如果你对区块链技术充满热情，欢迎加入我们的团队！
             无论你是技术专家还是初学者，我们都欢迎你的参与。
@@ -219,8 +298,18 @@
               to="/contact" 
               class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-orange-600 text-white font-medium rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-300"
             >
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+              <svg
+                class="w-5 h-5 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                />
               </svg>
               联系我们
             </router-link>

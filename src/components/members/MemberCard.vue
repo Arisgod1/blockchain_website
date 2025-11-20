@@ -1,20 +1,37 @@
 <template>
-  <div class="member-card-container" @mouseenter="isFlipped = true" @mouseleave="isFlipped = false">
-    <div class="card-inner" :class="{ 'is-flipped': isFlipped }">
+  <div
+    class="member-card-container"
+    @mouseenter="isFlipped = true"
+    @mouseleave="isFlipped = false"
+  >
+    <div
+      class="card-inner"
+      :class="{ 'is-flipped': isFlipped }"
+    >
       <!-- 正面 -->
       <div class="card-front">
         <div class="member-avatar">
-          <img 
-            :src="member.avatar || '/images/default-avatar.png'" 
-            :alt="member.name" 
-            @error="handleImageError"
+          <BaseAvatar
+            :src="member.avatar"
+            :alt="member.name"
+            :fallback-text="member.name"
+            size="96"
+            ring
           />
-          <div class="member-role-badge" :class="`role-${getRoleClass(member.role)}`">
+          <div
+            class="member-role-badge"
+            :class="`role-${getRoleClass(member.role)}`"
+          >
             {{ member.role }}
           </div>
         </div>
-        <h3 class="member-name">{{ member.name }}</h3>
-        <p class="member-grade" v-if="member.grade && member.major">
+        <h3 class="member-name">
+          {{ member.name }}
+        </h3>
+        <p
+          v-if="member.grade && member.major"
+          class="member-grade"
+        >
           {{ member.grade }} • {{ member.major }}
         </p>
         <div class="member-skills">
@@ -33,15 +50,19 @@
           </div>
           <div class="stat">
             <ProjectIcon class="stat-icon" />
-            <span class="stat-text">{{ member.projectCount || Math.floor(Math.random() * 10) + 1 }}个项目</span>
+            <span class="stat-text">{{ member.projectCount ?? 0 }}个项目</span>
           </div>
         </div>
       </div>
       
       <!-- 背面 -->
       <div class="card-back">
-        <h3 class="member-name">{{ member.name }}</h3>
-        <p class="member-bio">{{ member.bio || '暂无个人简介' }}</p>
+        <h3 class="member-name">
+          {{ member.name }}
+        </h3>
+        <p class="member-bio">
+          {{ member.bio || '暂无个人简介' }}
+        </p>
         <div class="member-links">
           <a 
             v-if="member.github" 
@@ -88,12 +109,13 @@
 import { ref } from 'vue'
 import type { Member } from '@/types/entities'
 import { GithubIcon, EmailIcon, LinkedInIcon, CalendarIcon, ProjectIcon } from '@/components/icons'
+import { BaseAvatar } from '@/components/common'
 
 interface Props {
   member: Member
 }
 
-const props = defineProps<Props>()
+defineProps<Props>()
 
 const isFlipped = ref(false)
 
@@ -123,12 +145,6 @@ const formatJoinDate = (dateString: string) => {
   } catch {
     return dateString
   }
-}
-
-// 处理头像加载失败
-const handleImageError = (event: Event) => {
-  const img = event.target as HTMLImageElement
-  img.src = '/images/default-avatar.png'
 }
 
 defineExpose({
@@ -162,8 +178,8 @@ defineExpose({
   @apply relative mb-4;
 }
 
-.member-avatar img {
-  @apply w-20 h-20 rounded-full object-cover border-4 border-blue-100;
+.member-avatar :deep(.base-avatar) {
+  @apply w-24 h-24 sm:w-20 sm:h-20;
 }
 
 .member-role-badge {

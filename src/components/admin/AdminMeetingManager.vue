@@ -31,40 +31,64 @@
       <div class="stats-grid">
         <BaseCard class="stat-card">
           <div class="stat-content">
-            <div class="stat-icon meeting-icon">📅</div>
+            <div class="stat-icon meeting-icon">
+              📅
+            </div>
             <div class="stat-info">
-              <div class="stat-number">{{ totalMeetings }}</div>
-              <div class="stat-label">总例会数</div>
+              <div class="stat-number">
+                {{ totalMeetings }}
+              </div>
+              <div class="stat-label">
+                总例会数
+              </div>
             </div>
           </div>
         </BaseCard>
 
         <BaseCard class="stat-card">
           <div class="stat-content">
-            <div class="stat-icon recent-icon">🆕</div>
+            <div class="stat-icon recent-icon">
+              🆕
+            </div>
             <div class="stat-info">
-              <div class="stat-number">{{ recentMeetings }}</div>
-              <div class="stat-label">本周例会</div>
+              <div class="stat-number">
+                {{ recentMeetings }}
+              </div>
+              <div class="stat-label">
+                本周例会
+              </div>
             </div>
           </div>
         </BaseCard>
 
         <BaseCard class="stat-card">
           <div class="stat-content">
-            <div class="stat-icon participants-icon">👥</div>
+            <div class="stat-icon participants-icon">
+              👥
+            </div>
             <div class="stat-info">
-              <div class="stat-number">{{ totalParticipants }}</div>
-              <div class="stat-label">参与人次</div>
+              <div class="stat-number">
+                {{ totalParticipants }}
+              </div>
+              <div class="stat-label">
+                参与人次
+              </div>
             </div>
           </div>
         </BaseCard>
 
         <BaseCard class="stat-card">
           <div class="stat-content">
-            <div class="stat-icon action-icon">✅</div>
+            <div class="stat-icon action-icon">
+              ✅
+            </div>
             <div class="stat-info">
-              <div class="stat-number">{{ completedActions }}</div>
-              <div class="stat-label">待办完成</div>
+              <div class="stat-number">
+                {{ completedActions }}
+              </div>
+              <div class="stat-label">
+                待办完成
+              </div>
             </div>
           </div>
         </BaseCard>
@@ -96,23 +120,37 @@
           </div>
         </template>
 
-        <div v-if="loading" class="loading-container">
+        <div
+          v-if="loading"
+          class="loading-container"
+        >
           <LoadingSpinner />
           <p>加载例会数据中...</p>
         </div>
 
-        <div v-else-if="filteredMeetings.length === 0" class="empty-state">
-          <div class="empty-icon">📅</div>
+        <div
+          v-else-if="filteredMeetings.length === 0"
+          class="empty-state"
+        >
+          <div class="empty-icon">
+            📅
+          </div>
           <h3>暂无例会记录</h3>
           <p>您还没有创建任何例会记录</p>
-          <BaseButton variant="primary" @click="handleCreate">
+          <BaseButton
+            variant="primary"
+            @click="handleCreate"
+          >
             创建第一个例会
           </BaseButton>
         </div>
 
         <div v-else>
           <!-- 网格视图 -->
-          <div v-if="viewMode === 'grid'" class="meetings-grid">
+          <div
+            v-if="viewMode === 'grid'"
+            class="meetings-grid"
+          >
             <div 
               v-for="meeting in paginatedMeetings" 
               :key="meeting.id"
@@ -130,7 +168,10 @@
           </div>
 
           <!-- 列表视图 -->
-          <div v-else class="meetings-list">
+          <div
+            v-else
+            class="meetings-list"
+          >
             <div 
               v-for="meeting in paginatedMeetings" 
               :key="meeting.id"
@@ -154,29 +195,29 @@
                 <div class="meeting-actions">
                   <button 
                     class="action-btn view-btn"
-                    @click="handleView(meeting)"
                     title="查看详情"
+                    @click="handleView(meeting)"
                   >
                     👁️
                   </button>
                   <button 
                     class="action-btn edit-btn"
-                    @click="handleEdit(meeting)"
                     title="编辑"
+                    @click="handleEdit(meeting)"
                   >
                     ✏️
                   </button>
                   <button 
                     class="action-btn duplicate-btn"
-                    @click="handleDuplicate(meeting)"
                     title="复制"
+                    @click="handleDuplicate(meeting)"
                   >
                     📋
                   </button>
                   <button 
                     class="action-btn delete-btn"
-                    @click="handleDelete(meeting)"
                     title="删除"
+                    @click="handleDelete(meeting)"
                   >
                     🗑️
                   </button>
@@ -221,7 +262,9 @@
       size="sm"
     >
       <p>确定要删除例会「{{ deleteModal.meeting?.title }}」吗？</p>
-      <p class="warning-text">此操作不可撤销。</p>
+      <p class="warning-text">
+        此操作不可撤销。
+      </p>
 
       <template #footer>
         <BaseButton 

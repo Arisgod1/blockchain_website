@@ -3,10 +3,16 @@
     <div class="manager-header">
       <h2>项目管理</h2>
       <div class="header-actions">
-        <BaseButton variant="primary" @click="handleCreate">
+        <BaseButton
+          variant="primary"
+          @click="handleCreate"
+        >
           + 新建项目
         </BaseButton>
-        <BaseButton variant="secondary" @click="handleRefresh">
+        <BaseButton
+          variant="secondary"
+          @click="handleRefresh"
+        >
           刷新
         </BaseButton>
       </div>
@@ -15,15 +21,24 @@
     <!-- 项目列表 -->
     <div class="projects-section">
       <BaseCard class="content-card">
-        <div v-if="loading" class="loading-container">
+        <div
+          v-if="loading"
+          class="loading-container"
+        >
           <LoadingSpinner />
         </div>
         
-        <div v-else-if="projects.length === 0" class="empty-state">
+        <div
+          v-else-if="projects.length === 0"
+          class="empty-state"
+        >
           <p>暂无项目数据</p>
         </div>
 
-        <div v-else class="projects-table-container">
+        <div
+          v-else
+          class="projects-table-container"
+        >
           <table class="data-table">
             <thead>
               <tr>
@@ -36,7 +51,10 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="project in projects" :key="project.id">
+              <tr
+                v-for="project in projects"
+                :key="project.id"
+              >
                 <td>{{ project.id }}</td>
                 <td>{{ project.name }}</td>
                 <td>{{ project.category }}</td>
@@ -47,8 +65,18 @@
                 </td>
                 <td>{{ project.progress }}%</td>
                 <td class="actions-cell">
-                  <button class="action-btn edit" @click="handleEdit(project)">编辑</button>
-                  <button class="action-btn delete" @click="handleDelete(project)">删除</button>
+                  <button
+                    class="action-btn edit"
+                    @click="handleEdit(project)"
+                  >
+                    编辑
+                  </button>
+                  <button
+                    class="action-btn delete"
+                    @click="handleDelete(project)"
+                  >
+                    删除
+                  </button>
                 </td>
               </tr>
             </tbody>
@@ -56,7 +84,10 @@
         </div>
         
         <!-- 分页 -->
-        <div class="pagination-container" v-if="totalPages > 1">
+        <div
+          v-if="totalPages > 1"
+          class="pagination-container"
+        >
           <BasePagination 
             :current="currentPage" 
             :total="totalPages" 
@@ -67,39 +98,89 @@
     </div>
 
     <!-- 编辑/新建弹窗 -->
-    <BaseModal v-model:show="showEditModal" :title="editingProject ? '编辑项目' : '新建项目'">
-      <form @submit.prevent="saveProject" class="edit-form">
+    <BaseModal
+      v-model:show="showEditModal"
+      :title="editingProject ? '编辑项目' : '新建项目'"
+    >
+      <form
+        class="edit-form"
+        @submit.prevent="saveProject"
+      >
         <div class="form-group">
           <label>项目名称</label>
-          <input v-model="formData.name" type="text" required class="form-input" />
+          <input
+            v-model="formData.name"
+            type="text"
+            required
+            class="form-input"
+          >
         </div>
         <div class="form-group">
           <label>描述</label>
-          <textarea v-model="formData.description" class="form-textarea"></textarea>
+          <textarea
+            v-model="formData.description"
+            class="form-textarea"
+          />
         </div>
         <div class="form-group">
           <label>分类</label>
-          <select v-model="formData.category" class="form-select">
-            <option value="DEVELOPMENT">开发</option>
-            <option value="RESEARCH">研究</option>
-            <option value="COMPETITION">竞赛</option>
+          <select
+            v-model="formData.category"
+            class="form-select"
+          >
+            <option value="DEVELOPMENT">
+              开发
+            </option>
+            <option value="RESEARCH">
+              研究
+            </option>
+            <option value="COMPETITION">
+              竞赛
+            </option>
           </select>
         </div>
         <div class="form-group">
           <label>状态</label>
-          <select v-model="formData.status" class="form-select">
-            <option value="PLANNING">规划中</option>
-            <option value="ONGOING">进行中</option>
-            <option value="COMPLETED">已完成</option>
+          <select
+            v-model="formData.status"
+            class="form-select"
+          >
+            <option value="PLANNING">
+              规划中
+            </option>
+            <option value="ONGOING">
+              进行中
+            </option>
+            <option value="COMPLETED">
+              已完成
+            </option>
           </select>
         </div>
         <div class="form-group">
           <label>进度 (%)</label>
-          <input v-model.number="formData.progress" type="number" min="0" max="100" class="form-input" />
+          <input
+            v-model.number="formData.progress"
+            type="number"
+            min="0"
+            max="100"
+            class="form-input"
+          >
         </div>
         <div class="form-actions">
-          <BaseButton type="button" variant="secondary" @click="showEditModal = false">取消</BaseButton>
-          <BaseButton type="submit" variant="primary" :loading="saving">保存</BaseButton>
+          <BaseButton
+            type="button"
+            variant="secondary"
+            @click="showEditModal = false"
+          >
+            取消
+          </BaseButton>
+          <BaseButton
+            type="submit"
+            variant="primary"
+            :loading="saving"
+          >
+            保存
+          </BaseButton>
         </div>
       </form>
     </BaseModal>

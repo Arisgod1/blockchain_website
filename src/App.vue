@@ -1,5 +1,8 @@
 <template>
-  <div id="app" class="min-h-screen bg-gradient-to-br from-neutral-50 to-neutral-100 relative">
+  <div
+    id="app"
+    class="min-h-screen bg-gradient-to-br from-neutral-50 to-neutral-100 relative"
+  >
     <!-- 全局加载动画 -->
     <LoadingSpinner 
       v-if="isPageLoading"
@@ -17,7 +20,10 @@
         @leave="onPageLeave"
         @after-enter="onPageAfterEnter"
       >
-        <component :is="Component" :key="route.path" />
+        <component
+          :is="Component"
+          :key="route.path"
+        />
       </transition>
     </router-view>
     

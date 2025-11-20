@@ -22,11 +22,22 @@
           @click.stop
         >
           <!-- 头部 -->
-          <div v-if="$slots.header || title || closable" :class="headerClasses">
+          <div
+            v-if="$slots.header || title || closable"
+            :class="headerClasses"
+          >
             <div class="flex-1">
               <slot name="header">
-                <h2 v-if="title" :class="titleClasses">{{ title }}</h2>
-                <p v-if="$slots.description" class="mt-1">
+                <h2
+                  v-if="title"
+                  :class="titleClasses"
+                >
+                  {{ title }}
+                </h2>
+                <p
+                  v-if="$slots.description"
+                  class="mt-1"
+                >
                   <slot name="description" />
                 </p>
               </slot>
@@ -36,8 +47,18 @@
               :class="closeButtonClasses"
               @click="handleClose"
             >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           </div>
@@ -48,7 +69,10 @@
           </div>
 
           <!-- 底部操作 -->
-          <div v-if="$slots.footer" :class="footerClasses">
+          <div
+            v-if="$slots.footer"
+            :class="footerClasses"
+          >
             <slot name="footer" />
           </div>
 
@@ -58,7 +82,7 @@
             :class="loadingOverlayClasses"
           >
             <div class="flex items-center justify-center">
-              <div class="animate-spin rounded-full h-8 w-8 border-2 border-primary-200 border-t-primary-600"></div>
+              <div class="animate-spin rounded-full h-8 w-8 border-2 border-primary-200 border-t-primary-600" />
             </div>
           </div>
         </div>

@@ -10,11 +10,11 @@
           placeholder="搜索项目名称、描述、技术栈..."
           class="search-input"
           @input="handleSearch"
-        />
+        >
         <button 
           v-if="searchQuery"
-          @click="clearSearch"
           class="clear-btn"
+          @click="clearSearch"
         >
           <XIcon />
         </button>
@@ -48,11 +48,11 @@
             class="status-option"
           >
             <input
+              v-model="selectedStatuses"
               type="checkbox"
               :value="status.value"
-              v-model="selectedStatuses"
               @change="handleStatusChange"
-            />
+            >
             <span class="status-text">{{ status.label }}</span>
           </label>
         </div>
@@ -62,28 +62,39 @@
       <div class="filter-group">
         <label class="filter-label">技术栈</label>
         <div class="tech-stack-filters">
-          <div class="selected-techs" v-if="selectedTechStack.length > 0">
+          <div
+            v-if="selectedTechStack.length > 0"
+            class="selected-techs"
+          >
             <span 
               v-for="tech in selectedTechStack" 
               :key="tech"
               class="selected-tech-tag"
             >
               {{ tech }}
-              <button @click="removeTech(tech)" class="remove-tech-btn">
+              <button
+                class="remove-tech-btn"
+                @click="removeTech(tech)"
+              >
                 <XIcon />
               </button>
             </span>
-            <button @click="clearTechStack" class="clear-tech-btn">
+            <button
+              class="clear-tech-btn"
+              @click="clearTechStack"
+            >
               清除全部
             </button>
           </div>
           <div class="tech-stack-selector">
             <select 
               v-model="techToAdd"
-              @change="addTech"
               class="tech-select"
+              @change="addTech"
             >
-              <option value="">选择技术栈</option>
+              <option value="">
+                选择技术栈
+              </option>
               <option 
                 v-for="tech in availableTechStack" 
                 :key="tech"
@@ -100,17 +111,31 @@
       <div class="filter-group">
         <label class="filter-label">排序方式</label>
         <div class="sort-options">
-          <select v-model="sortBy" @change="handleSortChange" class="sort-select">
-            <option value="updateTime">更新时间</option>
-            <option value="createTime">创建时间</option>
-            <option value="title">项目名称</option>
-            <option value="likes">点赞数</option>
-            <option value="progress">完成进度</option>
+          <select
+            v-model="sortBy"
+            class="sort-select"
+            @change="handleSortChange"
+          >
+            <option value="updateTime">
+              更新时间
+            </option>
+            <option value="createTime">
+              创建时间
+            </option>
+            <option value="title">
+              项目名称
+            </option>
+            <option value="likes">
+              点赞数
+            </option>
+            <option value="progress">
+              完成进度
+            </option>
           </select>
           <button 
-            @click="toggleSortOrder"
             class="sort-order-btn"
             :class="{ desc: sortOrder === 'desc' }"
+            @click="toggleSortOrder"
           >
             <ArrowUpIcon v-if="sortOrder === 'asc'" />
             <ArrowDownIcon v-else />
@@ -128,11 +153,11 @@
             class="team-size-option"
           >
             <input
+              v-model="selectedTeamSizes"
               type="checkbox"
               :value="size.value"
-              v-model="selectedTeamSizes"
               @change="handleTeamSizeChange"
-            />
+            >
             <span class="size-text">{{ size.label }}</span>
           </label>
         </div>
@@ -144,10 +169,10 @@
         <div class="activity-filter">
           <label class="activity-option">
             <input
-              type="checkbox"
               v-model="showActiveOnly"
+              type="checkbox"
               @change="handleActivityFilter"
-            />
+            >
             <span class="activity-text">只显示活跃项目</span>
           </label>
         </div>
@@ -170,15 +195,24 @@
 
     <!-- 快速操作 -->
     <div class="filter-actions">
-      <button @click="resetFilters" class="reset-btn">
+      <button
+        class="reset-btn"
+        @click="resetFilters"
+      >
         <RotateCcwIcon />
         重置筛选
       </button>
-      <button @click="saveFilters" class="save-btn">
+      <button
+        class="save-btn"
+        @click="saveFilters"
+      >
         <BookmarkIcon />
         保存筛选
       </button>
-      <button @click="exportResults" class="export-btn">
+      <button
+        class="export-btn"
+        @click="exportResults"
+      >
         <DownloadIcon />
         导出结果
       </button>

@@ -31,7 +31,10 @@
       </p>
 
       <!-- 技术详情（开发模式） -->
-      <div v-if="isDevelopment && error" class="mb-6 text-left">
+      <div
+        v-if="isDevelopment && error"
+        class="mb-6 text-left"
+      >
         <details class="bg-neutral-50 rounded-lg p-4 text-sm">
           <summary class="cursor-pointer text-neutral-700 font-medium mb-2">
             技术详情 (点击展开)
@@ -39,7 +42,9 @@
           <div class="text-neutral-600 space-y-2">
             <div><strong>错误类型:</strong> {{ error.code || 'Unknown' }}</div>
             <div><strong>错误消息:</strong> {{ error.message }}</div>
-            <div v-if="error.details"><strong>详细信息:</strong> {{ error.details }}</div>
+            <div v-if="error.details">
+              <strong>详细信息:</strong> {{ error.details }}
+            </div>
           </div>
         </details>
       </div>
@@ -47,31 +52,61 @@
       <!-- 操作按钮 -->
       <div class="space-y-3">
         <button 
-          @click="handleRetry"
           class="w-full btn-primary py-3 text-base font-semibold"
+          @click="handleRetry"
         >
-          <svg class="w-5 h-5 mr-2 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          <svg
+            class="w-5 h-5 mr-2 inline-block"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            />
           </svg>
           重新尝试
         </button>
 
         <button 
-          @click="handleGoHome"
           class="w-full btn-outline py-3 text-base"
+          @click="handleGoHome"
         >
-          <svg class="w-5 h-5 mr-2 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          <svg
+            class="w-5 h-5 mr-2 inline-block"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+            />
           </svg>
           返回首页
         </button>
 
         <button 
-          @click="handleReportBug"
           class="w-full btn-ghost py-2 text-sm text-neutral-500"
+          @click="handleReportBug"
         >
-          <svg class="w-4 h-4 mr-1 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+          <svg
+            class="w-4 h-4 mr-1 inline-block"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+            />
           </svg>
           报告问题
         </button>

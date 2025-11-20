@@ -3,7 +3,12 @@
     <!-- 页面头部 -->
     <section class="meetings-header">
       <div class="header-background">
-        <div class="header-overlay"></div>
+        <div class="header-light-trails">
+          <span class="light-strip strip-1" />
+          <span class="light-strip strip-2" />
+          <span class="light-strip strip-3" />
+        </div>
+        <div class="header-overlay" />
       </div>
       <div class="header-content">
         <div class="container">
@@ -12,37 +17,63 @@
               <span class="title-icon">📝</span>
               例会记录
             </h1>
-            <p class="page-subtitle">团队会议纪要和学术讨论记录</p>
+            <p class="page-subtitle">
+              团队会议纪要和学术讨论记录
+            </p>
           </div>
           
           <!-- 统计数据 -->
           <div class="header-stats">
             <div class="stat-card">
-              <div class="stat-icon">📅</div>
+              <div class="stat-icon">
+                📅
+              </div>
               <div class="stat-content">
-                <div class="stat-number">{{ stats.totalMeetings }}</div>
-                <div class="stat-label">总会次数</div>
+                <div class="stat-number">
+                  {{ stats.totalMeetings }}
+                </div>
+                <div class="stat-label">
+                  总会次数
+                </div>
               </div>
             </div>
             <div class="stat-card">
-              <div class="stat-icon">👥</div>
+              <div class="stat-icon">
+                👥
+              </div>
               <div class="stat-content">
-                <div class="stat-number">{{ stats.totalParticipants }}</div>
-                <div class="stat-label">总参与人次</div>
+                <div class="stat-number">
+                  {{ stats.totalParticipants }}
+                </div>
+                <div class="stat-label">
+                  总参与人次
+                </div>
               </div>
             </div>
             <div class="stat-card">
-              <div class="stat-icon">⏱️</div>
+              <div class="stat-icon">
+                ⏱️
+              </div>
               <div class="stat-content">
-                <div class="stat-number">{{ stats.totalHours }}h</div>
-                <div class="stat-label">总会议时长</div>
+                <div class="stat-number">
+                  {{ stats.totalHours }}h
+                </div>
+                <div class="stat-label">
+                  总会议时长
+                </div>
               </div>
             </div>
             <div class="stat-card">
-              <div class="stat-icon">📄</div>
+              <div class="stat-icon">
+                📄
+              </div>
               <div class="stat-content">
-                <div class="stat-number">{{ stats.totalDocuments }}</div>
-                <div class="stat-label">会议文档</div>
+                <div class="stat-number">
+                  {{ stats.totalDocuments }}
+                </div>
+                <div class="stat-label">
+                  会议文档
+                </div>
               </div>
             </div>
           </div>
@@ -55,9 +86,13 @@
       <div class="container">
         <div class="content-layout">
           <!-- 筛选侧边栏 -->
-          <aside class="meetings-sidebar" v-if="!isMobile">
+          <aside
+            v-if="!isMobile"
+            class="meetings-sidebar"
+          >
             <div class="sidebar-sticky">
               <MeetingFilter
+                ref="meetingFilterRef"
                 :meetings="filteredMeetings"
                 :initial-filters="currentFilters"
                 @filter-change="handleFilterChange"
@@ -69,11 +104,15 @@
           <button 
             v-if="isMobile"
             class="mobile-filter-toggle"
-            @click="showMobileFilter = !showMobileFilter"
             :class="{ 'is-active': showMobileFilter }"
+            @click="showMobileFilter = !showMobileFilter"
           >
-            <svg class="toggle-icon" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h8v-2h-8V17h8V15h-8v-2h8V9h-8V7h8V5h-8v2h-8V5H3v2h8v2H3v2h8v2H3v2h8v2H3v2h8v2H3z"/>
+            <svg
+              class="toggle-icon"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h8v-2h-8V17h8V15h-8v-2h8V9h-8V7h8V5h-8v2h-8V5H3v2h8v2H3v2h8v2H3v2h8v2H3v2h8v2H3z" />
             </svg>
             筛选条件
           </button>
@@ -86,12 +125,16 @@
           >
             <div class="mobile-filter-content">
               <MeetingFilter
+                ref="meetingFilterMobileRef"
                 :meetings="filteredMeetings"
                 :initial-filters="currentFilters"
                 @filter-change="handleFilterChange"
               />
             </div>
-            <div class="mobile-filter-backdrop" @click="showMobileFilter = false"></div>
+            <div
+              class="mobile-filter-backdrop"
+              @click="showMobileFilter = false"
+            />
           </div>
 
           <!-- 会议列表区域 -->
@@ -104,8 +147,12 @@
                   :class="{ 'is-active': viewMode === 'grid' }"
                   @click="viewMode = 'grid'"
                 >
-                  <svg class="view-icon" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M3 3v8h8V3H3zm0 10v8h8v-8H3zm10-10v8h8V3h-8zm0 10v8h8v-8h-8z"/>
+                  <svg
+                    class="view-icon"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path d="M3 3v8h8V3H3zm0 10v8h8v-8H3zm10-10v8h8V3h-8zm0 10v8h8v-8h-8z" />
                   </svg>
                   网格视图
                 </button>
@@ -114,8 +161,12 @@
                   :class="{ 'is-active': viewMode === 'list' }"
                   @click="viewMode = 'list'"
                 >
-                  <svg class="view-icon" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/>
+                  <svg
+                    class="view-icon"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z" />
                   </svg>
                   列表视图
                 </button>
@@ -123,28 +174,69 @@
               
               <div class="pagination-info">
                 <span class="info-text">
-                  显示 {{ getDisplayedCount() }} / 共 {{ filteredMeetings.length }} 个会议
+                  显示 {{ getDisplayedCount() }} / 共 {{ usingFallback ? filteredMeetings.length : totalElements || filteredMeetings.length }} 个会议
                 </span>
               </div>
             </div>
 
+            <div
+              v-if="usingFallback"
+              class="fallback-banner"
+            >
+              当前展示的是离线缓存数据，服务恢复后会自动同步最新内容。
+            </div>
+
             <!-- 加载状态 -->
-            <div v-if="isLoading" class="loading-state">
-              <div class="loading-spinner"></div>
-              <p class="loading-text">正在加载会议数据...</p>
+            <div
+              v-if="isLoading && !hasLoadedOnce"
+              class="loading-state"
+            >
+              <div class="loading-spinner" />
+              <p class="loading-text">
+                正在加载会议数据...
+              </p>
+            </div>
+
+            <!-- 错误状态 -->
+            <div
+              v-else-if="errorMessage && !filteredMeetings.length"
+              class="error-state"
+            >
+              <div class="empty-icon">
+                ⚠️
+              </div>
+              <h3 class="empty-title">
+                数据获取失败
+              </h3>
+              <p class="empty-description">
+                {{ errorMessage }}
+              </p>
+              <button
+                class="empty-action"
+                @click="loadMeetings({ force: true, resetPage: true })"
+              >
+                重新加载
+              </button>
             </div>
 
             <!-- 空状态 -->
-            <div v-else-if="filteredMeetings.length === 0" class="empty-state">
-              <div class="empty-icon">📝</div>
-              <h3 class="empty-title">没有找到会议记录</h3>
+            <div
+              v-else-if="filteredMeetings.length === 0"
+              class="empty-state"
+            >
+              <div class="empty-icon">
+                📝
+              </div>
+              <h3 class="empty-title">
+                没有找到会议记录
+              </h3>
               <p class="empty-description">
                 {{ hasActiveFilters ? '尝试调整筛选条件' : '暂时没有会议记录' }}
               </p>
               <button 
                 v-if="hasActiveFilters"
                 class="empty-action"
-                @click="clearAllFilters"
+                @click="resetAllFilters"
               >
                 清除所有筛选
               </button>
@@ -159,6 +251,20 @@
                 { 'is-loading': isLoadingMore }
               ]"
             >
+              <transition
+                name="fade"
+                appear
+              >
+                <div
+                  v-if="isLoading && hasLoadedOnce"
+                  class="grid-overlay"
+                >
+                  <div class="loading-spinner" />
+                  <p class="loading-text">
+                    正在刷新会议列表...
+                  </p>
+                </div>
+              </transition>
               <MeetingCard
                 v-for="meeting in paginatedMeetings"
                 :key="meeting.id"
@@ -172,13 +278,13 @@
 
             <!-- 分页控制 -->
             <div 
-              v-if="filteredMeetings.length > itemsPerPage"
+              v-if="filteredMeetings.length && totalPages > 1"
               class="pagination-controls"
             >
               <button
                 class="pagination-btn"
                 :disabled="currentPage === 1"
-                @click="currentPage--"
+                @click="changePage(currentPage - 1)"
               >
                 上一页
               </button>
@@ -189,7 +295,7 @@
                   :key="page"
                   class="pagination-page"
                   :class="{ 'is-active': page === currentPage }"
-                  @click="currentPage = page"
+                  @click="changePage(page)"
                 >
                   {{ page }}
                 </button>
@@ -198,7 +304,7 @@
               <button
                 class="pagination-btn"
                 :disabled="currentPage === totalPages"
-                @click="currentPage++"
+                @click="changePage(currentPage + 1)"
               >
                 下一页
               </button>
@@ -215,7 +321,10 @@
                 @click="loadMore"
               >
                 <span v-if="!isLoadingMore">加载更多</span>
-                <span v-else class="loading-text">加载中...</span>
+                <span
+                  v-else
+                  class="loading-text"
+                >加载中...</span>
               </button>
             </div>
           </main>
@@ -250,6 +359,8 @@ import MeetingCard from '@/components/meetings/MeetingCard.vue'
 import MeetingFilter from '@/components/meetings/MeetingFilter.vue'
 import MeetingDetailModal from '@/components/meetings/MeetingDetailModal.vue'
 import FileViewerModal from '@/components/meetings/FileViewerModal.vue'
+import { getMeetings } from '@/api/meeting'
+import type { Meeting, MeetingFile, MeetingPage } from '@/types/entities'
 
 // 页面元数据
 useHead({
@@ -266,6 +377,8 @@ useHead({
   ]
 })
 
+const MEETINGS_CACHE_KEY = 'meetings:list-cache'
+
 // 响应式数据
 const viewMode = ref<'grid' | 'list'>('grid')
 const currentPage = ref(1)
@@ -273,107 +386,65 @@ const itemsPerPage = ref(12)
 const isLoading = ref(false)
 const isLoadingMore = ref(false)
 const showMobileFilter = ref(false)
-const selectedMeeting = ref(null)
 const showDetailModal = ref(false)
-const selectedFiles = ref([])
 const showFilesModal = ref(false)
 const isMobile = ref(false)
+const selectedMeeting = ref<Meeting | null>(null)
+const selectedFiles = ref<MeetingFile[] | null>(null)
+const meetings = ref<Meeting[]>([])
+const filteredMeetings = ref<Meeting[]>([])
+const totalElements = ref(0)
+const serverTotalPages = ref(0)
+const hasLoadedOnce = ref(false)
+const usingFallback = ref(false)
+const errorMessage = ref('')
 
-// 筛选条件
-const currentFilters = ref({})
-
-// 模拟会议数据
-const meetings = ref([
-  {
-    id: '1',
-    title: '区块链技术发展趋势讨论',
-    date: '2024-12-15T14:00:00',
-    summary: '讨论了2024年区块链技术的主要发展方向，包括Layer2扩展性解决方案、跨链技术和隐私保护的最新进展。',
-    status: 'completed',
-    types: ['technical', 'weekly'],
-    attendees: [
-      { id: '1', name: '张三', avatar: '/avatars/zhang.jpg', role: '组长' },
-      { id: '2', name: '李四', avatar: '/avatars/li.jpg', role: '技术负责人' },
-      { id: '3', name: '王五', avatar: '/avatars/wang.jpg', role: '开发成员' }
-    ],
-    duration: 120,
-    issues: [
-      { id: '1', title: 'DeFi协议安全性分析', status: 'completed' },
-      { id: '2', title: 'NFT市场技术挑战', status: 'in-progress' }
-    ],
-    files: [
-      { id: '1', name: '会议纪要_20241215.pdf', type: 'pdf', size: '2.3MB', url: '/files/meeting_1_minutes.pdf' },
-      { id: '2', name: '技术讨论_区块链趋势.pptx', type: 'pptx', size: '5.1MB', url: '/files/meeting_1_presentation.pptx' }
-    ],
-    tags: ['DeFi', 'Layer2', '跨链'],
-    location: '会议室A',
-    recording: '/recordings/meeting_1.mp4',
-    minutes: '/files/meeting_1_detailed_minutes.md'
-  },
-  {
-    id: '2',
-    title: '项目进展汇报与规划',
-    date: '2024-12-08T15:30:00',
-    summary: '各项目组汇报了最新进展，讨论了下一步开发计划和资源配置需求。',
-    status: 'completed',
-    types: ['project', 'weekly'],
-    attendees: [
-      { id: '1', name: '张三', avatar: '/avatars/zhang.jpg' },
-      { id: '2', name: '赵六', avatar: '/avatars/zhao.jpg' },
-      { id: '4', name: '钱七', avatar: '/avatars/qian.jpg' }
-    ],
-    duration: 90,
-    issues: [
-      { id: '3', title: '智能合约部署计划', status: 'completed' },
-      { id: '4', title: '测试环境搭建', status: 'pending' }
-    ],
-    files: [
-      { id: '3', name: '项目进展报告.pdf', type: 'pdf', size: '1.8MB', url: '/files/meeting_2_report.pdf' }
-    ],
-    tags: ['项目管理', '智能合约', '测试'],
-    location: '会议室B'
-  },
-  {
-    id: '3',
-    title: '学术论文分享：零知识证明技术',
-    date: '2024-12-01T16:00:00',
-    summary: '深入讨论了零知识证明的原理、应用场景以及在区块链中的实现方案。',
-    status: 'completed',
-    types: ['seminar', 'training'],
-    attendees: [
-      { id: '1', name: '张三', avatar: '/avatars/zhang.jpg' },
-      { id: '5', name: '孙八', avatar: '/avatars/sun.jpg' },
-      { id: '6', name: '周九', avatar: '/avatars/zhou.jpg' }
-    ],
-    duration: 150,
-    issues: [
-      { id: '5', title: 'zk-SNARK实现细节', status: 'completed' },
-      { id: '6', title: '性能优化方案', status: 'in-progress' }
-    ],
-    files: [
-      { id: '4', name: '零知识证明技术分享.pdf', type: 'pdf', size: '4.2MB', url: '/files/meeting_3_presentation.pdf' },
-      { id: '5', name: '相关论文集合.zip', type: 'zip', size: '15.6MB', url: '/files/meeting_3_papers.zip' }
-    ],
-    tags: ['零知识证明', '密码学', '学术研究'],
-    location: '学术报告厅',
-    recording: '/recordings/meeting_3.mp4'
+interface MeetingFilterPayload {
+  searchQuery?: string
+  statuses?: string[]
+  types?: string[]
+  attendeeSizes?: string[]
+  tags?: string[]
+  dateRange?: {
+    start?: string
+    end?: string
   }
-])
+  sortBy?: string
+  sortDirection?: 'asc' | 'desc'
+}
 
-// 计算属性
-const filteredMeetings = computed(() => {
-  // 这里应该根据currentFilters进行筛选
-  return meetings.value
-})
+const defaultFilters: MeetingFilterPayload = {
+  searchQuery: '',
+  statuses: [],
+  types: [],
+  attendeeSizes: [],
+  tags: [],
+  sortBy: 'date',
+  sortDirection: 'desc'
+}
+
+const currentFilters = ref<MeetingFilterPayload>({ ...defaultFilters })
+
+type MeetingFilterPublicInstance = {
+  resetFilters?: () => void
+}
+
+const meetingFilterRef = ref<MeetingFilterPublicInstance | null>(null)
+const meetingFilterMobileRef = ref<MeetingFilterPublicInstance | null>(null)
 
 const paginatedMeetings = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value
-  const end = start + itemsPerPage.value
-  return filteredMeetings.value.slice(start, end)
+  if (usingFallback.value) {
+    const start = (currentPage.value - 1) * itemsPerPage.value
+    return filteredMeetings.value.slice(start, start + itemsPerPage.value)
+  }
+  return filteredMeetings.value
 })
 
 const totalPages = computed(() => {
-  return Math.ceil(filteredMeetings.value.length / itemsPerPage.value)
+  if (usingFallback.value) {
+    return Math.max(1, Math.ceil(filteredMeetings.value.length / itemsPerPage.value))
+  }
+  return Math.max(1, serverTotalPages.value || 1)
 })
 
 const visiblePages = computed(() => {
@@ -393,25 +464,29 @@ const visiblePages = computed(() => {
 })
 
 const hasMoreItems = computed(() => {
+  if (!usingFallback.value) return false
   return currentPage.value * itemsPerPage.value < filteredMeetings.value.length
 })
 
 const hasActiveFilters = computed(() => {
-  return Object.keys(currentFilters.value).length > 0
+  const filters = currentFilters.value
+  return Boolean(
+    filters.searchQuery ||
+    filters.statuses?.length ||
+    filters.types?.length ||
+    filters.attendeeSizes?.length ||
+    filters.tags?.length ||
+    filters.dateRange?.start ||
+    filters.dateRange?.end
+  )
 })
 
-// 统计数据
 const stats = computed(() => {
-  const totalMeetings = meetings.value.length
-  const totalParticipants = meetings.value.reduce((sum, meeting) => {
-    return sum + (meeting.attendees?.length || 0)
-  }, 0)
-  const totalHours = Math.round(meetings.value.reduce((sum, meeting) => {
-    return sum + (meeting.duration || 0)
-  }, 0) / 60)
-  const totalDocuments = meetings.value.reduce((sum, meeting) => {
-    return sum + (meeting.files?.length || 0)
-  }, 0)
+  const source = usingFallback.value ? meetings.value : filteredMeetings.value
+  const totalMeetings = usingFallback.value ? source.length : totalElements.value || source.length
+  const totalParticipants = source.reduce((sum, meeting) => sum + (meeting.attendees?.length || 0), 0)
+  const totalHours = Math.round(source.reduce((sum, meeting) => sum + (meeting.duration || 0), 0) / 60)
+  const totalDocuments = source.reduce((sum, meeting) => sum + (meeting.files?.length || 0), 0)
 
   return {
     totalMeetings,
@@ -421,28 +496,239 @@ const stats = computed(() => {
   }
 })
 
-// 方法
 const getDisplayedCount = (): number => {
-  const end = currentPage.value * itemsPerPage.value
-  return Math.min(end, filteredMeetings.value.length)
+  if (usingFallback.value) {
+    return Math.min(currentPage.value * itemsPerPage.value, filteredMeetings.value.length)
+  }
+  return filteredMeetings.value.length
 }
 
-const handleFilterChange = (filters: any) => {
-  currentFilters.value = filters
+const getAttendeeCount = (meeting: Meeting) => {
+  return Array.isArray(meeting.attendees) ? meeting.attendees.length : 0
+}
+
+const matchesAttendeeSize = (meeting: Meeting, size: string) => {
+  const count = getAttendeeCount(meeting)
+  switch (size) {
+    case 'small':
+      return count < 10
+    case 'medium':
+      return count >= 10 && count <= 20
+    case 'large':
+      return count > 20
+    default:
+      return true
+  }
+}
+
+const sortClientMeetings = (list: Meeting[], sortBy?: string, direction: 'asc' | 'desc' = 'desc') => {
+  const sorted = [...list]
+  const multiplier = direction === 'asc' ? 1 : -1
+  sorted.sort((a, b) => {
+    switch (sortBy) {
+      case 'title':
+        return (a.title?.localeCompare(b.title ?? '') ?? 0) * multiplier
+      case 'attendee_count':
+        return (getAttendeeCount(a) - getAttendeeCount(b)) * multiplier
+      case 'duration':
+        return ((a.duration ?? 0) - (b.duration ?? 0)) * multiplier
+      case 'date':
+      default:
+        return (new Date(a.date).getTime() - new Date(b.date).getTime()) * multiplier
+    }
+  })
+  return sorted
+}
+
+const applyClientFilters = (options: { resetPage?: boolean } = {}) => {
+  let result = [...meetings.value]
+  const filters = currentFilters.value
+
+  if (filters.searchQuery) {
+    const query = filters.searchQuery.trim().toLowerCase()
+    result = result.filter(meeting => {
+      return [
+        meeting.title,
+        meeting.summary,
+        meeting.location,
+        meeting.tags?.join(',')
+      ].some(field => field?.toLowerCase().includes(query))
+    })
+  }
+
+  if (filters.statuses?.length) {
+    result = result.filter(meeting => filters.statuses?.includes(meeting.status ?? ''))
+  }
+
+  if (filters.types?.length) {
+    result = result.filter(meeting => {
+      const typeList = meeting.types ?? []
+      return filters.types?.some(type => typeList.includes(type))
+    })
+  }
+
+  if (filters.tags?.length) {
+    result = result.filter(meeting => {
+      const tagList = meeting.tags ?? []
+      return filters.tags?.some(tag => tagList.includes(tag))
+    })
+  }
+
+  if (filters.attendeeSizes?.length) {
+    result = result.filter(meeting => filters.attendeeSizes?.some(size => matchesAttendeeSize(meeting, size)))
+  }
+
+  if (filters.dateRange?.start || filters.dateRange?.end) {
+    const start = filters.dateRange.start ? new Date(filters.dateRange.start).getTime() : null
+    const end = filters.dateRange.end ? new Date(filters.dateRange.end).getTime() : null
+    result = result.filter(meeting => {
+      const time = new Date(meeting.date).getTime()
+      if (start && time < start) return false
+      if (end && time > end) return false
+      return true
+    })
+  }
+
+  result = sortClientMeetings(result, filters.sortBy, filters.sortDirection)
+  filteredMeetings.value = result
+
+  if (options.resetPage) {
+    currentPage.value = 1
+  }
+}
+
+const buildMeetingQuery = () => {
+  const filters = currentFilters.value
+  const params: Record<string, unknown> = {
+    page: Math.max(currentPage.value - 1, 0),
+    size: itemsPerPage.value,
+    sortBy: filters.sortBy,
+    sortOrder: filters.sortDirection
+  }
+
+  if (filters.searchQuery) params.keyword = filters.searchQuery
+  if (filters.statuses?.length) params.status = filters.statuses.join(',')
+  if (filters.types?.length) params.types = filters.types.join(',')
+  if (filters.tags?.length) params.tags = filters.tags.join(',')
+  if (filters.dateRange?.start) params.startDate = filters.dateRange.start
+  if (filters.dateRange?.end) params.endDate = filters.dateRange.end
+  if (filters.attendeeSizes?.length) params.attendeeSize = filters.attendeeSizes.join(',')
+
+  return params
+}
+
+const applyMeetingResponse = (response: MeetingPage, options: { resetPage?: boolean } = {}) => {
+  meetings.value = response.content ?? []
+  totalElements.value = response.totalElements ?? meetings.value.length
+  serverTotalPages.value = response.totalPages ?? 0
+  usingFallback.value = Boolean(response.fromFallback)
+
+  if (usingFallback.value) {
+    applyClientFilters({ resetPage: options.resetPage })
+  } else {
+    filteredMeetings.value = meetings.value
+    const resolvedPage = response.page ?? (typeof response.number === 'number' ? response.number + 1 : 1)
+    currentPage.value = options.resetPage ? 1 : resolvedPage
+  }
+}
+
+const cacheMeetingsSnapshot = (payload: MeetingPage) => {
+  if (typeof window === 'undefined') return
+  try {
+    window.localStorage.setItem(MEETINGS_CACHE_KEY, JSON.stringify(payload))
+  } catch (error) {
+    console.warn('缓存例会数据失败', error)
+  }
+}
+
+const hydrateMeetingsFromCache = (silent = false) => {
+  if (typeof window === 'undefined') return false
+  try {
+    const cached = window.localStorage.getItem(MEETINGS_CACHE_KEY)
+    if (!cached) return false
+    const parsed = JSON.parse(cached) as MeetingPage
+    if (!parsed?.content?.length) return false
+    applyMeetingResponse({ ...parsed, fromFallback: true }, { resetPage: true })
+    if (!silent) {
+      errorMessage.value = ''
+    }
+    return true
+  } catch (error) {
+    console.warn('读取例会缓存失败', error)
+    return false
+  }
+}
+
+const loadMeetings = async (options: { resetPage?: boolean; force?: boolean } = {}) => {
+  isLoading.value = true
+  errorMessage.value = ''
+
+  try {
+    if (usingFallback.value && !options.force) {
+      applyClientFilters()
+      return
+    }
+
+    const params = buildMeetingQuery()
+    const response = await getMeetings(params)
+    applyMeetingResponse(response, options)
+    cacheMeetingsSnapshot(response)
+  } catch (error) {
+    console.error('获取例会数据失败:', error)
+    const message = error instanceof Error ? error.message : '获取例会记录失败'
+    errorMessage.value = message
+
+    if (!meetings.value.length) {
+      const restored = hydrateMeetingsFromCache(true)
+      if (restored) {
+        errorMessage.value = '当前展示离线缓存数据'
+      }
+    }
+  } finally {
+    isLoading.value = false
+    hasLoadedOnce.value = true
+  }
+}
+
+const handleFilterChange = (filters: MeetingFilterPayload) => {
+  currentFilters.value = {
+    ...defaultFilters,
+    ...filters
+  }
   currentPage.value = 1
+  if (isMobile.value) {
+    showMobileFilter.value = false
+  }
+  if (usingFallback.value) {
+    applyClientFilters({ resetPage: true })
+  } else {
+    loadMeetings({ resetPage: true })
+  }
 }
 
-const handleViewDetail = (meeting: any) => {
+const resetAllFilters = () => {
+  currentFilters.value = { ...defaultFilters }
+  meetingFilterRef.value?.resetFilters?.()
+  meetingFilterMobileRef.value?.resetFilters?.()
+  currentPage.value = 1
+  if (usingFallback.value) {
+    applyClientFilters({ resetPage: true })
+  } else {
+    loadMeetings({ resetPage: true })
+  }
+}
+
+const handleViewDetail = (meeting: Meeting) => {
   selectedMeeting.value = meeting
   showDetailModal.value = true
 }
 
-const handleViewFiles = (meeting: any) => {
-  selectedFiles.value = meeting.files || []
+const handleViewFiles = (meeting: Meeting) => {
+  selectedFiles.value = meeting.files ?? []
   showFilesModal.value = true
 }
 
-const handleViewRecording = (meeting: any) => {
+const handleViewRecording = (meeting: Meeting) => {
   if (meeting.recording) {
     window.open(meeting.recording, '_blank')
   }
@@ -455,21 +741,27 @@ const closeDetailModal = () => {
 
 const closeFilesModal = () => {
   showFilesModal.value = false
-  selectedFiles.value = []
+  selectedFiles.value = null
 }
 
-const clearAllFilters = () => {
-  currentFilters.value = {}
-  currentPage.value = 1
+const changePage = (page: number) => {
+  if (page === currentPage.value || page < 1 || page > totalPages.value) return
+  currentPage.value = page
+  if (usingFallback.value) {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    return
+  }
+  loadMeetings()
+  window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 const loadMore = async () => {
+  if (!usingFallback.value || isLoadingMore.value) return
+  if (currentPage.value >= totalPages.value) return
   isLoadingMore.value = true
-  // 模拟加载更多数据
-  setTimeout(() => {
-    currentPage.value++
-    isLoadingMore.value = false
-  }, 1000)
+  await new Promise(resolve => setTimeout(resolve, 300))
+  changePage(currentPage.value + 1)
+  isLoadingMore.value = false
 }
 
 const checkScreenSize = () => {
@@ -480,12 +772,10 @@ const checkScreenSize = () => {
 onMounted(() => {
   checkScreenSize()
   window.addEventListener('resize', checkScreenSize)
-  
-  // 模拟加载数据
-  isLoading.value = true
-  setTimeout(() => {
-    isLoading.value = false
-  }, 1500)
+  if (hydrateMeetingsFromCache(true)) {
+    hasLoadedOnce.value = true
+  }
+  loadMeetings({ resetPage: true })
 })
 
 onUnmounted(() => {
@@ -505,12 +795,52 @@ onUnmounted(() => {
 }
 
 .header-background {
-  @apply absolute inset-0;
-  background: linear-gradient(135deg, #F59E0B 0%, #F97316 100%);
+  @apply absolute inset-0 overflow-hidden;
+  background: radial-gradient(circle at 30% 20%, rgba(248, 250, 252, 0.08), transparent 55%),
+              radial-gradient(circle at 80% 0%, rgba(14, 165, 233, 0.15), transparent 45%),
+              #1d1b38;
+  background-size: 200% 200%;
+  animation: gradientShift 16s ease-in-out infinite;
+}
+
+.header-light-trails {
+  @apply absolute inset-0 overflow-hidden;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.light-strip {
+  @apply absolute rounded-full opacity-40;
+  --strip-rotation: 0deg;
+  width: 45%;
+  height: 160%;
+  top: -30%;
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0));
+  filter: blur(2px);
+  animation: lightSweep 8s linear infinite;
+  transform: rotate(var(--strip-rotation));
+}
+
+.strip-1 {
+  left: -5%;
+  --strip-rotation: -12deg;
+  animation-delay: 0s;
+}
+
+.strip-2 {
+  left: 25%;
+  --strip-rotation: 8deg;
+  animation-delay: 2s;
+}
+
+.strip-3 {
+  right: -10%;
+  --strip-rotation: 18deg;
+  animation-delay: 4s;
 }
 
 .header-overlay {
-  @apply absolute inset-0 bg-black bg-opacity-20;
+  @apply absolute inset-0 bg-slate-900/60 backdrop-blur-md;
 }
 
 .header-content {
@@ -556,6 +886,32 @@ onUnmounted(() => {
 
 .stat-label {
   @apply text-white/80 text-sm;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes lightSweep {
+  0% {
+    transform: rotate(var(--strip-rotation)) translateX(-160%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: rotate(var(--strip-rotation)) translateX(160%);
+    opacity: 0;
+  }
 }
 
 /* 主内容区域 */

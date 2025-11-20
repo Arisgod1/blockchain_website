@@ -1,29 +1,51 @@
 <template>
-  <div v-if="show" class="article-modal-overlay" @click="handleOverlayClick">
-    <div class="article-modal" @click.stop>
+  <div
+    v-if="show"
+    class="article-modal-overlay"
+    @click="handleOverlayClick"
+  >
+    <div
+      class="article-modal"
+      @click.stop
+    >
       <!-- 模态框头部 -->
       <div class="modal-header">
         <div class="header-info">
           <div class="category-badge">
-            <component :is="getCategoryIcon(article.category)" class="category-icon" />
+            <component
+              :is="getCategoryIcon(article.category)"
+              class="category-icon"
+            />
             {{ article.category }}
           </div>
-          <div v-if="article.featured" class="featured-badge">
+          <div
+            v-if="article.featured"
+            class="featured-badge"
+          >
             <StarIcon class="featured-icon" />
             精选
           </div>
         </div>
-        <button @click="$emit('close')" class="close-btn">
+        <button
+          class="close-btn"
+          @click="$emit('close')"
+        >
           <XIcon />
         </button>
       </div>
 
       <!-- 文章头部 -->
       <div class="article-header">
-        <h1 class="article-title">{{ article.title }}</h1>
+        <h1 class="article-title">
+          {{ article.title }}
+        </h1>
         <div class="article-meta">
           <div class="author-info">
-            <img :src="article.author.avatar" :alt="article.author.name" class="author-avatar" />
+            <img
+              :src="article.author.avatar"
+              :alt="article.author.name"
+              class="author-avatar"
+            >
             <div class="author-details">
               <span class="author-name">{{ article.author.name }}</span>
               <span class="publish-date">{{ formatDate(article.publishedAt) }}</span>
@@ -48,10 +70,13 @@
           :src="article.thumbnail" 
           :alt="article.title"
           @error="handleImageError"
-        />
+        >
         <div class="image-overlay">
           <div class="overlay-content">
-            <span class="difficulty-badge" :class="`difficulty-${article.difficulty}`">
+            <span
+              class="difficulty-badge"
+              :class="`difficulty-${article.difficulty}`"
+            >
               {{ getDifficultyLabel(article.difficulty) }}
             </span>
             <span class="read-time-overlay">{{ article.readTime }} 分钟</span>
@@ -74,14 +99,20 @@
 
       <!-- 文章摘要 -->
       <div class="article-summary">
-        <h3 class="summary-title">文章摘要</h3>
-        <p class="summary-content">{{ article.summary }}</p>
+        <h3 class="summary-title">
+          文章摘要
+        </h3>
+        <p class="summary-content">
+          {{ article.summary }}
+        </p>
       </div>
 
       <!-- 文章内容 -->
       <div class="article-content">
         <div class="content-section">
-          <h2 class="content-title">技术背景</h2>
+          <h2 class="content-title">
+            技术背景
+          </h2>
           <div class="content-text">
             <p>区块链技术作为近年来最具革命性的技术创新之一，在金融、供应链、医疗健康等多个领域展现出巨大的应用潜力。本文深入探讨了{{ article.category }}在区块链生态中的重要地位。</p>
             <p>随着Web3.0概念的普及和去中心化应用的快速发展，{{ article.category }}技术正成为连接传统业务与区块链世界的重要桥梁。</p>
@@ -89,7 +120,9 @@
         </div>
 
         <div class="content-section">
-          <h2 class="content-title">核心原理</h2>
+          <h2 class="content-title">
+            核心原理
+          </h2>
           <div class="content-text">
             <p>深入分析{{ article.category }}的技术架构，包括关键算法、数据结构以及与区块链网络的交互机制。</p>
             <ul class="content-list">
@@ -102,7 +135,9 @@
         </div>
 
         <div class="content-section">
-          <h2 class="content-title">实践案例</h2>
+          <h2 class="content-title">
+            实践案例
+          </h2>
           <div class="content-text">
             <p>通过实际项目案例，展示{{ article.category }}技术在真实环境中的应用效果和最佳实践。</p>
             <blockquote class="content-quote">
@@ -112,7 +147,9 @@
         </div>
 
         <div class="content-section">
-          <h2 class="content-title">未来展望</h2>
+          <h2 class="content-title">
+            未来展望
+          </h2>
           <div class="content-text">
             <p>展望{{ article.category }}技术的发展趋势，分析可能面临的挑战和机遇，为技术选型提供参考。</p>
           </div>
@@ -122,20 +159,36 @@
       <!-- 交互统计 -->
       <div class="interaction-stats">
         <div class="stat-card">
-          <div class="stat-value">{{ formatNumber(article.views) }}</div>
-          <div class="stat-label">浏览量</div>
+          <div class="stat-value">
+            {{ formatNumber(article.views) }}
+          </div>
+          <div class="stat-label">
+            浏览量
+          </div>
         </div>
         <div class="stat-card">
-          <div class="stat-value">{{ formatNumber(article.likes) }}</div>
-          <div class="stat-label">点赞数</div>
+          <div class="stat-value">
+            {{ formatNumber(article.likes) }}
+          </div>
+          <div class="stat-label">
+            点赞数
+          </div>
         </div>
         <div class="stat-card">
-          <div class="stat-value">{{ formatNumber(article.comments) }}</div>
-          <div class="stat-label">评论数</div>
+          <div class="stat-value">
+            {{ formatNumber(article.comments ?? 0) }}
+          </div>
+          <div class="stat-label">
+            评论数
+          </div>
         </div>
         <div class="stat-card">
-          <div class="stat-value">{{ article.readTime }}</div>
-          <div class="stat-label">阅读时间(分钟)</div>
+          <div class="stat-value">
+            {{ article.readTime }}
+          </div>
+          <div class="stat-label">
+            阅读时间(分钟)
+          </div>
         </div>
       </div>
 
@@ -143,9 +196,9 @@
       <div class="modal-footer">
         <div class="footer-actions">
           <button 
-            @click="handleLike" 
             class="action-button" 
-            :class="{ liked: article.liked }"
+            :class="{ liked: article.liked }" 
+            @click="handleLike"
           >
             <HeartIcon class="action-icon" />
             {{ article.liked ? '已点赞' : '点赞' }}
@@ -153,29 +206,44 @@
           </button>
           
           <button 
-            @click="handleBookmark" 
-            class="action-button"
+            class="action-button" 
             :class="{ bookmarked: article.bookmarked }"
+            @click="handleBookmark"
           >
             <BookmarkIcon class="action-icon" />
             {{ article.bookmarked ? '已收藏' : '收藏' }}
           </button>
 
           <div class="share-dropdown">
-            <button @click="toggleShare" class="action-button">
+            <button
+              class="action-button"
+              @click="toggleShare"
+            >
               <ShareIcon class="action-icon" />
               分享
             </button>
-            <div v-if="showShareMenu" class="share-menu">
-              <button @click="handleShare('weibo')" class="share-option">
+            <div
+              v-if="showShareMenu"
+              class="share-menu"
+            >
+              <button
+                class="share-option"
+                @click="handleShare('weibo')"
+              >
                 <WeiboIcon class="share-icon" />
                 微博
               </button>
-              <button @click="handleShare('wechat')" class="share-option">
+              <button
+                class="share-option"
+                @click="handleShare('wechat')"
+              >
                 <MessageCircleIcon class="share-icon" />
                 微信
               </button>
-              <button @click="handleShare('copy')" class="share-option">
+              <button
+                class="share-option"
+                @click="handleShare('copy')"
+              >
                 <CopyIcon class="share-icon" />
                 复制链接
               </button>
@@ -200,33 +268,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-
-// 文章接口
-interface Author {
-  id: number
-  name: string
-  avatar: string
-}
-
-interface Article {
-  id: string
-  title: string
-  summary: string
-  content: string
-  author: Author
-  category: string
-  tags: string[]
-  publishedAt: Date
-  readTime: number
-  views: number
-  likes: number
-  comments: number
-  featured: boolean
-  difficulty: 'beginner' | 'intermediate' | 'advanced' | 'expert'
-  thumbnail: string
-  bookmarked: boolean
-  liked: boolean
-}
+import type { Article } from '@/types/entities'
 
 // Props
 interface Props {
@@ -288,7 +330,15 @@ const filterByTag = (tag: string) => {
   // 这里可以实现标签筛选功能
 }
 
-const formatDate = (date: Date) => {
+const parseDateInput = (value?: string | Date) => {
+  if (!value) return null
+  if (value instanceof Date) return value
+  const parsed = new Date(value)
+  return Number.isNaN(parsed.getTime()) ? null : parsed
+}
+
+const formatDate = (value?: string | Date) => {
+  const date = parseDateInput(value) ?? new Date()
   const now = new Date()
   const diffTime = Math.abs(now.getTime() - date.getTime())
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
@@ -317,27 +367,28 @@ const formatNumber = (num: number) => {
 }
 
 const getCategoryIcon = (category: string) => {
-  const iconMap: Record<string, string> = {
-    '技术深度': 'CodeIcon',
-    'DeFi协议': 'CoinsIcon',
-    '智能合约': 'FileTextIcon',
-    '开发实践': 'ToolIcon',
-    '行业分析': 'TrendingUpIcon',
-    '区块链基础': 'LayersIcon',
-    '共识算法': 'GitBranchIcon',
-    '项目分享': 'FolderIcon'
-  }
-  return iconMap[category] || 'FileTextIcon'
+  const iconMap = {
+    '技术深度': CodeIcon,
+    'DeFi协议': CoinsIcon,
+    '智能合约': FileTextIcon,
+    '开发实践': ToolIcon,
+    '行业分析': TrendingUpIcon,
+    '区块链基础': LayersIcon,
+    '共识算法': GitBranchIcon,
+    '项目分享': FolderIcon
+  } as const
+
+  return iconMap[category as keyof typeof iconMap] || FileTextIcon
 }
 
-const getDifficultyLabel = (difficulty: string) => {
+const getDifficultyLabel = (difficulty?: string) => {
   const labelMap: Record<string, string> = {
     'beginner': '入门',
     'intermediate': '中级',
     'advanced': '高级',
     'expert': '专家'
   }
-  return labelMap[difficulty] || '中级'
+  return (difficulty ? labelMap[difficulty] : undefined) || '中级'
 }
 
 // 点击外部关闭分享菜单

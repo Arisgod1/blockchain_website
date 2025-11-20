@@ -1,29 +1,47 @@
 <template>
   <div class="fixed inset-0 z-50 flex items-center justify-center">
-    <div class="absolute inset-0 bg-black/50" @click="close"></div>
+    <div
+      class="absolute inset-0 bg-black/50"
+      @click="close"
+    />
     <div class="bg-white rounded-lg shadow-lg w-full max-w-lg z-10 p-6">
-      <h3 class="text-lg font-semibold mb-4">创建新项目</h3>
+      <h3 class="text-lg font-semibold mb-4">
+        创建新项目
+      </h3>
 
       <form @submit.prevent="submit">
         <div class="grid grid-cols-1 gap-3">
           <label class="flex flex-col">
             <span class="text-sm text-gray-700">项目标题</span>
-            <input v-model="form.title" required class="mt-1 p-2 border rounded" />
+            <input
+              v-model="form.title"
+              required
+              class="mt-1 p-2 border rounded"
+            >
           </label>
 
           <label class="flex flex-col">
             <span class="text-sm text-gray-700">简短描述</span>
-            <input v-model="form.shortDescription" class="mt-1 p-2 border rounded" />
+            <input
+              v-model="form.shortDescription"
+              class="mt-1 p-2 border rounded"
+            >
           </label>
 
           <label class="flex flex-col">
             <span class="text-sm text-gray-700">分类</span>
-            <input v-model="form.category" class="mt-1 p-2 border rounded" />
+            <input
+              v-model="form.category"
+              class="mt-1 p-2 border rounded"
+            >
           </label>
 
           <label class="flex flex-col">
             <span class="text-sm text-gray-700">状态</span>
-            <select v-model="form.status" class="mt-1 p-2 border rounded">
+            <select
+              v-model="form.status"
+              class="mt-1 p-2 border rounded"
+            >
               <option value="planning">规划中</option>
               <option value="in-progress">开发中</option>
               <option value="completed">已完成</option>
@@ -33,13 +51,30 @@
 
           <label class="flex flex-col">
             <span class="text-sm text-gray-700">进度（%）</span>
-            <input type="number" v-model.number="form.progress" min="0" max="100" class="mt-1 p-2 border rounded" />
+            <input
+              v-model.number="form.progress"
+              type="number"
+              min="0"
+              max="100"
+              class="mt-1 p-2 border rounded"
+            >
           </label>
         </div>
 
         <div class="mt-4 flex items-center justify-end gap-2">
-          <button type="button" class="px-4 py-2 rounded border" @click="close">取消</button>
-          <button type="submit" class="px-4 py-2 rounded bg-blue-600 text-white">创建</button>
+          <button
+            type="button"
+            class="px-4 py-2 rounded border"
+            @click="close"
+          >
+            取消
+          </button>
+          <button
+            type="submit"
+            class="px-4 py-2 rounded bg-blue-600 text-white"
+          >
+            创建
+          </button>
         </div>
       </form>
     </div>

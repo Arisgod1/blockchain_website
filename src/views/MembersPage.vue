@@ -15,16 +15,28 @@
           </div>
           <div class="header-stats">
             <div class="stat-card">
-              <div class="stat-value">{{ totalMembers }}</div>
-              <div class="stat-label">团队成员</div>
+              <div class="stat-value">
+                {{ totalMembers }}
+              </div>
+              <div class="stat-label">
+                团队成员
+              </div>
             </div>
             <div class="stat-card">
-              <div class="stat-value">{{ activeMembers }}</div>
-              <div class="stat-label">活跃成员</div>
+              <div class="stat-value">
+                {{ activeMembers }}
+              </div>
+              <div class="stat-label">
+                活跃成员
+              </div>
             </div>
             <div class="stat-card">
-              <div class="stat-value">{{ totalProjects }}</div>
-              <div class="stat-label">参与项目</div>
+              <div class="stat-value">
+                {{ totalProjects }}
+              </div>
+              <div class="stat-label">
+                参与项目
+              </div>
             </div>
           </div>
         </div>
@@ -51,9 +63,12 @@
             <div class="list-header">
               <div class="results-info">
                 <span class="results-count">
-                  共找到 {{ filteredMembers.length }} 位成员
+                  共找到 {{ totalCount }} 位成员
                 </span>
-                <span v-if="hasActiveFilters" class="active-filters">
+                <span
+                  v-if="hasActiveFilters"
+                  class="active-filters"
+                >
                   （已应用筛选条件）
                 </span>
               </div>
@@ -75,35 +90,89 @@
               </div>
             </div>
 
-            <!-- 成员网格 -->
-            <div v-if="filteredMembers.length > 0" class="members-grid">
-              <MemberCard
-                v-for="member in paginatedMembers"
-                :key="member.id"
-                :member="member"
-                @click="selectMember(member)"
-              />
+            <!-- 首屏加载 -->
+            <div
+              v-if="isLoading && !hasLoadedOnce"
+              class="loading-state"
+            >
+              <div class="loading-spinner" />
+              <p>正在加载团队成员...</p>
             </div>
 
-            <!-- 空状态 -->
-            <div v-else class="empty-state">
-              <div class="empty-icon">
-                <UsersIcon />
-              </div>
-              <h3 class="empty-title">未找到匹配的成员</h3>
-              <p class="empty-description">
-                请尝试调整筛选条件或搜索关键词
-              </p>
-              <BaseButton @click="clearAllFilters" variant="outline">
-                清除所有筛选
+            <!-- 错误状态 -->
+            <div
+              v-else-if="errorMessage && !members.length"
+              class="error-state"
+            >
+              <p>{{ errorMessage }}</p>
+              <BaseButton
+                variant="outline"
+                @click="loadMembers"
+              >
+                重试
               </BaseButton>
             </div>
 
+            <!-- 成员内容 -->
+            <div
+              v-else
+              class="members-grid-wrapper"
+            >
+              <transition
+                name="fade"
+                appear
+              >
+                <div
+                  v-if="isLoading && hasLoadedOnce"
+                  class="grid-overlay"
+                >
+                  <div class="loading-spinner small" />
+                  <p>正在刷新列表...</p>
+                </div>
+              </transition>
+
+              <div
+                v-if="members.length > 0"
+                class="members-grid"
+              >
+                <MemberCard
+                  v-for="member in paginatedMembers"
+                  :key="member.id"
+                  :member="member"
+                  @click="selectMember(member)"
+                />
+              </div>
+
+              <div
+                v-else
+                class="empty-state"
+              >
+                <div class="empty-icon">
+                  <UsersIcon />
+                </div>
+                <h3 class="empty-title">
+                  未找到匹配的成员
+                </h3>
+                <p class="empty-description">
+                  请尝试调整筛选条件或搜索关键词
+                </p>
+                <BaseButton
+                  variant="outline"
+                  @click="clearAllFilters"
+                >
+                  清除所有筛选
+                </BaseButton>
+              </div>
+            </div>
+
             <!-- 分页 -->
-            <div v-if="filteredMembers.length > pageSize" class="pagination-wrapper">
+            <div
+              v-if="totalCount > pageSize"
+              class="pagination-wrapper"
+            >
               <BasePagination
                 v-model:current="currentPage"
-                :total="filteredMembers.length"
+                :total="totalCount"
                 :page-size="pageSize"
                 @change="handlePageChange"
               />
@@ -119,17 +188,30 @@
       :title="selectedMember?.name || ''"
       size="lg"
     >
-      <div v-if="selectedMember" class="member-detail">
+      <div
+        v-if="selectedMember"
+        class="member-detail"
+      >
         <div class="member-header">
-          <img
-            :src="selectedMember.avatar || '/images/default-avatar.png'"
-            :alt="selectedMember.name"
+          <BaseAvatar
             class="member-avatar-large"
+            :src="selectedMember.avatar"
+            :alt="selectedMember.name"
+            :fallback-text="selectedMember.name"
+            size="120"
+            ring
           />
           <div class="member-info">
-            <h2 class="member-name">{{ selectedMember.name }}</h2>
-            <p class="member-role">{{ selectedMember.role }}</p>
-            <p v-if="selectedMember.grade && selectedMember.major" class="member-grade">
+            <h2 class="member-name">
+              {{ selectedMember.name }}
+            </h2>
+            <p class="member-role">
+              {{ selectedMember.role }}
+            </p>
+            <p
+              v-if="selectedMember.grade && selectedMember.major"
+              class="member-grade"
+            >
               {{ selectedMember.grade }} • {{ selectedMember.major }}
             </p>
             <div class="member-links">
@@ -155,7 +237,10 @@
         </div>
         
         <div class="member-content">
-          <div class="member-bio" v-if="selectedMember.bio">
+          <div
+            v-if="selectedMember.bio"
+            class="member-bio"
+          >
             <h3>个人简介</h3>
             <p>{{ selectedMember.bio }}</p>
           </div>
@@ -177,15 +262,23 @@
             <div class="stat-item">
               <CalendarIcon class="stat-icon" />
               <div>
-                <div class="stat-label">加入时间</div>
-                <div class="stat-value">{{ formatDate(selectedMember.joinDate) }}</div>
+                <div class="stat-label">
+                  加入时间
+                </div>
+                <div class="stat-value">
+                  {{ formatDate(selectedMember.joinDate) }}
+                </div>
               </div>
             </div>
             <div class="stat-item">
               <ProjectIcon class="stat-icon" />
               <div>
-                <div class="stat-label">参与项目</div>
-                <div class="stat-value">{{ selectedMember.projectCount || 0 }}个</div>
+                <div class="stat-label">
+                  参与项目
+                </div>
+                <div class="stat-value">
+                  {{ selectedMember.projectCount || 0 }}个
+                </div>
               </div>
             </div>
           </div>
@@ -196,8 +289,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import type { Member } from '@/types/entities'
+import { ref, computed, onMounted, watch } from 'vue'
+import type { Member, MemberListFilters, RoleOption, MemberListResponse } from '@/types/entities'
+import { getMembers } from '@/api/member'
 import { 
   UsersIcon, 
   GridIcon, 
@@ -212,6 +306,7 @@ import MemberFilter from '@/components/members/MemberFilter.vue'
 import BaseButton from '@/components/common/BaseButton.vue'
 import BasePagination from '@/components/common/BasePagination.vue'
 import BaseModal from '@/components/common/BaseModal.vue'
+import BaseAvatar from '@/components/common/BaseAvatar.vue'
 
 // 页面元数据设置
 onMounted(() => {
@@ -227,89 +322,47 @@ onMounted(() => {
   }
 })
 
-// 模拟成员数据
-const mockMembers: Member[] = [
-  {
-    id: '1',
-    name: '张同学',
-    role: '组长',
-    avatar: '/images/avatars/zhang.jpg',
-    grade: '研二',
-    major: '计算机科学与技术',
-    skills: ['Solidity', 'Web3.js', 'React', 'DeFi'],
-    bio: '专注于智能合约开发和DeFi应用研究，有丰富的以太坊开发经验',
-    github: 'https://github.com/zhang',
-    email: 'zhang@example.com',
-    joinDate: '2023-09-01',
-    isActive: true,
-    projectCount: 8
-  },
-  {
-    id: '2',
-    name: '李同学',
-    role: '技术负责人',
-    avatar: '/images/avatars/li.jpg',
-    grade: '大三',
-    major: '软件工程',
-    skills: ['Python', 'Django', '区块链底层', '共识算法'],
-    bio: '区块链底层技术研究者，熟悉多种共识算法和P2P网络协议',
-    github: 'https://github.com/li',
-    email: 'li@example.com',
-    joinDate: '2023-03-01',
-    isActive: true,
-    projectCount: 12
-  },
-  {
-    id: '3',
-    name: '王同学',
-    role: '前端开发',
-    avatar: '/images/avatars/wang.jpg',
-    grade: '大二',
-    major: '数字媒体技术',
-    skills: ['Vue.js', 'CSS', 'UI设计', 'Three.js'],
-    bio: '热爱前端开发和用户体验设计，专注于3D可视化界面开发',
-    github: 'https://github.com/wang',
-    email: 'wang@example.com',
-    joinDate: '2024-03-01',
-    isActive: true,
-    projectCount: 5
-  }
-]
+const MEMBERS_CACHE_KEY = 'members:list-cache'
 
-// 扩展到28位成员
-const allMembers = ref<Member[]>([
-  ...mockMembers,
-  ...Array.from({ length: 25 }, (_, i) => ({
-    id: `${i + 4}`,
-    name: `成员${i + 4}`,
-    role: ['开发成员', '研究员', '前端开发', '后端开发'][Math.floor(Math.random() * 4)],
-    avatar: `/images/avatars/member${i + 4}.jpg`,
-    grade: ['大一', '大二', '大三', '大四', '研一', '研二'][Math.floor(Math.random() * 6)],
-    major: ['计算机科学与技术', '软件工程', '数字媒体技术', '信息安全'][Math.floor(Math.random() * 4)],
-    skills: [
-      ['Vue.js', 'React', 'TypeScript'],
-      ['Python', 'Django', '机器学习'],
-      ['Solidity', 'Web3.js', 'DeFi'],
-      ['Node.js', 'MongoDB', 'Express'],
-      ['Java', 'Spring', 'MySQL'],
-      ['Go', 'Docker', 'Kubernetes']
-    ][Math.floor(Math.random() * 6)],
-    bio: '专注于相关技术领域的研究与开发',
-    github: `https://github.com/member${i + 4}`,
-    email: `member${i + 4}@example.com`,
-    joinDate: `202${3 + Math.floor(Math.random()  * 2)}-${String(Math.floor(Math.random() * 12) + 1).padStart(2, '0')}-01`,
-    isActive: Math.random() > 0.2,
-    projectCount: Math.floor(Math.random() * 15) + 1
-  }))
+const members = ref<Member[]>([])
+const totalCount = ref(0)
+const totals = ref<Record<string, number> | null>(null)
+const isLoading = ref(false)
+const errorMessage = ref('')
+const hasLoadedOnce = ref(false)
+
+const roleOptions = ref<RoleOption[]>([
+  { id: 'all', name: '全部成员', count: 0 }
 ])
 
+const defaultTechStacks = [
+  'Solidity', 'Web3.js', 'React', 'Vue.js', 'Python', 'Django',
+  'Node.js', 'TypeScript', 'IPFS', 'Ethereum', 'DeFi', 'NFT',
+  'Java', 'Spring', 'Go', 'Docker', 'Kubernetes', 'MongoDB'
+]
+const techStackOptions = ref<string[]>([...defaultTechStacks])
+
 // 筛选相关
-const filters = ref({
+type MembersPageFilters = MemberListFilters & {
+  skills: string[]
+  sortBy: 'name' | 'joinDate' | 'projectCount' | 'role'
+  role: string
+}
+
+type MemberFilterPayload = {
+  search?: string
+  role?: string
+  skills: string[]
+  sortBy: string
+  isActive?: boolean
+}
+
+const filters = ref<MembersPageFilters>({
   search: '',
   role: 'all',
-  skills: [] as string[],
+  skills: [],
   sortBy: 'name',
-  isActive: undefined as boolean | undefined
+  isActive: undefined
 })
 
 // 视图模式
@@ -323,109 +376,128 @@ const pageSize = ref(12)
 const showMemberModal = ref(false)
 const selectedMember = ref<Member | null>(null)
 
-// 角色选项
-const roleOptions = [
-  { id: 'all', name: '全部成员', count: allMembers.value.length },
-  { id: '组长', name: '组长', count: allMembers.value.filter(m => m.role === '组长').length },
-  { id: '技术负责人', name: '技术负责人', count: allMembers.value.filter(m => m.role === '技术负责人').length },
-  { id: '前端开发', name: '前端开发', count: allMembers.value.filter(m => m.role === '前端开发').length },
-  { id: '后端开发', name: '后端开发', count: allMembers.value.filter(m => m.role === '后端开发').length },
-  { id: '开发成员', name: '开发成员', count: allMembers.value.filter(m => m.role === '开发成员').length },
-  { id: '研究员', name: '研究员', count: allMembers.value.filter(m => m.role === '研究员').length }
-]
-
-// 技术栈选项
-const techStackOptions = [
-  'Solidity', 'Web3.js', 'React', 'Vue.js', 'Python', 'Django',
-  'Node.js', 'TypeScript', 'IPFS', 'Ethereum', 'DeFi', 'NFT',
-  'Java', 'Spring', 'Go', 'Docker', 'Kubernetes', 'MongoDB'
-]
-
 // 统计数据
-const totalMembers = computed(() => allMembers.value.length)
-const activeMembers = computed(() => allMembers.value.filter(m => m.isActive).length)
-const totalProjects = computed(() => 
-  allMembers.value.reduce((sum, member) => sum + (member.projectCount || 0), 0)
-)
+const totalMembers = computed(() => totals.value?.totalMembers ?? totalCount.value)
+const activeMembers = computed(() => {
+  if (typeof totals.value?.activeMembers === 'number') return totals.value.activeMembers
+  return members.value.filter(member => member.isActive).length
+})
+const totalProjects = computed(() => {
+  if (typeof totals.value?.totalProjects === 'number') return totals.value.totalProjects
+  return members.value.reduce((sum, member) => sum + (member.projectCount || 0), 0)
+})
 
 // 是否有激活的筛选条件
 const hasActiveFilters = computed(() => {
-  return filters.value.search || 
-         filters.value.role !== 'all' || 
-         filters.value.skills.length > 0 ||
-         filters.value.isActive !== undefined
+  return Boolean(
+    filters.value.search ||
+    (filters.value.role && filters.value.role !== 'all') ||
+    (filters.value.skills && filters.value.skills.length > 0) ||
+    filters.value.isActive !== undefined
+  )
 })
 
-// 过滤成员
-const filteredMembers = computed(() => {
-  let result = allMembers.value
+const paginatedMembers = computed(() => members.value)
 
-  // 按搜索关键词过滤
-  if (filters.value.search) {
-    const query = filters.value.search.toLowerCase()
-    result = result.filter(member =>
-      member.name.toLowerCase().includes(query) ||
-      member.skills.some(skill => skill.toLowerCase().includes(query)) ||
-      member.role.toLowerCase().includes(query)
-    )
+const applyMemberResponse = (response: MemberListResponse) => {
+  members.value = response.items || []
+  totalCount.value = response.total ?? members.value.length
+  totals.value = (response.totals as Record<string, number>) || null
+
+  if (response.filters?.roles?.length) {
+    const totalFromRoles = response.filters.roles.reduce((sum, role) => sum + (role.count || 0), 0)
+    roleOptions.value = [
+      { id: 'all', name: '全部成员', count: totalFromRoles },
+      ...response.filters.roles
+    ]
+  } else {
+    roleOptions.value = [{ id: 'all', name: '全部成员', count: totalCount.value }]
   }
 
-  // 按角色过滤
-  if (filters.value.role && filters.value.role !== 'all') {
-    result = result.filter(member => member.role === filters.value.role)
+  if (response.filters?.skills?.length) {
+    techStackOptions.value = response.filters.skills as string[]
+  } else {
+    techStackOptions.value = [...defaultTechStacks]
   }
-
-  // 按技能过滤
-  if (filters.value.skills.length > 0) {
-    result = result.filter(member =>
-      filters.value.skills.every(skill =>
-        member.skills.some(memberSkill => 
-          memberSkill.toLowerCase().includes(skill.toLowerCase())
-        )
-      )
-    )
-  }
-
-  // 按活跃状态过滤
-  if (filters.value.isActive !== undefined) {
-    result = result.filter(member => member.isActive === filters.value.isActive)
-  }
-
-  // 排序
-  result = result.sort((a, b) => {
-    switch (filters.value.sortBy) {
-      case 'name':
-        return a.name.localeCompare(b.name)
-      case 'joinDate':
-        return new Date(b.joinDate).getTime() - new Date(a.joinDate).getTime()
-      case 'projectCount':
-        return (b.projectCount || 0) - (a.projectCount || 0)
-      case 'role':
-        return a.role.localeCompare(b.role)
-      default:
-        return 0
-    }
-  })
-
-  return result
-})
-
-// 分页后的成员
-const paginatedMembers = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value
-  const end = start + pageSize.value
-  return filteredMembers.value.slice(start, end)
-})
-
-// 处理筛选变化
-const handleFiltersChange = (newFilters: any) => {
-  currentPage.value = 1 // 重置页码
 }
 
-// 处理分页变化
+const cacheMemberSnapshot = (payload: MemberListResponse) => {
+  if (typeof window === 'undefined') return
+  try {
+    window.localStorage.setItem(MEMBERS_CACHE_KEY, JSON.stringify(payload))
+  } catch (error) {
+    console.warn('缓存成员列表失败', error)
+  }
+}
+
+const hydrateMembersFromCache = (silent = false) => {
+  if (typeof window === 'undefined') return false
+  try {
+    const cacheRaw = window.localStorage.getItem(MEMBERS_CACHE_KEY)
+    if (!cacheRaw) return false
+    const parsed = JSON.parse(cacheRaw) as MemberListResponse
+    if (!parsed?.items?.length) return false
+    applyMemberResponse(parsed)
+    if (!silent) {
+      errorMessage.value = ''
+    }
+    return true
+  } catch (error) {
+    console.warn('读取成员缓存失败', error)
+    return false
+  }
+}
+
+const loadMembers = async () => {
+  isLoading.value = true
+  errorMessage.value = ''
+
+  try {
+    const response = await getMembers({
+      page: currentPage.value,
+      pageSize: pageSize.value,
+      search: filters.value.search,
+      role: filters.value.role && filters.value.role !== 'all' ? filters.value.role : undefined,
+      skills: filters.value.skills,
+      sortBy: filters.value.sortBy as MemberListFilters['sortBy'],
+      isActive: filters.value.isActive,
+      sortOrder: 'asc'
+    })
+
+    applyMemberResponse(response)
+    cacheMemberSnapshot(response)
+  } catch (error) {
+    console.error('获取成员列表失败', error)
+    const fallbackMessage = error instanceof Error ? error.message : '获取成员列表失败'
+    errorMessage.value = fallbackMessage
+
+    if (!members.value.length) {
+      const restored = hydrateMembersFromCache(true)
+      if (restored) {
+        errorMessage.value = '已显示最近一次的离线数据'
+      } else {
+        totalCount.value = 0
+      }
+    }
+  } finally {
+    isLoading.value = false
+    hasLoadedOnce.value = true
+  }
+}
+
+const handleFiltersChange = (newFilters: MemberFilterPayload) => {
+  filters.value = {
+    ...filters.value,
+    ...newFilters,
+    sortBy: (newFilters.sortBy as MembersPageFilters['sortBy']) || filters.value.sortBy
+  }
+  currentPage.value = 1
+  loadMembers()
+}
+
 const handlePageChange = (page: number) => {
   currentPage.value = page
-  // 滚动到顶部
+  loadMembers()
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
@@ -445,6 +517,7 @@ const clearAllFilters = () => {
     isActive: undefined
   }
   currentPage.value = 1
+  loadMembers()
 }
 
 // 格式化日期
@@ -452,6 +525,18 @@ const formatDate = (dateString: string) => {
   const date = new Date(dateString)
   return `${date.getFullYear()}年${date.getMonth() + 1}月`
 }
+
+watch(pageSize, () => {
+  currentPage.value = 1
+  loadMembers()
+})
+
+onMounted(() => {
+  if (hydrateMembersFromCache(true)) {
+    hasLoadedOnce.value = true
+  }
+  loadMembers()
+})
 </script>
 
 <style scoped>
@@ -547,6 +632,18 @@ const formatDate = (dateString: string) => {
   @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6;
 }
 
+.members-grid-wrapper {
+  @apply relative min-h-[200px];
+}
+
+.grid-overlay {
+  @apply absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/70 backdrop-blur-sm text-gray-600 rounded-2xl;
+}
+
+.loading-spinner.small {
+  @apply w-8 h-8 mb-2 border-2 border-blue-200 border-t-blue-500;
+}
+
 .empty-state {
   @apply flex flex-col items-center justify-center py-16 text-center;
 }
@@ -564,7 +661,26 @@ const formatDate = (dateString: string) => {
 }
 
 .pagination-wrapper {
-  @apply mt-12 flex justify-center;
+  @apply mt-8 flex justify-center;
+}
+
+.loading-state,
+.error-state {
+  @apply flex flex-col items-center justify-center py-12 text-gray-600;
+}
+
+.loading-spinner {
+  @apply w-10 h-10 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin mb-4;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 
 /* 成员详情模态框样式 */
@@ -577,7 +693,7 @@ const formatDate = (dateString: string) => {
 }
 
 .member-avatar-large {
-  @apply w-20 h-20 rounded-full object-cover border-4 border-blue-100;
+  @apply w-28 h-28 sm:w-24 sm:h-24 rounded-full border-4 border-blue-100;
 }
 
 .member-info {

@@ -31,40 +31,64 @@
       <div class="stats-grid">
         <BaseCard class="stat-card">
           <div class="stat-content">
-            <div class="stat-icon member-icon">👥</div>
+            <div class="stat-icon member-icon">
+              👥
+            </div>
             <div class="stat-info">
-              <div class="stat-number">{{ totalMembers }}</div>
-              <div class="stat-label">总成员数</div>
+              <div class="stat-number">
+                {{ totalMembers }}
+              </div>
+              <div class="stat-label">
+                总成员数
+              </div>
             </div>
           </div>
         </BaseCard>
 
         <BaseCard class="stat-card">
           <div class="stat-content">
-            <div class="stat-icon active-icon">✅</div>
+            <div class="stat-icon active-icon">
+              ✅
+            </div>
             <div class="stat-info">
-              <div class="stat-number">{{ activeMembers }}</div>
-              <div class="stat-label">活跃成员</div>
+              <div class="stat-number">
+                {{ activeMembers }}
+              </div>
+              <div class="stat-label">
+                活跃成员
+              </div>
             </div>
           </div>
         </BaseCard>
 
         <BaseCard class="stat-card">
           <div class="stat-content">
-            <div class="stat-icon new-icon">🆕</div>
+            <div class="stat-icon new-icon">
+              🆕
+            </div>
             <div class="stat-info">
-              <div class="stat-number">{{ newMembers }}</div>
-              <div class="stat-label">本月新增</div>
+              <div class="stat-number">
+                {{ newMembers }}
+              </div>
+              <div class="stat-label">
+                本月新增
+              </div>
             </div>
           </div>
         </BaseCard>
 
         <BaseCard class="stat-card">
           <div class="stat-content">
-            <div class="stat-icon skills-icon">🎯</div>
+            <div class="stat-icon skills-icon">
+              🎯
+            </div>
             <div class="stat-info">
-              <div class="stat-number">{{ avgSkillsPerMember }}</div>
-              <div class="stat-label">平均技能数</div>
+              <div class="stat-number">
+                {{ avgSkillsPerMember }}
+              </div>
+              <div class="stat-label">
+                平均技能数
+              </div>
             </div>
           </div>
         </BaseCard>
@@ -96,23 +120,37 @@
           </div>
         </template>
 
-        <div v-if="loading" class="loading-container">
+        <div
+          v-if="loading"
+          class="loading-container"
+        >
           <LoadingSpinner />
           <p>加载成员数据中...</p>
         </div>
 
-        <div v-else-if="filteredMembers.length === 0" class="empty-state">
-          <div class="empty-icon">👥</div>
+        <div
+          v-else-if="filteredMembers.length === 0"
+          class="empty-state"
+        >
+          <div class="empty-icon">
+            👥
+          </div>
           <h3>暂无成员记录</h3>
           <p>您还没有添加任何团队成员</p>
-          <BaseButton variant="primary" @click="handleCreate">
+          <BaseButton
+            variant="primary"
+            @click="handleCreate"
+          >
             添加第一个成员
           </BaseButton>
         </div>
 
         <div v-else>
           <!-- 网格视图 -->
-          <div v-if="viewMode === 'grid'" class="members-grid">
+          <div
+            v-if="viewMode === 'grid'"
+            class="members-grid"
+          >
             <div 
               v-for="member in paginatedMembers" 
               :key="member.id"
@@ -130,7 +168,10 @@
           </div>
 
           <!-- 列表视图 -->
-          <div v-else class="members-list">
+          <div
+            v-else
+            class="members-list"
+          >
             <div 
               v-for="member in paginatedMembers" 
               :key="member.id"
@@ -144,8 +185,11 @@
                       :src="member.avatar" 
                       :alt="member.name"
                       class="avatar-image"
-                    />
-                    <div v-else class="avatar-placeholder">
+                    >
+                    <div
+                      v-else
+                      class="avatar-placeholder"
+                    >
                       {{ member.name.charAt(0).toUpperCase() }}
                     </div>
                   </div>
@@ -189,29 +233,29 @@
                 <div class="member-actions">
                   <button 
                     class="action-btn view-btn"
-                    @click="handleView(member)"
                     title="查看详情"
+                    @click="handleView(member)"
                   >
                     👁️
                   </button>
                   <button 
                     class="action-btn edit-btn"
-                    @click="handleEdit(member)"
                     title="编辑"
+                    @click="handleEdit(member)"
                   >
                     ✏️
                   </button>
                   <button 
                     class="action-btn toggle-btn"
-                    @click="handleToggleStatus(member)"
                     :title="member.isActive ? '设为非活跃' : '设为活跃'"
+                    @click="handleToggleStatus(member)"
                   >
                     {{ member.isActive ? '⏸️' : '▶️' }}
                   </button>
                   <button 
                     class="action-btn delete-btn"
-                    @click="handleDelete(member)"
                     title="删除"
+                    @click="handleDelete(member)"
                   >
                     🗑️
                   </button>
@@ -256,7 +300,9 @@
       size="sm"
     >
       <p>确定要删除成员「{{ deleteModal.member?.name }}」吗？</p>
-      <p class="warning-text">此操作不可撤销。</p>
+      <p class="warning-text">
+        此操作不可撤销。
+      </p>
 
       <template #footer>
         <BaseButton 
@@ -278,9 +324,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useHead } from '@vueuse/head'
-import { getMembers, createMember, updateMember, deleteMember } from '@/api/member'
+import { getAdminMembers, createMember, updateMember, deleteMember, updateMemberStatus } from '@/api/member'
 import { 
   BaseButton, 
   BaseCard, 
@@ -423,16 +469,22 @@ const formatDate = (dateStr: string) => {
 const loadMembers = async () => {
   loading.value = true
   try {
-    const response = await getMembers({
-      page: pagination.value.current - 1,
-      size: pagination.value.pageSize,
-      keyword: filters.value.search,
+    const response = await getAdminMembers({
+      page: pagination.value.current,
+      pageSize: pagination.value.pageSize,
+      search: filters.value.search,
+      skills: filters.value.skills,
+      status: filters.value.status as 'active' | 'inactive' | undefined,
+      sortBy: filters.value.sortBy as 'name' | 'joinDate' | 'projectCount' | 'role' | undefined,
+      sortOrder: filters.value.sortOrder as 'asc' | 'desc' | undefined
     })
-    
-    members.value = response.content
-    pagination.value.total = response.totalElements
+
+    members.value = response.items || []
+    pagination.value.total = response.total ?? members.value.length
   } catch (error) {
     console.error('加载成员数据失败:', error)
+    members.value = []
+    pagination.value.total = 0
   } finally {
     loading.value = false
   }
@@ -440,10 +492,12 @@ const loadMembers = async () => {
 
 const handleFilterChange = () => {
   pagination.value.current = 1
+  loadMembers()
 }
 
 const handlePageChange = (page: number) => {
   pagination.value.current = page
+  loadMembers()
 }
 
 const handleCreate = () => {
@@ -471,13 +525,11 @@ const handleEdit = (member: Member) => {
 
 const handleToggleStatus = async (member: Member) => {
   try {
-    // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 500))
-    
-    const index = members.value.findIndex(m => m.id === member.id)
-    if (index !== -1) {
-      members.value[index].isActive = !members.value[index].isActive
-    }
+    await updateMemberStatus(
+      member.id,
+      member.isActive ? 'inactive' : 'active'
+    )
+    await loadMembers()
   } catch (error) {
     console.error('切换成员状态失败:', error)
   }

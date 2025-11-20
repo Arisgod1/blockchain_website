@@ -3,8 +3,10 @@
     <div class="text-center max-w-md">
       <!-- 404 图形 -->
       <div class="mb-8">
-        <div class="text-8xl font-bold text-indigo-600 mb-4">404</div>
-        <div class="w-24 h-1 bg-indigo-600 mx-auto rounded-full"></div>
+        <div class="text-8xl font-bold text-indigo-600 mb-4">
+          404
+        </div>
+        <div class="w-24 h-1 bg-indigo-600 mx-auto rounded-full" />
       </div>
       
       <!-- 错误信息 -->
@@ -18,14 +20,14 @@
       <!-- 导航按钮 -->
       <div class="space-y-4">
         <button
-          @click="goHome"
           class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200"
+          @click="goHome"
         >
           返回首页
         </button>
         <button
-          @click="goBack"
           class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-3 px-6 rounded-lg transition-colors duration-200"
+          @click="goBack"
         >
           返回上页
         </button>

@@ -4,15 +4,21 @@
       <h2>文件管理</h2>
       <div class="header-actions">
         <input 
-          type="file" 
           ref="fileInput" 
+          type="file" 
           style="display: none" 
           @change="handleFileChange"
-        />
-        <BaseButton variant="primary" @click="triggerUpload">
+        >
+        <BaseButton
+          variant="primary"
+          @click="triggerUpload"
+        >
           + 上传文件
         </BaseButton>
-        <BaseButton variant="secondary" @click="handleRefresh">
+        <BaseButton
+          variant="secondary"
+          @click="handleRefresh"
+        >
           刷新
         </BaseButton>
       </div>
@@ -20,15 +26,24 @@
 
     <div class="files-section">
       <BaseCard class="content-card">
-        <div v-if="loading" class="loading-container">
+        <div
+          v-if="loading"
+          class="loading-container"
+        >
           <LoadingSpinner />
         </div>
         
-        <div v-else-if="files.length === 0" class="empty-state">
+        <div
+          v-else-if="files.length === 0"
+          class="empty-state"
+        >
           <p>暂无文件数据</p>
         </div>
 
-        <div v-else class="files-table-container">
+        <div
+          v-else
+          class="files-table-container"
+        >
           <table class="data-table">
             <thead>
               <tr>
@@ -42,7 +57,10 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="file in files" :key="file.id">
+              <tr
+                v-for="file in files"
+                :key="file.id"
+              >
                 <td>{{ file.id }}</td>
                 <td>{{ file.originalName }}</td>
                 <td>{{ formatSize(file.fileSize) }}</td>
@@ -50,15 +68,28 @@
                 <td>{{ file.uploadTime }}</td>
                 <td>{{ file.downloadCount }}</td>
                 <td class="actions-cell">
-                  <button class="action-btn download" @click="handleDownload(file)">下载</button>
-                  <button class="action-btn delete" @click="handleDelete(file)">删除</button>
+                  <button
+                    class="action-btn download"
+                    @click="handleDownload(file)"
+                  >
+                    下载
+                  </button>
+                  <button
+                    class="action-btn delete"
+                    @click="handleDelete(file)"
+                  >
+                    删除
+                  </button>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
         
-        <div class="pagination-container" v-if="totalPages > 1">
+        <div
+          v-if="totalPages > 1"
+          class="pagination-container"
+        >
           <BasePagination 
             :current="currentPage" 
             :total="totalElements"

@@ -4,14 +4,30 @@
     v-bind="$attrs"
   >
     <!-- 卡片头部 -->
-    <div v-if="$slots.header || title || $slots.actions" :class="headerClasses">
+    <div
+      v-if="$slots.header || title || $slots.actions"
+      :class="headerClasses"
+    >
       <div class="flex-1">
         <slot name="header">
-          <h3 v-if="title" :class="titleClasses">{{ title }}</h3>
-          <p v-if="subtitle" :class="subtitleClasses">{{ subtitle }}</p>
+          <h3
+            v-if="title"
+            :class="titleClasses"
+          >
+            {{ title }}
+          </h3>
+          <p
+            v-if="subtitle"
+            :class="subtitleClasses"
+          >
+            {{ subtitle }}
+          </p>
         </slot>
       </div>
-      <div v-if="$slots.actions" :class="actionsClasses">
+      <div
+        v-if="$slots.actions"
+        :class="actionsClasses"
+      >
         <slot name="actions" />
       </div>
     </div>
@@ -22,7 +38,10 @@
     </div>
 
     <!-- 卡片底部 -->
-    <div v-if="$slots.footer" :class="footerClasses">
+    <div
+      v-if="$slots.footer"
+      :class="footerClasses"
+    >
       <slot name="footer" />
     </div>
 
@@ -32,7 +51,7 @@
       :class="overlayClasses"
     >
       <div class="flex items-center justify-center">
-        <div class="animate-spin rounded-full h-8 w-8 border-2 border-primary-200 border-t-primary-600"></div>
+        <div class="animate-spin rounded-full h-8 w-8 border-2 border-primary-200 border-t-primary-600" />
       </div>
     </div>
   </div>
