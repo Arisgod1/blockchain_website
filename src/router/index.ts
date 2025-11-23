@@ -113,7 +113,7 @@ const routes: RouteRecordRaw[] = [
 
 // 创建路由器
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes,
   scrollBehavior(to, _from, savedPosition) {
     if (savedPosition) {

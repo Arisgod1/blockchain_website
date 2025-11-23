@@ -1,13 +1,14 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
-
+import { fileURLToPath, URL } from 'node:url'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [vue()],
+  base: '/blockchain_website/',
   resolve: {
     alias: {
-      '@': resolve(__dirname, 'src'),
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
       '@/components': resolve(__dirname, 'src/components'),
       '@/views': resolve(__dirname, 'src/views'),
       '@/router': resolve(__dirname, 'src/router'),
