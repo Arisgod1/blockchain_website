@@ -8,12 +8,12 @@
       <div class="modal-header">
         <div class="header-info">
           <h2 class="project-title">
-            {{ project.title }}
+            {{ project.title || project.name || '未命名项目' }}
           </h2>
           <div class="project-badges">
             <span
               class="status-badge"
-              :class="`status-${project.status}`"
+              :class="`status-${statusClass}`"
             >
               {{ getStatusText(project.status) }}
             </span>
@@ -41,18 +41,18 @@
               <div class="main-image">
                 <img 
                   :src="currentImage" 
-                  :alt="project.title"
+                  :alt="project.title || '项目封面'"
                   @error="handleImageError"
                 >
                 <button 
-                  v-if="project.images.length > 1"
+                  v-if="project.images && project.images.length > 1"
                   class="nav-btn prev-btn"
                   @click="previousImage"
                 >
                   <ChevronLeftIcon />
                 </button>
                 <button 
-                  v-if="project.images.length > 1"
+                  v-if="project.images && project.images.length > 1"
                   class="nav-btn next-btn"
                   @click="nextImage"
                 >
@@ -60,7 +60,7 @@
                 </button>
               </div>
               <div
-                v-if="project.images.length > 1"
+                v-if="project.images && project.images.length > 1"
                 class="image-thumbnails"
               >
                 <button
@@ -83,7 +83,7 @@
                 项目描述
               </h3>
               <p class="description-text">
-                {{ project.description }}
+                {{ project.description || project.summary || '暂无项目描述' }}
               </p>
             </div>
 
@@ -94,7 +94,7 @@
               </h3>
               <div class="tech-tags">
                 <span 
-                  v-for="tech in project.techStack" 
+                  v-for="tech in project.techStack ?? []" 
                   :key="tech"
                   class="tech-tag"
                 >
@@ -105,7 +105,7 @@
 
             <!-- 项目进度 -->
             <div
-              v-if="project.status !== 'completed'"
+              v-if="statusClass !== 'completed'"
               class="project-progress-section"
             >
               <h3 class="section-title">
@@ -115,10 +115,10 @@
                 <div class="progress-bar">
                   <div
                     class="progress-fill"
-                    :style="{ width: `${project.progress}%` }"
+                    :style="{ width: `${project.progress ?? 0}%` }"
                   />
                 </div>
-                <span class="progress-text">{{ project.progress }}% 完成</span>
+                <span class="progress-text">{{ project.progress ?? 0 }}% 完成</span>
               </div>
             </div>
           </div>
@@ -135,7 +135,7 @@
                   <HeartIcon class="stat-icon" />
                   <div class="stat-content">
                     <div class="stat-value">
-                      {{ project.likes || 0 }}
+                      {{ project.likes ?? 0 }}
                     </div>
                     <div class="stat-label">
                       点赞数
@@ -146,7 +146,7 @@
                   <EyeIcon class="stat-icon" />
                   <div class="stat-content">
                     <div class="stat-value">
-                      {{ project.views || 0 }}
+                      {{ project.views ?? 0 }}
                     </div>
                     <div class="stat-label">
                       查看数
@@ -157,7 +157,7 @@
                   <UsersIcon class="stat-icon" />
                   <div class="stat-content">
                     <div class="stat-value">
-                      {{ project.teamSize || '未知' }}
+                      {{ project.teamSize ?? '未知' }}
                     </div>
                     <div class="stat-label">
                       团队规模
@@ -216,7 +216,7 @@
                       项目分类
                     </div>
                     <div class="info-value">
-                      {{ project.category }}
+                      {{ project.category || '未分类' }}
                     </div>
                   </div>
                 </div>
@@ -233,11 +233,11 @@
               </h3>
               <div class="contributors-list">
                 <span 
-                  v-for="contributor in project.contributors" 
-                  :key="contributor"
+                  v-for="(contributor, index) in project.contributors" 
+                  :key="getContributorKey(contributor, index)"
                   class="contributor-tag"
                 >
-                  {{ contributor }}
+                  {{ formatContributor(contributor) }}
                 </span>
               </div>
             </div>
@@ -310,6 +310,8 @@ import {
   FileTextIcon
 } from '@/components/icons'
 
+type ProjectContributorEntry = NonNullable<Project['contributors']>[number]
+
 interface Props {
   project: Project
 }
@@ -323,6 +325,7 @@ const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 const currentImageIndex = ref(0)
+const statusClass = computed(() => String(props.project.status ?? 'planning').toLowerCase())
 
 // 计算属性
 const currentImage = computed(() => {
@@ -336,33 +339,38 @@ watch(() => props.project.id, () => {
 })
 
 // 方法
-const getStatusText = (status: string) => {
+const getStatusText = (status?: string) => {
   const statusMap: Record<string, string> = {
     'planning': '规划中',
     'in-progress': '开发中', 
     'completed': '已完成',
     'paused': '已暂停'
   }
-  return statusMap[status] || status
+  const normalized = String(status ?? 'planning').toLowerCase().replace(/_/g, '-')
+  return statusMap[normalized] || status || '规划中'
 }
 
-const formatDate = (dateString: string) => {
-  if (!dateString) return '未知'
+const formatDate = (dateValue?: string | Date) => {
+  if (!dateValue) return '未知'
   
   try {
-    const date = new Date(dateString)
+    const date = dateValue instanceof Date ? dateValue : new Date(dateValue)
     const year = date.getFullYear()
     const month = date.getMonth() + 1
     const day = date.getDate()
     return `${year}年${month}月${day}日`
   } catch {
-    return dateString
+    return typeof dateValue === 'string' ? dateValue : '未知'
   }
 }
 
 const getDuration = () => {
-  const start = new Date(props.project.startDate)
-  const end = props.project.endDate ? new Date(props.project.endDate) : new Date()
+  if (!props.project.startDate) return '未知'
+  const start = props.project.startDate instanceof Date
+    ? props.project.startDate
+    : new Date(props.project.startDate)
+  const endValue = props.project.endDate ?? new Date()
+  const end = endValue instanceof Date ? endValue : new Date(endValue)
   
   const diffTime = Math.abs(end.getTime() - start.getTime())
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
@@ -402,7 +410,7 @@ const handleImageError = (event: Event) => {
 
 const toggleLike = () => {
   const isLiked = Boolean(props.project.isLiked)
-  const likes = props.project.likes || 0
+  const likes = props.project.likes ?? 0
 
   const updatedProject: Project = {
     ...props.project,
@@ -414,9 +422,19 @@ const toggleLike = () => {
 }
 
 const showDocumentation = () => {
-  if (props.project.documentation) {
-    window.open(props.project.documentation, '_blank')
+  const docsLink = props.project.documentation || props.project.documentationUrl
+  if (docsLink) {
+    window.open(docsLink, '_blank')
   }
+}
+
+const formatContributor = (contributor: ProjectContributorEntry) => {
+  return typeof contributor === 'string' ? contributor : contributor.name || contributor.id || '团队成员'
+}
+
+const getContributorKey = (contributor: ProjectContributorEntry, index: number) => {
+  if (typeof contributor === 'string') return `${contributor}-${index}`
+  return String(contributor.id ?? `${contributor.name}-${index}`)
 }
 </script>
 

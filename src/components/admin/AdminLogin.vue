@@ -78,6 +78,7 @@ import { useHead } from '@vueuse/head'
 import { BaseModal, BaseButton } from '@/components/common'
 import { BaseInput } from '@/components/form'
 import type { AdminUser } from '@/types/entities'
+import { login as loginRequest } from '@/api/auth'
 
 interface Props {
   show: boolean
@@ -122,20 +123,6 @@ const isFormValid = computed(() => {
          formData.value.password.trim() !== ''
 })
 
-// 模拟管理员验证逻辑
-const validateAdmin = (username: string, password: string): boolean => {
-  // 这里应该连接实际的后端API
-  // 目前使用模拟验证逻辑
-  const adminUsers = [
-    { username: 'admin', password: 'admin123' },
-    { username: 'manager', password: 'manager123' }
-  ]
-  
-  return adminUsers.some(user => 
-    user.username === username && user.password === password
-  )
-}
-
 // 登录处理
 const handleLogin = async () => {
   if (!isFormValid.value) {
@@ -150,38 +137,27 @@ const handleLogin = async () => {
   loginError.value = ''
 
   try {
-    // 模拟API调用延迟
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    if (validateAdmin(formData.value.username, formData.value.password)) {
-      const adminUser: AdminUser = {
-        id: '1',
-        username: formData.value.username,
-        role: 'admin',
-        permissions: ['meetings', 'members', 'projects'],
-        loginTime: new Date(),
-        rememberMe: formData.value.rememberMe
-      }
-      
-      // 存储登录状态
-      if (formData.value.rememberMe) {
-        localStorage.setItem('adminToken', 'admin_logged_in')
-        localStorage.setItem('admin-user', JSON.stringify(adminUser))
-      } else {
-        sessionStorage.setItem('adminToken', 'admin_logged_in')
-        sessionStorage.setItem('admin-user', JSON.stringify(adminUser))
-      }
-      
-      emit('login', adminUser)
-      emit('update:show', false)
-      
-      // 重置表单
-      resetForm()
+    const { token, user } = await loginRequest({
+      username: formData.value.username.trim(),
+      password: formData.value.password
+    })
+
+    if (formData.value.rememberMe) {
+      localStorage.setItem('adminToken', token)
+      localStorage.setItem('admin-user', JSON.stringify(user))
     } else {
-      loginError.value = '用户名或密码错误'
+      sessionStorage.setItem('adminToken', token)
+      sessionStorage.setItem('admin-user', JSON.stringify(user))
     }
+
+    emit('login', {
+      ...user,
+      rememberMe: formData.value.rememberMe
+    })
+    emit('update:show', false)
+    resetForm()
   } catch (error) {
-    loginError.value = '登录失败，请重试'
+    loginError.value = error instanceof Error ? error.message : '登录失败，请稍后重试'
   } finally {
     loading.value = false
   }

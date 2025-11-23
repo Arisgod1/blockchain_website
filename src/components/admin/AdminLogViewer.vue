@@ -167,7 +167,7 @@
       >
         <BasePagination
           :current="pagination.current"
-          :page-size="pagination.pageSize"
+           :pageSize="pagination.pageSize"
           :total="filteredLogs.length"
           @change="handlePageChange"
         />

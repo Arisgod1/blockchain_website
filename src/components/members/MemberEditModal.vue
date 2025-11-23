@@ -411,6 +411,9 @@ const handleSubmit = async () => {
   saving.value = true
   
   try {
+    // 模拟API调用
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    
     const memberData: Member = {
       id: form.value.id || `member_${Date.now()}`,
       name: form.value.name!.trim(),
@@ -425,7 +428,7 @@ const handleSubmit = async () => {
       joinDate: form.value.joinDate!,
       isActive: form.value.isActive!
     }
-
+    
     emit('save', memberData)
   } catch (error) {
     console.error('保存成员信息失败:', error)

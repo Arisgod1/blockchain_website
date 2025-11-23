@@ -115,14 +115,11 @@
           头像
         </h3>
         <div class="avatar-container">
-          <BaseAvatar
-            class="detail-avatar"
-            :src="member.avatar"
+          <img 
+            :src="member.avatar" 
             :alt="member.name"
-            :fallback-text="member.name"
-            size="96"
-            ring
-          />
+            class="detail-avatar"
+          >
         </div>
       </div>
     </div>
@@ -140,7 +137,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { BaseModal, BaseButton, BaseAvatar } from '@/components/common'
+import { BaseModal, BaseButton } from '@/components/common'
 import type { Member } from '@/types/entities'
 
 interface Props {
@@ -313,11 +310,11 @@ const show = computed({
 }
 
 .detail-avatar {
-  @apply w-24 h-24 rounded-full border-4 border-gray-100;
-}
-
-.detail-avatar :deep(.avatar-image) {
-  @apply rounded-full;
+  width: 8rem;
+  height: 8rem;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #f3f4f6;
 }
 
 /* 滚动条样式 */

@@ -407,7 +407,7 @@
 import { ref, computed, watch } from 'vue'
 import { BaseModal, BaseButton } from '@/components/common'
 import { BaseInput } from '@/components/form'
-import type { Meeting, ActionItem } from '@/types/entities'
+import type { Meeting, ActionItem, MeetingStatus } from '@/types/entities'
 
 interface Props {
   show: boolean
@@ -428,6 +428,14 @@ interface FormData {
   actionItems: ActionItem[]
   recorder: string
   isPublic: boolean
+  summary?: string
+  status?: MeetingStatus
+  types?: string[]
+  duration?: number
+  tags?: string[]
+  recording?: string
+  minutes?: string
+  attachments?: string[]
 }
 
 interface Emits {
@@ -436,18 +444,17 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  isCreate: true,
-  meeting: null
+  isCreate: true
 })
 
 const emit = defineEmits<Emits>()
 
 // 响应式数据
-const formData = ref<FormData>({
+const createDefaultFormData = (): FormData => ({
   id: undefined,
   title: '',
-  date: '',
-  time: '',
+  date: new Date().toISOString().split('T')[0],
+  time: '14:00',
   location: '',
   attendees: [],
   agenda: [],
@@ -455,8 +462,49 @@ const formData = ref<FormData>({
   decisions: [],
   actionItems: [],
   recorder: '',
-  isPublic: true
+  isPublic: true,
+  summary: '',
+  status: 'upcoming',
+  types: [],
+  duration: 60,
+  tags: [],
+  recording: '',
+  minutes: '',
+  attachments: []
 })
+
+const mapMeetingToFormData = (meeting: Meeting): FormData => {
+  const attendees = (meeting.attendees ?? []).map(attendee =>
+    typeof attendee === 'string' ? attendee : attendee.name
+  )
+
+  return {
+    ...createDefaultFormData(),
+    ...meeting,
+    id: meeting.id,
+    title: meeting.title ?? '',
+    date: meeting.date ?? new Date().toISOString().split('T')[0],
+    time: meeting.time ?? '14:00',
+    location: meeting.location ?? '',
+    attendees,
+    agenda: meeting.agenda ?? [],
+    content: meeting.content ?? '',
+    decisions: meeting.decisions ?? [],
+    actionItems: meeting.actionItems ?? [],
+    recorder: meeting.recorder ?? '',
+    isPublic: meeting.isPublic ?? true,
+    summary: meeting.summary ?? '',
+    status: meeting.status ?? 'upcoming',
+    types: meeting.types ?? [],
+    duration: meeting.duration ?? 60,
+    tags: meeting.tags ?? [],
+    recording: meeting.recording,
+    minutes: meeting.minutes,
+    attachments: meeting.attachments ?? []
+  }
+}
+
+const formData = ref<FormData>(createDefaultFormData())
 
 const errors = ref<Record<string, string>>({})
 const saving = ref(false)
@@ -483,39 +531,10 @@ const isFormValid = computed(() => {
          formData.value.recorder.trim() !== ''
 })
 
-const normalizeAttendees = (list: Meeting['attendees'] = []): string[] => {
-  return list
-    .map(att => typeof att === 'string' ? att : att?.name ?? '')
-    .filter((value): value is string => Boolean(value))
-}
-
-const normalizeAgenda = (agenda: Meeting['agenda'] = []): string[] => {
-  return agenda
-    .map(item => typeof item === 'string' ? item : item?.title ?? '')
-    .filter((value): value is string => Boolean(value))
-}
-
-const populateFormFromMeeting = (meeting: Meeting) => {
-  formData.value = {
-    id: meeting.id,
-    title: meeting.title ?? '',
-    date: meeting.date ?? new Date().toISOString().split('T')[0],
-    time: meeting.time ?? '',
-    location: meeting.location ?? '',
-    attendees: normalizeAttendees(meeting.attendees),
-    agenda: normalizeAgenda(meeting.agenda),
-    content: meeting.content ?? meeting.summary ?? '',
-    decisions: [...(meeting.decisions ?? [])],
-    actionItems: [...(meeting.actionItems ?? [])],
-    recorder: meeting.recorder ?? '',
-    isPublic: meeting.isPublic ?? true
-  }
-}
-
 // 监听props变化，初始化表单数据
 watch(() => props.meeting, (newMeeting) => {
   if (newMeeting && !props.isCreate) {
-    populateFormFromMeeting(newMeeting)
+    formData.value = mapMeetingToFormData(newMeeting)
   } else if (props.isCreate) {
     resetForm()
   }
@@ -524,7 +543,7 @@ watch(() => props.meeting, (newMeeting) => {
 watch(() => props.show, (newShow) => {
   if (newShow) {
     if (props.meeting && !props.isCreate) {
-      populateFormFromMeeting(props.meeting)
+      formData.value = mapMeetingToFormData(props.meeting)
     } else {
       resetForm()
     }
@@ -533,20 +552,7 @@ watch(() => props.show, (newShow) => {
 
 // 方法
 const resetForm = () => {
-  formData.value = {
-    id: undefined,
-    title: '',
-    date: new Date().toISOString().split('T')[0],
-    time: '14:00',
-    location: '',
-    attendees: [],
-    agenda: [],
-    content: '',
-    decisions: [],
-    actionItems: [],
-    recorder: '',
-    isPublic: true
-  }
+  formData.value = createDefaultFormData()
   errors.value = {}
   newAttendee.value = ''
   newAgenda.value = ''
@@ -622,12 +628,12 @@ const removeActionItem = (index: number) => {
   formData.value.actionItems.splice(index, 1)
 }
 
-const updateActionStatus = (index: number, status: ActionItem['status']) => {
-  formData.value.actionItems[index].status = status
+const updateActionStatus = (index: number, status: string) => {
+  formData.value.actionItems[index].status = status as any
 }
 
-const updateActionPriority = (index: number, priority: ActionItem['priority']) => {
-  formData.value.actionItems[index].priority = priority
+const updateActionPriority = (index: number, priority: string) => {
+  formData.value.actionItems[index].priority = priority as any
 }
 
 const handleSave = async () => {
@@ -648,10 +654,14 @@ const handleSave = async () => {
     // 模拟保存延迟
     await new Promise(resolve => setTimeout(resolve, 1000))
     
+    const resolvedId = props.isCreate
+      ? Date.now().toString()
+      : (formData.value.id ?? props.meeting?.id ?? Date.now().toString())
+
     const meeting: Meeting = {
       ...formData.value,
-      id: props.isCreate ? Date.now().toString() : formData.value.id || props.meeting?.id || Date.now().toString(),
-      attachments: [] // 默认空数组
+      id: resolvedId,
+      attachments: formData.value.attachments ?? []
     }
     
     emit('save', meeting)

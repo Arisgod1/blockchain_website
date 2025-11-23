@@ -109,7 +109,6 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   modelValue: false,
   show: undefined,
-  title: '',
   size: 'md',
   closable: true,
   closeOnBackdrop: true,

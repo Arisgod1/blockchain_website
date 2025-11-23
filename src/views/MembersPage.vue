@@ -139,7 +139,7 @@
               <BasePagination
                 v-model:current="currentPage"
                 :total="filteredMembers.length"
-                :page-size="pageSize"
+                  :pageSize="pageSize"
                 @change="handlePageChange"
               />
             </div>
@@ -521,7 +521,7 @@ const formatDate = (dateString: string) => {
 }
 </script>
 
-<style scoped>
+<style scoped lang="postcss">
 .members-page {
   @apply min-h-screen bg-gray-50;
 }

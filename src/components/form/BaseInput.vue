@@ -164,9 +164,6 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import type { Component } from 'vue'
-
-type AccessoryComponent = Component | string | null
 
 interface Props {
   modelValue?: string | number
@@ -179,8 +176,8 @@ interface Props {
   error?: string
   hint?: string
   clearable?: boolean
-  prefix?: AccessoryComponent
-  suffix?: AccessoryComponent
+  prefix?: any
+  suffix?: any
   size?: 'sm' | 'md' | 'lg'
   variant?: 'default' | 'filled' | 'outlined'
   maxlength?: number
@@ -190,24 +187,14 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  modelValue: '',
   type: 'text',
-  label: '',
-  placeholder: '',
   disabled: false,
   readonly: false,
   required: false,
-  error: '',
-  hint: '',
   clearable: false,
-  prefix: null,
-  suffix: null,
   size: 'md',
   variant: 'default',
-  autocomplete: 'off',
-  maxlength: undefined,
-  minlength: undefined,
-  pattern: undefined
+  autocomplete: 'off'
 })
 
 const emit = defineEmits<{
@@ -452,7 +439,6 @@ input[type="number"]::-webkit-inner-spin-button {
 
 input[type="number"] {
   -moz-appearance: textfield;
-  appearance: textfield;
 }
 
 /* 搜索输入框样式 */

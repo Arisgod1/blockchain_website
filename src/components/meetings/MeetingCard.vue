@@ -22,9 +22,9 @@
       <div class="meeting-status">
         <span 
           class="status-badge"
-          :class="`status-${meeting.status || 'completed'}`"
+          :class="`status-${(meeting.status ?? 'upcoming').toLowerCase()}`"
         >
-          {{ getStatusText(meeting.status ?? 'completed') }}
+          {{ getStatusText(meeting.status) }}
         </span>
       </div>
     </div>
@@ -34,12 +34,9 @@
       <h3 class="meeting-title">
         {{ meeting.title }}
       </h3>
-      <div
-        v-if="meeting.types?.length"
-        class="meeting-type-tags"
-      >
+      <div class="meeting-type-tags">
         <span 
-          v-for="type in meeting.types" 
+          v-for="type in meeting.types ?? []" 
           :key="type"
           class="type-tag"
         >
@@ -51,45 +48,33 @@
     <!-- 会议内容预览 -->
     <div class="meeting-content">
       <p class="meeting-summary">
-        {{ meeting.summary || '暂无会议摘要' }}
+  {{ meeting.summary || '暂无会议摘要' }}
       </p>
       
       <!-- 参与人员 -->
       <div
-        v-if="displayAttendees.length"
+        v-if="meeting.attendees"
         class="meeting-attendees"
       >
         <div class="attendees-avatar-list">
-          <div
-            v-for="(attendee, index) in displayAttendees.slice(0, 5)"
-            :key="attendee.id || `${meeting.id}-attendee-${index}`"
-            class="attendee-avatar-wrapper"
+          <img
+            v-for="attendee in normalizedAttendees.slice(0, 5)"
+            :key="attendee.id"
+            :src="attendee.avatar || '/images/default-avatar.png'"
+            :alt="attendee.name"
+            class="attendee-avatar"
+            :title="attendee.name"
           >
-            <img
-              v-if="attendee.avatar"
-              :src="attendee.avatar"
-              :alt="attendee.name"
-              class="attendee-avatar"
-              :title="attendee.name"
-            >
-            <div
-              v-else
-              class="attendee-avatar placeholder"
-              :title="attendee.name"
-            >
-              {{ getInitials(attendee.name) }}
-            </div>
-          </div>
           <div 
-            v-if="displayAttendees.length > 5"
+            v-if="normalizedAttendees.length > 5"
             class="attendee-more"
-            :title="`还有 ${displayAttendees.length - 5} 人参与`"
+            :title="`还有 ${normalizedAttendees.length - 5} 人参与`"
           >
-            +{{ displayAttendees.length - 5 }}
+            +{{ normalizedAttendees.length - 5 }}
           </div>
         </div>
         <span class="attendees-count">
-          {{ displayAttendees.length }} 人参与
+          {{ normalizedAttendees.length }} 人参与
         </span>
       </div>
     </div>
@@ -180,7 +165,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
 import type { Meeting, MeetingAttendee } from '@/types/entities'
 
 interface Props {
@@ -201,24 +186,18 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<Emits>()
 
 const isHovered = ref(false)
-
-const displayAttendees = computed<MeetingAttendee[]>(() => {
-  const list = props.meeting.attendees ?? []
-  return list.map((attendee, index) => {
+const normalizedAttendees = computed<MeetingAttendee[]>(() => {
+  return (props.meeting.attendees ?? []).map(attendee => {
     if (typeof attendee === 'string') {
       return {
-        id: `${props.meeting.id}-attendee-${index}`,
-        name: attendee
+        id: attendee,
+        name: attendee,
+        avatar: '/images/default-avatar.png'
       }
     }
     return attendee
   })
 })
-
-const getInitials = (name?: string) => {
-  if (!name) return '成员'
-  return name.slice(0, 1).toUpperCase()
-}
 
 // 格式化日期
 const formatDate = (dateString: string): string => {
@@ -258,14 +237,14 @@ const getRelativeTime = (dateString: string): string => {
 }
 
 // 获取状态文本
-const getStatusText = (status: string): string => {
+const getStatusText = (status?: string): string => {
   const statusMap = {
     upcoming: '即将开始',
     ongoing: '进行中',
     completed: '已完成',
     cancelled: '已取消'
   }
-  return statusMap[status as keyof typeof statusMap] || status
+  return statusMap[String(status ?? 'upcoming') as keyof typeof statusMap] || status || '未知'
 }
 
 // 获取类型文本
@@ -283,7 +262,7 @@ const getTypeText = (type: string): string => {
 
 // 格式化时长
 const formatDuration = (minutes?: number): string => {
-  if (!minutes) return '—'
+  if (typeof minutes !== 'number' || Number.isNaN(minutes)) return '未知'
   if (minutes < 60) return `${minutes}分钟`
   const hours = Math.floor(minutes / 60)
   const remainingMinutes = minutes % 60
@@ -319,7 +298,7 @@ const handleViewFiles = () => {
 }
 </script>
 
-<style scoped lang="postcss">
+<style scoped>
 /* 基础样式 */
 .meeting-card {
   @apply relative bg-white rounded-xl shadow-md hover:shadow-xl 
@@ -405,14 +384,6 @@ const handleViewFiles = () => {
 
 .attendee-avatar {
   @apply w-8 h-8 rounded-full border-2 border-white object-cover;
-}
-
-.attendee-avatar.placeholder {
-  @apply flex items-center justify-center text-xs font-semibold text-gray-600 bg-gray-200;
-}
-
-.attendee-avatar-wrapper {
-  @apply w-8 h-8 rounded-full border-2 border-white overflow-hidden bg-gray-100;
 }
 
 .attendee-more {

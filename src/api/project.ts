@@ -1,82 +1,26 @@
 import apiService from '@/api/client'
-import type { Project, ProjectPage } from '@/types/entities'
+import type { Project } from '@/types/entities'
 
-const DEFAULT_PAGE_SIZE = 12
-
-const createEmptyProjectPage = (): ProjectPage => ({
-  content: [],
-  items: [],
-  totalElements: 0,
-  totalPages: 0,
-  size: DEFAULT_PAGE_SIZE,
-  number: 0,
-  first: true,
-  last: true,
-  numberOfElements: 0,
-  empty: true,
-  total: 0,
-  page: 1,
-  pageSize: DEFAULT_PAGE_SIZE,
-  pages: 0
-})
-
-const normalizeProjectPage = (data?: ProjectPage | Project[]): ProjectPage => {
-  if (!data) return createEmptyProjectPage()
-
-  if (Array.isArray(data)) {
-    const length = data.length
-    const size = length || DEFAULT_PAGE_SIZE
-    return {
-      content: data,
-      items: data,
-      totalElements: length,
-      totalPages: length ? 1 : 0,
-      size,
-      number: 0,
-      first: true,
-      last: true,
-      numberOfElements: length,
-      empty: length === 0,
-      total: length,
-      page: 1,
-      pageSize: size,
-      pages: length ? 1 : 0,
-      fromFallback: true
-    }
-  }
-
-  const items = data.content ?? data.items ?? []
-  const size = data.size ?? data.pageSize ?? DEFAULT_PAGE_SIZE
-  const number = typeof data.number === 'number' ? data.number : Math.max(0, (data.page ?? 1) - 1)
-  const page = data.page ?? number + 1
-  const totalElements = data.totalElements ?? data.total ?? items.length
-  const totalPages = data.totalPages ?? (totalElements ? Math.ceil(totalElements / size) : 0)
-
-  return {
-    ...data,
-    content: items,
-    items,
-    totalElements,
-    totalPages,
-    size,
-    number,
-    first: data.first ?? number === 0,
-    last: data.last ?? page >= totalPages,
-    numberOfElements: data.numberOfElements ?? items.length,
-    empty: data.empty ?? items.length === 0,
-    total: data.total ?? totalElements,
-    page,
-    pageSize: size,
-    pages: data.pages ?? totalPages,
-    fromFallback: data.fromFallback ?? false
-  }
+// 分页响应类型（根据文档）
+export interface PageProject {
+  totalElements: number
+  totalPages: number
+  size: number
+  content: Project[]
+  number: number
+  sort: any
+  first: boolean
+  last: boolean
+  numberOfElements: number
+  pageable: any
+  empty: boolean
 }
 
 // 获取分页项目列表
-export const getProjects = async (params?: Record<string, unknown>): Promise<ProjectPage> => {
-  const res = await apiService.get<ProjectPage | Project[]>('/api/projects', { params })
+export const getProjects = async (params?: Record<string, any>): Promise<PageProject> => {
+  const res = await apiService.get<PageProject>('/api/projects', { params })
   if (!res.success) throw new Error(res.message || '获取项目列表失败')
-  return normalizeProjectPage(res.data)
+  return res.data as PageProject
 }
 
 // 根据 ID 获取单个项目
@@ -117,7 +61,7 @@ export const getProjectsByStatus = async (status: string): Promise<Project[]> =>
 }
 
 // 搜索项目
-export const searchProjects = async (params?: Record<string, unknown>): Promise<Project[]> => {
+export const searchProjects = async (params?: Record<string, any>): Promise<Project[]> => {
   const res = await apiService.get<Project[]>('/api/projects/search', { params })
   if (!res.success) throw new Error(res.message || '搜索项目失败')
   return res.data ?? []

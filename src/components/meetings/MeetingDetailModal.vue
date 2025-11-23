@@ -109,16 +109,16 @@
           <div class="details-grid">
             <!-- 参与者 -->
             <div
-              v-if="normalizedAttendees.length"
+              v-if="normalizedAttendees.length > 0"
               class="detail-section"
             >
               <h3 class="section-title">
-                参与者 ({{ normalizedAttendees.length }}人)
+                  参与者 ({{ normalizedAttendees.length }}人)
               </h3>
               <div class="attendees-list">
                 <div 
-                  v-for="(attendee, index) in normalizedAttendees" 
-                  :key="attendee.id || `attendee-${index}`"
+                    v-for="attendee in normalizedAttendees" 
+                  :key="attendee.id"
                   class="attendee-item"
                 >
                   <div class="attendee-avatar">
@@ -324,7 +324,7 @@
 </template>
 
 <script setup lang="ts">
-import { watch, computed } from 'vue'
+import { computed, watch } from 'vue'
 import type { Meeting, MeetingAttendee, MeetingFile } from '@/types/entities'
 
 interface Props {
@@ -344,14 +344,14 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<Emits>()
-
 const normalizedAttendees = computed<MeetingAttendee[]>(() => {
-  const list = props.meeting?.attendees ?? []
-  return list.map((attendee, index) => {
+  if (!props.meeting?.attendees) return []
+  return props.meeting.attendees.map(attendee => {
     if (typeof attendee === 'string') {
       return {
-        id: `${props.meeting?.id}-attendee-${index}`,
-        name: attendee
+        id: attendee,
+        name: attendee,
+        avatar: '/images/default-avatar.png'
       }
     }
     return attendee
@@ -375,13 +375,13 @@ const handleFileClick = (file: MeetingFile) => {
 }
 
 const handleViewFiles = () => {
-  if (props.meeting?.files?.length) {
+  if (props.meeting) {
     emit('view-files', props.meeting)
   }
 }
 
 const handleViewRecording = () => {
-  if (props.meeting?.recording) {
+  if (props.meeting) {
     emit('view-recording', props.meeting)
   }
 }
@@ -421,19 +421,23 @@ const formatDuration = (minutes?: number): string => {
 
 const getStatusText = (status?: string): string => {
   const statusMap = {
-    'completed': '已完成',
+    completed: '已完成',
     'in-progress': '进行中',
-    'pending': '待处理',
-    'cancelled': '已取消'
+    pending: '待处理',
+    cancelled: '已取消',
+    upcoming: '即将开始',
+    ongoing: '进行中',
+    draft: '草稿'
   }
-  return status ? statusMap[status as keyof typeof statusMap] || status : ''
+  if (!status) return '状态未知'
+  return statusMap[status as keyof typeof statusMap] || status
 }
 
 const getIssueStatusText = (status: string): string => {
   const statusMap = {
-    'completed': '已完成',
+    completed: '已完成',
     'in-progress': '进行中',
-    'pending': '待处理'
+    pending: '待处理'
   }
   return statusMap[status as keyof typeof statusMap] || status
 }
@@ -464,8 +468,7 @@ const getFileIcon = (type: string): string => {
   return iconMap[type as keyof typeof iconMap] || 'M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z'
 }
 
-const getInitials = (name?: string): string => {
-  if (!name) return '成员'
+const getInitials = (name: string): string => {
   return name
     .split(' ')
     .map(word => word.charAt(0))
@@ -493,7 +496,7 @@ watch(() => props.isOpen, (isOpen) => {
 })
 </script>
 
-<style scoped lang="postcss">
+<style scoped>
 /* 模态框基础样式 */
 .meeting-detail-modal {
   @apply fixed inset-0 z-50 flex items-center justify-center p-4

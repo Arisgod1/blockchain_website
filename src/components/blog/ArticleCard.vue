@@ -78,14 +78,13 @@
           </span>
           <span
             class="stat"
-            :title="`${likes || 0} 个赞`"
+            :title="`${article.likes || 0} 个赞`"
           >
             <HeartIcon 
               class="stat-icon" 
-              :class="{ liked }"
-              @click.stop="toggleLike"
+              :class="{ liked: article.isLiked }"
             />
-            {{ formatNumber(likes || 0) }}
+            {{ formatNumber(article.likes || 0) }}
           </span>
           <span
             class="stat"
@@ -108,7 +107,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed } from 'vue'
 import type { Article } from '@/types/entities'
 
 interface Props {
@@ -117,34 +116,24 @@ interface Props {
 
 interface Emits {
   select: [article: Article]
-  like: [article: Article]
   tagClick: [tag: string]
   share: [article: Article]
 }
 
 const props = defineProps<Props>()
-const emit = defineEmits<Emits>()
-
-const liked = ref(Boolean(props.article.isLiked))
-const likes = ref(props.article.likes ?? 0)
-
-watch(() => props.article, (newArticle) => {
-  liked.value = Boolean(newArticle.isLiked)
-  likes.value = newArticle.likes ?? 0
-}, { immediate: true })
-
 const article = computed(() => props.article)
+const emit = defineEmits<Emits>()
 
 // 方法
 const navigateToArticle = () => {
   emit('select', props.article)
 }
 
-const formatDate = (dateInput: string | Date | undefined) => {
-  if (!dateInput) return '未知日期'
-  const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput
+const formatDate = (dateString?: string) => {
+  if (!dateString) return '未知日期'
   
   try {
+    const date = new Date(dateString)
     const now = new Date()
     const diffTime = now.getTime() - date.getTime()
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
@@ -166,7 +155,7 @@ const formatDate = (dateInput: string | Date | undefined) => {
       return `${years}年前`
     }
   } catch {
-    return typeof dateInput === 'string' ? dateInput : dateInput.toString()
+    return dateString
   }
 }
 
@@ -201,16 +190,6 @@ const handleAuthorAvatarError = (event: Event) => {
   img.src = '/images/default-avatar.png'
 }
 
-const toggleLike = () => {
-  liked.value = !liked.value
-  likes.value = liked.value ? likes.value + 1 : Math.max(0, likes.value - 1)
-  emit('like', {
-    ...props.article,
-    isLiked: liked.value,
-    likes: likes.value
-  })
-}
-
 const tagClicked = (tag: string) => {
   emit('tagClick', tag)
 }
@@ -220,7 +199,7 @@ const shareArticle = () => {
 }
 </script>
 
-<style scoped lang="postcss">
+<style scoped>
 .article-card {
   @apply bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden cursor-pointer transform transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
 }
@@ -362,7 +341,6 @@ const shareArticle = () => {
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
-  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -370,7 +348,6 @@ const shareArticle = () => {
 .line-clamp-3 {
   display: -webkit-box;
   -webkit-line-clamp: 3;
-  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

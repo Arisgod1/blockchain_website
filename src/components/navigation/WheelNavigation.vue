@@ -1,8 +1,9 @@
 <template>
   <section class="wheel-navigation relative w-full h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+    <!-- 背景粒子效果 -->
     <div class="absolute inset-0 overflow-hidden">
-      <div
-        v-for="(particle, index) in particles"
+      <div 
+        v-for="(particle, index) in particles" 
         :key="index"
         class="absolute w-1 h-1 bg-white/20 rounded-full animate-pulse"
         :style="{
@@ -14,131 +15,96 @@
       />
     </div>
 
+    <!-- 主要容器 -->
     <div class="absolute inset-0 flex items-center justify-center">
-      <div
-        class="relative wheel-container"
-        :style="{ width: wheelDiameter + 'px', height: wheelDiameter + 'px' }"
-      >
-        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div class="halo-backdrop" />
-        </div>
-        <div class="absolute inset-0 wheel-gradient-overlay pointer-events-none" />
-
-        <div
-          v-for="(ringScale, index) in decorativeRings"
-          :key="`ring-${index}`"
-          class="decorative-ring pointer-events-none"
-          :style="{
-            transform: `scale(${ringScale})`,
-            animationDelay: `${index * 0.8}s`,
-            opacity: 0.25 + index * 0.15
-          }"
-        />
-
-        <div
-          v-for="angle in radialMarkers"
-          :key="`radial-${angle}`"
-          class="radial-marker pointer-events-none"
-          :style="{ transform: `rotate(${angle}deg)` }"
-        />
-
-        <div
-          v-for="(orbit, index) in orbitDots"
-          :key="`orbit-${index}`"
-          class="orbit-scale-wrapper"
-          :style="{ transform: `scale(${orbit.scale})` }"
-        >
-          <div
-            class="orbit-path"
-            :style="{
-              animationDuration: orbit.duration + 's',
-              animationDelay: orbit.delay + 's'
-            }"
-          >
-            <span
-              class="orbiting-dot"
-              :style="{
-                width: orbit.size + 'px',
-                height: orbit.size + 'px',
-                background: orbit.gradient,
-                boxShadow: orbit.glow
-              }"
-            />
-          </div>
-        </div>
-
-        <div
+      <!-- 轮盘容器 -->
+      <div class="relative w-96 h-96">
+        <!-- 背景光晕 -->
+        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-orange-500/20 to-blue-500/20 rounded-full blur-3xl animate-pulse pointer-events-none" />
+        
+        <!-- 中心区域 -->
+        <div 
           class="absolute inset-0 flex items-center justify-center cursor-pointer group transition-all duration-500 hover:scale-105"
           @click="handleCenterClick"
+          @mouseenter="isCenterActive = true"
+          @mouseleave="isCenterActive = false"
         >
-          <div class="absolute inset-0 rounded-full border-4 border-white/30 animate-spin-slow pointer-events-none">
-            <div class="absolute -top-2 -left-2 w-4 h-4 bg-gradient-to-r from-blue-400 to-orange-400 rounded-full" />
-            <div class="absolute -bottom-2 -right-2 w-4 h-4 bg-gradient-to-r from-orange-400 to-blue-400 rounded-full" />
+          <!-- 中心装饰环 -->
+          <div class="absolute inset-0 rounded-full border-2 border-white/30 animate-spin-slow pointer-events-none">
+            <div class="absolute -top-1 -left-1 w-3 h-3 bg-gradient-to-r from-blue-400 to-orange-400 rounded-full" />
+            <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-gradient-to-r from-orange-400 to-blue-400 rounded-full" />
           </div>
-
-          <div class="relative z-10 text-center transition-all duration-300 center-content px-6">
-            <img
-              v-if="!logoLoadFailed"
-              :src="logoCircle"
-              alt="区块链组 LOGO"
-              class="mx-auto w-40 h-40 object-contain drop-shadow-2xl group-hover:scale-105 transition-transform duration-300"
-              @error="logoLoadFailed = true"
-            >
-            <div
-              v-else
-              class="text-6xl mb-4 group-hover:scale-110 transition-transform duration-300"
-            >
+          
+          <!-- 中心内容 -->
+          <div class="relative z-10 text-center transition-all duration-300">
+            <div class="text-6xl mb-2 group-hover:scale-110 transition-transform duration-300">
               🔗
             </div>
-            <h1 class="text-3xl font-bold text-white mb-1">
+            <h1 class="text-2xl font-bold text-white mb-1">
               区块链组
             </h1>
-            <p class="text-base text-blue-200 mb-2">
-              Blockchain Club
+            <p class="text-sm text-blue-200 mb-2">
+              Blockchain Research Group
             </p>
-            <p class="text-sm text-gray-300 max-w-[14rem] mx-auto">
+            <p class="text-xs text-gray-300 max-w-[12rem] mx-auto">
               {{ centerData.description }}
             </p>
+            
+            <!-- 统计数据 -->
           </div>
         </div>
 
-        <div
-          v-for="item in navigationItems"
+        <!-- 轮盘导航项 -->
+        <div 
+          v-for="item in navigationItems" 
           :key="item.id"
-          class="absolute pointer-events-none"
+          class="absolute inset-0 transform transition-all duration-700 ease-out pointer-events-none"
           :style="getItemStyle(item)"
         >
-          <div
+          <!-- 导航项背景 -->
+          <div 
             class="absolute w-20 h-20 rounded-full cursor-pointer transform -translate-x-10 -translate-y-10 transition-all duration-300 hover:scale-110 group pointer-events-auto"
             :class="[item.gradient, { 'ring-4 ring-white/50': activeSector === item.id }]"
+            style="z-index: 10;"
             @click="navigateToSector(item.link, item)"
             @mouseenter="handleSectorHover(item.id, true, item, $event)"
             @mouseleave="handleSectorHover(item.id, false, item, $event)"
           >
+            <!-- 背景光晕 -->
             <div class="absolute inset-0 bg-white/20 rounded-full blur-sm group-hover:bg-white/40 transition-all duration-300" />
+            
+            <!-- 图标 -->
             <div class="relative z-10 flex items-center justify-center h-full text-2xl">
               {{ item.icon }}
             </div>
+            
+            <!-- 悬浮信息卡片：改为页面级 Teleport 实现（见文档底部） -->
+          </div>
+          
+          <!-- 扇形连接线 -->
+          <div
+            v-if="activeSector === item.id"
+            class="absolute inset-0 pointer-events-none"
+          >
+            <div 
+              class="absolute w-0.5 bg-gradient-to-t from-white/60 to-transparent"
+              :style="getConnectionLineStyle(item)"
+            />
           </div>
         </div>
-
-        <div
-          v-if="activeNavigationItem"
-          class="connection-ray pointer-events-none"
-          :style="getConnectionLineStyle(activeNavigationItem)"
-        >
-          <span class="ray-core" />
-          <span class="ray-glow" />
-        </div>
+        
+        <!-- 自动播放控制按钮（已移动到父容器外层以避免被轮盘 transform 影响） -->
+        <!-- 按钮已移至父容器外层插入（见下方） -->
       </div>
     </div>
 
+    <!-- 页面级悬浮弹窗（Teleport） -->
     <Teleport to="body">
       <Transition name="sector-detail">
         <div
           v-if="hoverPopup.visible && hoverPopup.item"
           class="fixed z-50 px-4 py-3 bg-black/90 rounded-xl text-white text-xs backdrop-blur-md border border-white/20 shadow-2xl min-w-[200px]"
-          :style="{ left: hoverPopup.x + 'px', top: hoverPopup.y + 18 + 'px', transform: 'translateX(-50%)' }"
+          :style="{ left: hoverPopup.x + 'px', top: (hoverPopup.y + 18) + 'px', transform: 'translateX(-50%)' }"
           @mouseenter="handleSectorHover(hoverPopup.item.id, true, hoverPopup.item, $event)"
           @mouseleave="handleSectorHover(hoverPopup.item.id, false, hoverPopup.item, $event)"
         >
@@ -192,6 +158,7 @@
       </Transition>
     </Teleport>
 
+    <!-- 底部提示信息 -->
     <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-center">
       <p class="text-gray-400 text-sm mb-2">
         {{ footerMessage }}
@@ -211,9 +178,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import logoCircle from '@/assets/logo-circle.png'
 
 interface NavigationItem {
   id: string
@@ -247,54 +213,14 @@ interface CenterData {
 }
 
 const router = useRouter()
+const isCenterActive = ref(false)
+const activeItem = ref<string | null>(null)
 const hoveredSector = ref<string | null>(null)
 const activeSector = ref<string | null>(null)
-const logoLoadFailed = ref(false)
 const isAutoPlay = ref(false)
 const isPlaying = ref(false)
 const currentRotation = ref(0)
 const rotationSpeed = ref(0.5)
-const wheelRadius = ref(260)
-const wheelDiameter = computed(() => wheelRadius.value * 2)
-const orbitRadius = computed(() => Math.max(wheelRadius.value - 60, wheelRadius.value * 0.68, 120))
-
-interface OrbitDot {
-  scale: number
-  size: number
-  duration: number
-  delay: number
-  gradient: string
-  glow: string
-}
-
-const decorativeRings = [0.38, 0.58, 0.78, 0.98]
-const radialMarkers = Array.from({ length: 12 }, (_, idx) => idx * 30)
-const orbitDots: OrbitDot[] = [
-  {
-    scale: 1.12,
-    size: 12,
-    duration: 18,
-    delay: 0,
-    gradient: 'linear-gradient(120deg, #60a5fa, #a855f7)',
-    glow: '0 0 18px rgba(96, 165, 250, 0.8)'
-  },
-  {
-    scale: 0.86,
-    size: 9,
-    duration: 13,
-    delay: 1.2,
-    gradient: 'linear-gradient(120deg, #f97316, #f472b6)',
-    glow: '0 0 16px rgba(249, 115, 22, 0.6)'
-  },
-  {
-    scale: 1.28,
-    size: 7,
-    duration: 22,
-    delay: 2.6,
-    gradient: 'linear-gradient(120deg, #34d399, #22d3ee)',
-    glow: '0 0 14px rgba(34, 211, 238, 0.6)'
-  }
-]
 
 // 导航数据
 const navigationItems = ref<NavigationItem[]>([
@@ -396,13 +322,9 @@ const navigationItems = ref<NavigationItem[]>([
   }
 ])
 
-const activeNavigationItem = computed<NavigationItem | null>(() => {
-  return navigationItems.value.find(item => item.id === activeSector.value) || null
-})
-
 const centerData = ref<CenterData>({
   title: "区块链组",
-  subtitle: "Blockchain Club",
+  subtitle: "Blockchain Research Group",
   icon: "🔗",
   description: "探索无限可能",
   bgGradient: "linear-gradient(135deg, #2563EB 0%, #F59E0B 100%)",
@@ -427,32 +349,19 @@ const particles = ref(
   }))
 )
 
-function updateWheelRadius() {
-  const width = window.innerWidth
-  if (width < 640) {
-    wheelRadius.value = 170
-  } else if (width < 1024) {
-    wheelRadius.value = 220
-  } else {
-    wheelRadius.value = 280
-  }
-}
-
 // 计算导航项的样式
 function getItemStyle(item: NavigationItem) {
-  const radius = orbitRadius.value
-  const angleRad = ((item.angle - 90) * Math.PI) / 180
-  const x = Math.cos(angleRad) * radius
-  const y = Math.sin(angleRad) * radius
-
-  const isActive = activeSector.value === item.id
-  const baseLayer = 10
-  const priorityBoost = item.priority || 0
-
+  const radius = 140
+  const angle = item.angle - 90 // 调整起始角度
+  const x = Math.cos((angle * Math.PI) / 180) * radius+190
+  const y = Math.sin((angle * Math.PI) / 180) * radius+190
+  
+  const isActive = activeItem.value === item.id
+  
   return {
-    left: `calc(50% + ${x}px)`,
-    top: `calc(50% + ${y}px)`,
-    zIndex: isActive ? baseLayer + 5 + priorityBoost : baseLayer + priorityBoost
+    transform: `translate(${x}px, ${y}px)`,
+    // 提高默认 z-index，避免被中心装饰层遮挡
+    zIndex: isActive ? 999 : 50 + (item.priority || 0),
   }
 }
 
@@ -611,50 +520,46 @@ function getSectorStats(id: string) {
       { value: '10k+', label: '阅读' }
     ],
     'meetings': [
-      { value: '5', label: '例会总数' },
-      { value: '3', label: '本学期剩余例会' }
+      { value: '120', label: '例会' },
+      { value: '95%', label: '出席率' }
     ],
     'contact': [
-      { value: '永久', label: '在线' },
-      { value: '∞', label: '共同进步可能' }
+      { value: '24/7', label: '在线' },
+      { value: '∞', label: '合作可能' }
     ]
   }
   return stats[id] || []
 }
 
 onMounted(() => {
-  updateWheelRadius()
-  window.addEventListener('resize', updateWheelRadius)
   document.addEventListener('keydown', handleKeydown)
 })
 
 onUnmounted(() => {
-  window.removeEventListener('resize', updateWheelRadius)
   document.removeEventListener('keydown', handleKeydown)
   stopAutoPlay()
 })
 
 // 获取连接线样式
 function getConnectionLineStyle(item: NavigationItem) {
-  const radius = orbitRadius.value
-  const angleRad = ((item.angle - 90) * Math.PI) / 180
-  const x = Math.cos(angleRad) * radius
-  const y = Math.sin(angleRad) * radius
-  const rotation = Math.atan2(x, -y) * (180 / Math.PI)
-
+  const radius = 140
+  const angle = item.angle - 90
+  const x = Math.cos((angle * Math.PI) / 180) * radius
+  const y = Math.sin((angle * Math.PI) / 180) * radius
+  
+  const length = Math.sqrt(x * x + y * y)
+  
   return {
-    height: `${radius}px`,
-    left: `calc(50% + ${x}px)`,
-    top: `calc(50% + ${y}px)`,
-    transform: `translate(-50%, 0) rotate(${rotation}deg)`,
-    transformOrigin: 'top center'
+    height: `${length}px`,
+    transform: `translate(-50%, -50%) rotate(${angle}deg)`,
+    transformOrigin: '0 0'
   }
 }
 
 /* 粒子样式采用在数据创建时直接计算，不再使用单独函数 */
 </script>
 
-<style scoped lang="postcss">
+<style scoped>
 /* 自定义动画 */
 .linbo{
   animation: lunbo 5s linear infinite;
@@ -679,115 +584,6 @@ function getConnectionLineStyle(item: NavigationItem) {
   animation: spin-slow 8s linear infinite;
 }
 
-.halo-backdrop {
-  width: 130%;
-  height: 130%;
-  border-radius: 9999px;
-  background:
-    radial-gradient(circle at 40% 30%, rgba(96, 165, 250, 0.45), transparent 55%),
-    radial-gradient(circle at 70% 60%, rgba(249, 115, 22, 0.35), transparent 65%),
-    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.25), transparent 70%);
-  filter: blur(60px) saturate(120%);
-  animation: haloBreath 10s ease-in-out infinite;
-}
-
-.wheel-gradient-overlay {
-  background:
-    radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.25), transparent 45%),
-    radial-gradient(circle at 70% 70%, rgba(14, 165, 233, 0.25), transparent 55%),
-    radial-gradient(circle at 25% 80%, rgba(244, 114, 182, 0.2), transparent 50%);
-  filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.25));
-}
-
-.decorative-ring {
-  position: absolute;
-  inset: 0;
-  border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 0 25px rgba(14, 165, 233, 0.25);
-  animation: ringPulse 6s ease-in-out infinite;
-}
-
-.radial-marker {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.radial-marker::after {
-  content: '';
-  position: absolute;
-  top: 4%;
-  left: 50%;
-  width: 2px;
-  height: 10%;
-  transform: translateX(-50%);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0));
-  border-radius: 9999px;
-  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.25));
-}
-
-.orbit-scale-wrapper {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.orbit-path {
-  position: absolute;
-  inset: 0;
-  animation-name: orbitSpin;
-  animation-iteration-count: infinite;
-  animation-timing-function: linear;
-}
-
-.orbiting-dot {
-  position: absolute;
-  top: 2%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  border-radius: 9999px;
-}
-
-@keyframes ringPulse {
-  0% {
-    opacity: 0.35;
-    box-shadow: 0 0 25px rgba(14, 165, 233, 0.3);
-  }
-  50% {
-    opacity: 0.8;
-    box-shadow: 0 0 45px rgba(99, 102, 241, 0.35);
-  }
-  100% {
-    opacity: 0.35;
-    box-shadow: 0 0 25px rgba(14, 165, 233, 0.3);
-  }
-}
-
-@keyframes orbitSpin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes haloBreath {
-  0% {
-    transform: scale(0.95);
-    opacity: 0.7;
-  }
-  50% {
-    transform: scale(1.05);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(0.95);
-    opacity: 0.7;
-  }
-}
-
 /* 响应式设计 */
 @media (max-width: 768px) {
   .wheel-container {
@@ -809,7 +605,7 @@ function getConnectionLineStyle(item: NavigationItem) {
   }
   
   .absolute.w-20 {
-    @apply w-16 h-16 -translate-x-8 -translate-y-8;
+    @apply w-16 h-16 -translate-x-8 translate-y-8;
   }
   
   .sector-detail {
@@ -844,56 +640,19 @@ function getConnectionLineStyle(item: NavigationItem) {
   transform: translateX(-50%) translateY(0) scale(1);
 }
 
-/* 中心射线 */
-.connection-ray {
-  position: absolute;
-  width: 3px;
-  transform-origin: top center;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  z-index: 18;
+/* 连接线动画 */
+.connection-line {
+  animation: connectionPulse 2s infinite ease-in-out;
 }
 
-.ray-core {
-  position: relative;
-  width: 2px;
-  height: 100%;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(125, 211, 252, 0.5) 45%, transparent 100%);
-  border-radius: 9999px;
-  animation: rayPulse 1.8s ease-in-out infinite;
-}
-
-.ray-glow {
-  position: absolute;
-  top: -6px;
-  width: 12px;
-  height: 12px;
-  border-radius: 9999px;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.9), rgba(59, 130, 246, 0.4), transparent 70%);
-  filter: blur(2px);
-  animation: glowPulse 2s ease-in-out infinite;
-}
-
-@keyframes rayPulse {
+@keyframes connectionPulse {
   0%, 100% {
-    opacity: 0.7;
-    filter: drop-shadow(0 0 6px rgba(125, 211, 252, 0.6));
+    opacity: 0.6;
+    transform: scaleY(1);
   }
   50% {
     opacity: 1;
-    filter: drop-shadow(0 0 10px rgba(96, 165, 250, 0.8));
-  }
-}
-
-@keyframes glowPulse {
-  0%, 100% {
-    opacity: 0.5;
-    transform: scale(0.9);
-  }
-  50% {
-    opacity: 0.9;
-    transform: scale(1.1);
+    transform: scaleY(1.1);
   }
 }
 
@@ -916,8 +675,6 @@ function getConnectionLineStyle(item: NavigationItem) {
 /* 轮盘旋转效果 */
 .wheel-container {
   transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: 9999px;
-  background-clip: padding-box;
 }
 
 /* 悬浮状态增强 */

@@ -230,7 +230,7 @@
           <div class="pagination-section">
             <BasePagination 
               :current="pagination.current"
-              :page-size="pagination.pageSize"
+              :pageSize="pagination.pageSize"
               :total="pagination.total"
               @change="handlePageChange"
             />
@@ -241,9 +241,11 @@
 
     <!-- 详情弹窗 -->
     <MeetingDetailModal 
-      v-model:show="detailModal.show"
       :meeting="detailModal.meeting"
+      :is-open="detailModal.show"
       @close="detailModal.show = false"
+      @view-files="handleViewFiles"
+      @view-recording="handleViewRecording"
     />
 
     <!-- 编辑/创建弹窗 -->
@@ -394,9 +396,10 @@ const totalParticipants = computed(() => {
 })
 
 const completedActions = computed(() => {
-  return meetings.value.reduce((total, meeting) => 
-    total + meeting.actionItems.filter(item => item.status === 'completed').length, 0
-  )
+  return meetings.value.reduce((total, meeting) => {
+    const actionItems = meeting.actionItems ?? []
+    return total + actionItems.filter(item => item.status === 'completed').length
+  }, 0)
 })
 
 // 方法
@@ -444,6 +447,19 @@ const handleView = (meeting: Meeting) => {
   detailModal.value = {
     show: true,
     meeting
+  }
+}
+
+const handleViewFiles = (meeting: Meeting) => {
+  const file = meeting.files?.[0]
+  if (file?.url) {
+    window.open(file.url, '_blank')
+  }
+}
+
+const handleViewRecording = (meeting: Meeting) => {
+  if (meeting.recording) {
+    window.open(meeting.recording, '_blank')
   }
 }
 

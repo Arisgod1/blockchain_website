@@ -293,7 +293,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, defineAsyncComponent } from 'vue'
+import { ref, watch } from 'vue'
+import {
+  SearchIcon,
+  XIcon,
+  ArrowUpIcon,
+  ArrowDownIcon,
+  RotateCcwIcon,
+  SettingsIcon,
+  BookmarkIcon
+} from '@/components/icons'
 
 // 筛选选项接口
 interface FilterOptions {
@@ -312,15 +321,15 @@ interface FilterOptions {
 // 分类选项
 const categories = [
   { label: '全部', value: 'all', icon: null },
-  { label: '技术深度', value: 'tech', icon: defineAsyncComponent(() => import('@/components/icons').then(m => m.CodeIcon)) },
-  { label: '开发实践', value: 'practice', icon: defineAsyncComponent(() => import('@/components/icons').then(m => m.ToolIcon)) },
-  { label: 'DeFi协议', value: 'defi', icon: defineAsyncComponent(() => import('@/components/icons').then(m => m.CoinsIcon)) },
-  { label: '行业分析', value: 'analysis', icon: defineAsyncComponent(() => import('@/components/icons').then(m => m.TrendingUpIcon)) },
-  { label: '区块链基础', value: 'blockchain', icon: defineAsyncComponent(() => import('@/components/icons').then(m => m.LayersIcon)) },
-  { label: '智能合约', value: 'contract', icon: defineAsyncComponent(() => import('@/components/icons').then(m => m.FileTextIcon)) },
-  { label: '共识算法', value: 'consensus', icon: defineAsyncComponent(() => import('@/components/icons').then(m => m.GitBranchIcon)) },
-  { label: '项目分享', value: 'project', icon: defineAsyncComponent(() => import('@/components/icons').then(m => m.FolderIcon)) },
-  { label: '学术研究', value: 'research', icon: defineAsyncComponent(() => import('@/components/icons').then(m => m.BookOpenIcon)) }
+  { label: '技术深度', value: 'tech', icon: 'CodeIcon' },
+  { label: '开发实践', value: 'practice', icon: 'ToolIcon' },
+  { label: 'DeFi协议', value: 'defi', icon: 'CoinsIcon' },
+  { label: '行业分析', value: 'analysis', icon: 'TrendingUpIcon' },
+  { label: '区块链基础', value: 'blockchain', icon: 'LayersIcon' },
+  { label: '智能合约', value: 'contract', icon: 'FileTextIcon' },
+  { label: '共识算法', value: 'consensus', icon: 'GitBranchIcon' },
+  { label: '项目分享', value: 'project', icon: 'FolderIcon' },
+  { label: '学术研究', value: 'research', icon: 'BookOpenIcon' }
 ]
 
 // 阅读难度选项
@@ -495,21 +504,9 @@ interface Emits {
 
 const emit = defineEmits<Emits>()
 
-// 图标组件
-const SearchIcon = defineAsyncComponent(() => import('@/components/icons').then(m => m.SearchIcon))
-const XIcon = defineAsyncComponent(() => import('@/components/icons').then(m => m.XIcon))
-const ArrowUpIcon = defineAsyncComponent(() => import('@/components/icons').then(m => m.ArrowUpIcon))
-const ArrowDownIcon = defineAsyncComponent(() => import('@/components/icons').then(m => m.ArrowDownIcon))
-const RotateCcwIcon = defineAsyncComponent(() => import('@/components/icons').then(m => m.RotateCcwIcon))
-const SettingsIcon = defineAsyncComponent(() => import('@/components/icons').then(m => m.SettingsIcon))
-const BookmarkIcon = defineAsyncComponent(() => import('@/components/icons').then(m => m.BookmarkIcon))
-
-defineExpose({
-  resetFilters
-})
 </script>
 
-<style scoped>
+<style scoped lang="postcss">
 .blog-filter {
   @apply bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-6;
 }

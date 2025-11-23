@@ -183,7 +183,6 @@
             :article="article"
             :view-mode="viewMode"
             @article-click="openArticle"
-            @like="handleLike"
             @bookmark="handleBookmark"
             @share="handleShare"
           />
@@ -232,7 +231,6 @@
       :article="selectedArticle"
       :show="showArticleModal"
       @close="closeArticle"
-      @like="handleLike"
       @bookmark="handleBookmark"
       @share="handleShare"
     />
@@ -264,7 +262,7 @@ import ArticleCard from '@/components/blog/ArticleCard.vue'
 import BlogFilter from '@/components/blog/BlogFilter.vue'
 import ArticleDetailModal from '@/components/blog/ArticleDetailModal.vue'
 import { getArticles } from '@/api/article'
-import type { Article } from '@/types/entities'
+import type { Article, EnrichedArticle } from '@/types/entities'
 import {
   FilterIcon,
   ListIcon,
@@ -328,12 +326,7 @@ const categoryValueMap: Record<string, string> = {
   all: ''
 }
 
-type ShareableArticle = Article & {
-  difficulty?: string
-  thumbnail?: string
-  featured?: boolean
-  liked?: boolean
-}
+type ShareableArticle = EnrichedArticle
 
 const router = useRouter()
 const activeFilters = ref<BlogFilterOptions | null>(null)
@@ -356,7 +349,12 @@ const filteredArticles = ref<Article[]>([])
 
 // 计算属性
 const totalArticles = computed(() => articles.value.length)
-const totalAuthors = computed(() => new Set(articles.value.map(a => a.author.id)).size)
+const totalAuthors = computed(() => {
+  const authorIds = articles.value
+    .map(article => article.author?.id)
+    .filter((id): id is string | number => typeof id === 'string' || typeof id === 'number')
+  return new Set(authorIds).size
+})
 const totalViews = computed(() => articles.value.reduce((sum, a) => sum + a.views, 0))
 const totalLikes = computed(() => articles.value.reduce((sum, a) => sum + a.likes, 0))
 
@@ -444,14 +442,6 @@ const handleFilterChange = (filters: BlogFilterOptions) => {
   fetchFilteredArticles(filters)
 }
 
-const handleLike = (articleId: string) => {
-  const article = articles.value.find(a => a.id === articleId)
-  if (article) {
-    article.likes = article.isLiked ? article.likes - 1 : article.likes + 1
-    article.isLiked = !article.isLiked
-  }
-}
-
 const handleBookmark = (articleId: string) => {
   const article = articles.value.find(a => a.id === articleId)
   if (article) {
@@ -482,7 +472,8 @@ const closeArticle = () => {
   selectedArticle.value = null
 }
 
-const changePage = (page: number) => {
+const changePage = (page: number | string) => {
+  if (typeof page !== 'number') return
   if (page >= 1 && page <= totalPages.value) {
     currentPage.value = page
     // 滚动到顶部
@@ -616,7 +607,10 @@ const generateMockArticles = (): Article[] => {
       title: `深度解析：${category}技术应用与实践案例 ${i + 1}`,
       summary: `本文详细探讨了${category}在区块链领域的重要应用，包括技术原理、实施方案和最佳实践...`,
       content: '文章详细内容...',
-      author,
+      author: {
+        ...author,
+        id: String(author.id)
+      },
       category,
       tags: articleTags,
       publishDate: new Date().toISOString().split('T')[0],

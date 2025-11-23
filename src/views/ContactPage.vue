@@ -24,32 +24,35 @@
             我们欢迎任何关于区块链技术的咨询、合作机会和学术交流。
             让我们一起探索区块链的无限可能，共同构建可信的数字未来。
           </p>
-          <div class="flex justify-center gap-8">
-            <div class="text-center">
-              <div class="text-3xl font-bold text-orange-300">
-                24/7
+          <div class="flex justify-center gap-8 flex-wrap">
+            <template v-if="statsLoading">
+              <div
+                v-for="n in 3"
+                :key="`stats-loading-${n}`"
+                class="w-32 h-20 rounded-xl bg-white/10 animate-pulse"
+              />
+            </template>
+            <template v-else>
+              <div
+                v-for="item in summaryMetrics"
+                :key="item.label"
+                class="text-center"
+              >
+                <div class="text-3xl font-bold text-orange-200">
+                  {{ item.value }}
+                </div>
+                <div class="text-sm text-purple-200">
+                  {{ item.label }}
+                </div>
               </div>
-              <div class="text-sm text-purple-200">
-                在线支持
-              </div>
-            </div>
-            <div class="text-center">
-              <div class="text-3xl font-bold text-blue-300">
-                ∞
-              </div>
-              <div class="text-sm text-purple-200">
-                合作可能
-              </div>
-            </div>
-            <div class="text-center">
-              <div class="text-3xl font-bold text-green-300">
-                100+
-              </div>
-              <div class="text-sm text-purple-200">
-                成功合作
-              </div>
-            </div>
+            </template>
           </div>
+          <p
+            v-if="statsError"
+            class="mt-4 text-sm text-red-100"
+          >
+            {{ statsError }}
+          </p>
         </div>
       </div>
     </header>
@@ -181,6 +184,13 @@
                     >隐私政策</a>处理我的个人信息
                   </label>
                 </div>
+
+                <p
+                  v-if="submitError"
+                  class="text-sm text-red-500"
+                >
+                  {{ submitError }}
+                </p>
                 
                 <button 
                   type="submit"
@@ -621,6 +631,12 @@
         <p class="text-gray-600 mb-6">
           感谢您的留言，我们会尽快回复您。
         </p>
+        <p
+          v-if="lastTicketId"
+          class="text-sm text-gray-500 mb-4"
+        >
+          工单编号：{{ lastTicketId }}
+        </p>
         <button 
           class="bg-gradient-to-r from-purple-600 to-blue-600 text-white py-2 px-6 rounded-lg font-medium hover:shadow-lg transition-all duration-300"
           @click="showSuccess = false"
@@ -633,9 +649,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
+import { getSiteStats, submitContactMessage } from '@/api/public'
+import type { SiteStats, ContactRequest } from '@/types/entities'
 
-// 页面元数据设置
+// 页面元数据设置 + 数据加载
 onMounted(() => {
   document.title = '联系我们 - 大连理工大学区块链组'
   const metaDescription = document.querySelector('meta[name="description"]')
@@ -647,10 +665,59 @@ onMounted(() => {
     meta.content = '联系大连理工大学区块链组，探讨合作机会，获得技术支持'
     document.head.appendChild(meta)
   }
+
+  loadSiteStats()
 })
 
+// 站点统计
+const siteStats = ref<SiteStats | null>(null)
+const statsLoading = ref(false)
+const statsError = ref<string | null>(null)
+
+const summaryMetrics = computed(() => {
+  const stats = siteStats.value
+  return [
+    {
+      label: '项目案例',
+      value: stats ? `${stats.totalProjects}+` : '—'
+    },
+    {
+      label: '合作成功',
+      value: stats ? `${stats.successfulCollaborations}` : '—'
+    },
+    {
+      label: '平均响应时间',
+      value: stats ? `${stats.averageResponseHours}h` : '—'
+    }
+  ]
+})
+
+const loadSiteStats = async () => {
+  statsLoading.value = true
+  try {
+    siteStats.value = await getSiteStats()
+    statsError.value = null
+  } catch (error) {
+    console.error('加载站点统计失败:', error)
+    statsError.value = error instanceof Error ? error.message : '暂时无法获取统计数据'
+  } finally {
+    statsLoading.value = false
+  }
+}
+
 // 表单数据
-const form = reactive({
+interface ContactFormState {
+  name: string
+  email: string
+  phone: string
+  organization: string
+  consultationType: string
+  subject: string
+  message: string
+  privacy: boolean
+}
+
+const defaultFormState: ContactFormState = {
   name: '',
   email: '',
   phone: '',
@@ -659,10 +726,14 @@ const form = reactive({
   subject: '',
   message: '',
   privacy: false
-})
+}
+
+const form = reactive<ContactFormState>({ ...defaultFormState })
 
 const isSubmitting = ref(false)
 const showSuccess = ref(false)
+const submitError = ref<string | null>(null)
+const lastTicketId = ref<string | null>(null)
 
 // 常见问题数据
 const faqs = [
@@ -696,36 +767,43 @@ function toggleFaq(index: number) {
 }
 
 // 处理表单提交
+function resetForm() {
+  Object.assign(form, { ...defaultFormState })
+}
+
 async function handleSubmit() {
   if (!form.privacy) {
-    alert('请同意隐私政策')
+    submitError.value = '请先同意隐私政策'
     return
   }
 
+  const payload: ContactRequest = {
+    name: form.name,
+    email: form.email,
+    phone: form.phone || undefined,
+    organization: form.organization || undefined,
+    consultationType: form.consultationType || undefined,
+    subject: form.subject,
+    message: form.message,
+    privacyAccepted: form.privacy,
+    source: 'contact-page'
+  }
+
   isSubmitting.value = true
-  
+  submitError.value = null
+
   try {
-    // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    
-    // 重置表单
-    Object.keys(form).forEach(key => {
-      if (typeof form[key] === 'boolean') {
-        form[key] = false
-      } else {
-        form[key] = ''
-      }
-    })
-    
+    const response = await submitContactMessage(payload)
+    lastTicketId.value = response.ticketId
+    resetForm()
     showSuccess.value = true
-    
-    // 3秒后自动关闭
+
     setTimeout(() => {
       showSuccess.value = false
     }, 3000)
-    
   } catch (error) {
-    alert('发送失败，请稍后重试')
+    console.error('提交联系表单失败:', error)
+    submitError.value = error instanceof Error ? error.message : '发送失败，请稍后重试'
   } finally {
     isSubmitting.value = false
   }

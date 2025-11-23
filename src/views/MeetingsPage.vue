@@ -313,46 +313,9 @@ import MeetingCard from '@/components/meetings/MeetingCard.vue'
 import MeetingFilter from '@/components/meetings/MeetingFilter.vue'
 import MeetingDetailModal from '@/components/meetings/MeetingDetailModal.vue'
 import FileViewerModal from '@/components/meetings/FileViewerModal.vue'
+import type { Meeting, MeetingFile } from '@/types/entities'
 
-interface MeetingFile {
-  id: string
-  name: string
-  type: string
-  size: string
-  url: string
-}
-
-type MeetingStatus = 'upcoming' | 'ongoing' | 'completed' | 'cancelled'
-
-interface MeetingAttendee {
-  id: string
-  name: string
-  avatar: string
-  role?: string
-}
-
-interface MeetingIssue {
-  id: string
-  title: string
-  status: string
-}
-
-interface MeetingRecord {
-  id: string
-  title: string
-  date: string
-  summary: string
-  status: MeetingStatus
-  types: string[]
-  attendees: MeetingAttendee[]
-  duration: number
-  issues?: MeetingIssue[]
-  files?: MeetingFile[]
-  tags?: string[]
-  location?: string
-  recording?: string
-  minutes?: string
-}
+type MeetingRecord = Meeting
 
 interface MeetingFilterValues {
   statuses?: string[]
@@ -520,9 +483,10 @@ const stats = computed(() => {
   const totalParticipants = meetings.value.reduce((sum: number, meeting: MeetingRecord) => {
     return sum + meeting.attendees.length
   }, 0)
-  const totalHours = Math.round(
-    meetings.value.reduce((sum: number, meeting: MeetingRecord) => sum + meeting.duration, 0) / 60
-  )
+  const totalMinutes = meetings.value.reduce((sum: number, meeting: MeetingRecord) => {
+    return sum + (meeting.duration ?? 0)
+  }, 0)
+  const totalHours = Math.round(totalMinutes / 60)
   const totalDocuments = meetings.value.reduce((sum: number, meeting: MeetingRecord) => {
     return sum + (meeting.files?.length || 0)
   }, 0)
@@ -607,7 +571,7 @@ onUnmounted(() => {
 })
 </script>
 
-<style scoped>
+<style scoped lang="postcss">
 /* 页面基础样式 */
 .meetings-page {
   @apply min-h-screen bg-gray-50;

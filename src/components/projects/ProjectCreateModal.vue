@@ -83,7 +83,7 @@
 
 <script setup lang="ts">
 import { reactive } from 'vue'
-import type { Project } from '@/types/entities'
+import type { Project, ProjectStatusValue } from '@/types/entities'
 import { createProject } from '@/api/project'
 
 const emit = defineEmits<{
@@ -91,7 +91,13 @@ const emit = defineEmits<{
   (e: 'close'): void
 }>()
 
-const form = reactive({
+const form = reactive<{ 
+  title: string
+  shortDescription: string
+  category: string
+  status: ProjectStatusValue
+  progress: number
+}>({
   title: '',
   shortDescription: '',
   category: '',
@@ -108,7 +114,7 @@ const submit = async () => {
       shortDescription: form.shortDescription,
       description: form.shortDescription,
       category: form.category,
-      status: form.status,
+  status: form.status,
       progress: form.progress,
       likes: 0,
       views: 0,
@@ -123,10 +129,9 @@ const submit = async () => {
     form.category = ''
     form.status = 'planning'
     form.progress = 0
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error('创建项目失败', err)
-    const message = err instanceof Error ? err.message : '创建项目失败'
-    alert(message)
+    alert(err?.message || '创建项目失败')
   }
 }
 </script>

@@ -71,8 +71,6 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  title: '',
-  subtitle: '',
   variant: 'default',
   padding: 'md',
   hover: false,
@@ -216,7 +214,7 @@ const overlayClasses = [
 ]
 </script>
 
-<style scoped lang="postcss">
+<style scoped>
 /* 确保卡片在所有内容之上 */
 :deep(*) {
   position: relative;

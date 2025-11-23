@@ -7,33 +7,33 @@
   >
     <div class="project-image">
       <img 
-        :src="coverImage" 
-        :alt="projectTitle"
+        :src="project.images?.[0] || project.imageUrl || '/images/default-project.png'" 
+        :alt="project.title || project.name || '项目封面'"
         @error="handleImageError"
       >
       <div
         class="status-badge"
         :class="`status-${statusClass}`"
       >
-        {{ getStatusText(statusClass) }}
+        {{ getStatusText(project.status) }}
       </div>
       <div
-        v-show="showDetails && techStack.length"
+        v-show="showDetails"
         class="project-overlay"
       >
         <div class="tech-stack">
           <span 
-            v-for="tech in techStack.slice(0, 4)" 
+            v-for="tech in (project.techStack ?? []).slice(0, 4)" 
             :key="tech" 
             class="tech-tag"
           >
             {{ tech }}
           </span>
           <span
-            v-if="techStack.length > 4"
+            v-if="(project.techStack?.length ?? 0) > 4"
             class="tech-tag"
           >
-            +{{ techStack.length - 4 }}
+            +{{ (project.techStack?.length ?? 0) - 4 }}
           </span>
         </div>
       </div>
@@ -42,13 +42,13 @@
     <div class="project-content">
       <div class="project-header">
         <h3 class="project-title">
-          {{ projectTitle }}
+          {{ project.title || project.name }}
         </h3>
-        <span class="project-category">{{ categoryLabel }}</span>
+        <span class="project-category">{{ project.category }}</span>
       </div>
       
       <p class="project-description">
-        {{ projectDescription }}
+        {{ project.shortDescription || project.description }}
       </p>
       
       <div
@@ -59,10 +59,10 @@
           <div class="progress-bar">
             <div
               class="progress-fill"
-              :style="{ width: `${progressValue}%` }"
+              :style="{ width: `${project.progress ?? 0}%` }"
             />
           </div>
-          <span class="progress-text">{{ progressValue }}% 完成</span>
+          <span class="progress-text">{{ project.progress ?? 0 }}% 完成</span>
         </div>
       </div>
       
@@ -82,7 +82,7 @@
         </div>
         <div class="project-team">
           <UsersIcon class="meta-icon" />
-          {{ teamSizeLabel }}人团队
+          {{ project.teamSize || '1-5' }}人团队
         </div>
       </div>
       
@@ -94,11 +94,11 @@
             @click.stop="toggleLike"
           >
             <HeartIcon class="stat-icon" />
-            {{ project.likes || 0 }}
+            {{ project.likes ?? 0 }}
           </button>
           <span class="stat-item">
             <EyeIcon class="stat-icon" />
-            {{ project.views || 0 }}
+            {{ project.views ?? 0 }}
           </span>
         </div>
         
@@ -124,7 +124,7 @@
             <ExternalLinkIcon />
           </a>
           <button 
-            v-if="documentationLink"
+            v-if="project.documentation"
             class="link-btn"
             title="技术文档"
             @click.stop="showDocumentation"
@@ -165,84 +165,18 @@ const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 const showDetails = ref(false)
-
-const coverImage = computed(() => {
-  return props.project.images?.[0]
-    || props.project.imageUrl
-    || props.project.coverImage
-    || '/images/default-project.png'
-})
-
-const projectTitle = computed(() => {
-  return props.project.title || props.project.name || '未命名项目'
-})
-
-const projectDescription = computed(() => {
-  return props.project.shortDescription
-    || props.project.summary
-    || props.project.description
-    || '暂无项目简介'
-})
-
-const techStack = computed(() => {
-  return Array.isArray(props.project.techStack) ? props.project.techStack : []
-})
-
-const normalizeStatus = (status: string | undefined): string => {
-  if (!status) return 'planning'
-  const key = status.toLowerCase()
-  if (key.includes('progress')) return 'in-progress'
-  if (key.includes('complete')) return 'completed'
-  if (key.includes('pause') || key.includes('hold')) return 'paused'
-  if (key.includes('ongoing')) return 'ongoing'
-  if (key.includes('plan')) return 'planning'
-  return key
-}
-
-const statusClass = computed(() => normalizeStatus(props.project.status as string))
-
-const categoryLabel = computed(() => {
-  const category = props.project.category
-  if (!category) return '未分类'
-  const lookup: Record<string, string> = {
-    collaboration: '协作项目',
-    competition: '竞赛项目',
-    development: '开发项目',
-    education: '教育项目',
-    research: '研究项目'
-  }
-  const key = category.toString().toLowerCase()
-  return lookup[key] || category.toString()
-})
-
-const progressValue = computed(() => {
-  const value = Number(props.project.progress ?? 0)
-  if (!Number.isFinite(value)) return 0
-  return Math.min(100, Math.max(0, Math.round(value)))
-})
-
-const teamSizeLabel = computed(() => {
-  if (props.project.teamSize) return String(props.project.teamSize)
-  if (Array.isArray(props.project.contributors) && props.project.contributors.length) {
-    return String(props.project.contributors.length)
-  }
-  return '1-5'
-})
-
-const documentationLink = computed(() => {
-  return props.project.documentation || props.project.documentationUrl || null
-})
+const statusClass = computed(() => String(project.status ?? 'planning').toLowerCase())
 
 // 获取状态文本
-const getStatusText = (status: string) => {
+const getStatusText = (status?: string) => {
   const statusMap: Record<string, string> = {
     'planning': '规划中',
     'in-progress': '开发中',
     'completed': '已完成',
-    'paused': '已暂停',
-    'ongoing': '进行中'
+    'paused': '已暂停'
   }
-  return statusMap[status] || props.project.status || status
+  const normalized = String(status ?? 'planning').toLowerCase().replace(/_/g, '-')
+  return statusMap[normalized] || status || '规划中'
 }
 
 // 格式化日期
@@ -251,7 +185,6 @@ const formatDate = (dateInput?: string | Date) => {
   
   try {
     const date = dateInput instanceof Date ? dateInput : new Date(dateInput)
-    if (Number.isNaN(date.getTime())) return '未知'
     const year = date.getFullYear()
     const month = date.getMonth() + 1
     return `${year}年${month}月`
@@ -268,12 +201,10 @@ const handleImageError = (event: Event) => {
 
 // 切换点赞状态
 const toggleLike = () => {
-  project.isLiked = !project.isLiked
-  if (project.isLiked) {
-    project.likes = (project.likes || 0) + 1
-  } else {
-    project.likes = Math.max(0, (project.likes || 0) - 1)
-  }
+  const nextState = !(project.isLiked ?? false)
+  project.isLiked = nextState
+  const currentLikes = project.likes ?? 0
+  project.likes = nextState ? currentLikes + 1 : Math.max(0, currentLikes - 1)
   emit('like', props.project)
 }
 

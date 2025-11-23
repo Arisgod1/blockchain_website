@@ -170,10 +170,9 @@ const defaultFilters: FilterOptions = {
   isActive: undefined
 }
 
-const localFilters = ref<FilterOptions>({
-  ...defaultFilters,
-  ...props.filters
-})
+const localFilters = ref<FilterOptions>(
+  Object.assign({}, defaultFilters, props.filters)
+)
 
 // 监听 props 变化
 watch(() => props.filters, (newFilters) => {

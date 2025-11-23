@@ -35,22 +35,22 @@
       </div>
 
       <!-- 文章头部 -->
-      <div class="article-header">
-        <h1 class="article-title">
-          {{ article.title }}
-        </h1>
-        <div class="article-meta">
-          <div class="author-info">
-            <img
-              :src="article.author.avatar"
-              :alt="article.author.name"
-              class="author-avatar"
-            >
-            <div class="author-details">
-              <span class="author-name">{{ article.author.name }}</span>
-              <span class="publish-date">{{ formatDate(article.publishedAt) }}</span>
-            </div>
-          </div>
+            <div class="article-header">
+              <h1 class="article-title">
+                {{ article.title }}
+              </h1>
+              <div class="article-meta">
+                <div class="author-info">
+                  <img
+                    :src="article.author?.avatar || '/images/default-avatar.png'"
+                    :alt="article.author?.name || '匿名作者'"
+                    class="author-avatar"
+                  >
+                  <div class="author-details">
+                    <span class="author-name">{{ article.author?.name || '匿名作者' }}</span>
+                    <span class="publish-date">{{ formatDate(article.publishedAt) }}</span>
+                  </div>
+                </div>
           <div class="article-stats">
             <span class="stat-item">
               <EyeIcon class="stat-icon" />
@@ -197,16 +197,6 @@
         <div class="footer-actions">
           <button 
             class="action-button" 
-            :class="{ liked: article.liked }" 
-            @click="handleLike"
-          >
-            <HeartIcon class="action-icon" />
-            {{ article.liked ? '已点赞' : '点赞' }}
-            <span class="action-count">{{ article.likes }}</span>
-          </button>
-          
-          <button 
-            class="action-button" 
             :class="{ bookmarked: article.bookmarked }"
             @click="handleBookmark"
           >
@@ -269,12 +259,12 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import type { Component } from 'vue'
+import type { EnrichedArticle } from '@/types/entities'
 import {
   XIcon,
   StarIcon,
   EyeIcon,
   ClockIcon,
-  HeartIcon,
   BookmarkIcon,
   ShareIcon,
   HashIcon,
@@ -293,39 +283,8 @@ import {
   FolderIcon
 } from '@/components/icons'
 
-// 文章接口
-interface Author {
-  id: number
-  name: string
-  avatar: string
-}
-
-interface DetailedArticle {
-  id: string
-  title: string
-  summary: string
-  content: string
-  author: Author
-  category: string
-  tags: string[]
-  publishDate: string
-  publishedAt: string
-  updateDate: string
-  isPublished: boolean
-  readTime: number
-  views: number
-  likes: number
-  comments: number
-  featured?: boolean
-  isFeatured?: boolean
+type DetailedArticle = EnrichedArticle & {
   difficulty?: 'beginner' | 'intermediate' | 'advanced' | 'expert'
-  thumbnail?: string
-  coverImage?: string
-  excerpt?: string
-  description?: string
-  bookmarked?: boolean
-  liked?: boolean
-  isLiked?: boolean
 }
 
 // Props
@@ -339,7 +298,6 @@ const props = defineProps<Props>()
 // Emits
 interface Emits {
   'close': []
-  'like': [articleId: string]
   'bookmark': [articleId: string]
   'share': [article: DetailedArticle, platform: string]
 }
@@ -360,10 +318,6 @@ const handleOverlayClick = () => {
 const handleImageError = (event: Event) => {
   const target = event.target as HTMLImageElement
   target.src = '/images/default-article.jpg'
-}
-
-const handleLike = () => {
-  emit('like', props.article.id)
 }
 
 const handleBookmark = () => {
@@ -388,7 +342,8 @@ const filterByTag = (tag: string) => {
   // 这里可以实现标签筛选功能
 }
 
-const formatDate = (date: string | Date) => {
+const formatDate = (date?: string | Date) => {
+  if (!date) return '未知'
   const value = typeof date === 'string' ? new Date(date) : date
   const now = new Date()
   const diffTime = Math.abs(now.getTime() - value.getTime())
@@ -410,7 +365,10 @@ const formatDate = (date: string | Date) => {
   }
 }
 
-const formatNumber = (num: number) => {
+const formatNumber = (num?: number) => {
+  if (typeof num !== 'number') {
+    return '0'
+  }
   if (num >= 1000) {
     return (num / 1000).toFixed(1) + 'k'
   }
@@ -646,10 +604,6 @@ document.addEventListener('click', (e) => {
 
 .action-button {
   @apply flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 transition-colors;
-}
-
-.action-button.liked {
-  @apply bg-red-50 border-red-300 text-red-600;
 }
 
 .action-button.bookmarked {

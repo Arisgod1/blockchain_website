@@ -273,10 +273,17 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import type { MeetingFile } from '@/types/entities'
+
+interface File {
+  id: string
+  name: string
+  type: string
+  size: string
+  url: string
+}
 
 interface Props {
-  files: MeetingFile[] | null
+  files: File[] | null
   isOpen: boolean
 }
 
@@ -303,12 +310,12 @@ const handleBackdropClick = () => {
   emit('close')
 }
 
-const handleFileClick = (file: MeetingFile) => {
+const handleFileClick = (file: File) => {
   // 单击预览文件
   handlePreview(file)
 }
 
-const handleDownload = async (file: MeetingFile) => {
+const handleDownload = async (file: File) => {
   downloadingFiles.value.add(file.id)
   
   try {
@@ -329,7 +336,7 @@ const handleDownload = async (file: MeetingFile) => {
   }
 }
 
-const handlePreview = (file: MeetingFile) => {
+const handlePreview = (file: File) => {
   // 根据文件类型选择预览方式
   if (file.type === 'mp4' || file.type === 'mp3') {
     // 对于视频/音频文件，可以打开新的播放器窗口

@@ -59,8 +59,8 @@
                 <td>{{ project.name }}</td>
                 <td>{{ project.category }}</td>
                 <td>
-                  <span :class="['status-badge', project.status.toLowerCase()]">
-                    {{ project.status }}
+                  <span :class="['status-badge', String(project.status ?? 'planning').toLowerCase()]">
+                    {{ project.status || '未设置' }}
                   </span>
                 </td>
                 <td>{{ project.progress }}%</td>
@@ -90,7 +90,8 @@
         >
           <BasePagination 
             :current="currentPage" 
-            :total="totalPages" 
+            :pageSize="pageSize"
+            :total="totalItems" 
             @change="handlePageChange" 
           />
         </div>
@@ -204,6 +205,8 @@ const loading = ref(false)
 const saving = ref(false)
 const currentPage = ref(1)
 const totalPages = ref(1)
+const totalItems = ref(0)
+const pageSize = ref(10)
 const showEditModal = ref(false)
 const editingProject = ref<Project | null>(null)
 const cleanupFns: Array<() => void> = []
@@ -233,14 +236,16 @@ const formData = reactive<Partial<Project>>({
 const fetchProjects = async () => {
   loading.value = true
   try {
-    const res = await getProjects({ page: currentPage.value - 1, size: 10 })
+  const res = await getProjects({ page: currentPage.value - 1, size: pageSize.value })
     // 适配 Mock 数据结构（如果是数组直接返回，如果是分页对象取 content）
     if (Array.isArray(res)) {
       projects.value = res
       totalPages.value = 1
+      totalItems.value = res.length
     } else {
       projects.value = res.content || []
       totalPages.value = res.totalPages || 1
+      totalItems.value = res.totalElements || projects.value.length
     }
   } catch (error) {
     console.error('Failed to fetch projects:', error)

@@ -59,12 +59,12 @@
       <!-- 页码按钮 -->
       <div :class="pageNumbersClasses">
         <template
-          v-for="pageItem in pageItems"
-          :key="pageItem.key"
+          v-for="page in visiblePages"
+          :key="page.key"
         >
           <!-- 省略号 -->
           <span 
-            v-if="pageItem.value === '...'" 
+            v-if="page.value === '...'" 
             :class="ellipsisClasses"
           >
             ...
@@ -72,11 +72,11 @@
           <!-- 页码按钮 -->
           <button
             v-else
-            :class="getPageButtonClasses(pageItem.value === displayedCurrent)"
-            :disabled="pageItem.value === displayedCurrent"
-            @click="goToPage(pageItem.value as number)"
+            :class="getPageButtonClasses(page.value === displayedCurrent)"
+            :disabled="page.value === displayedCurrent"
+            @click="goToPage(page.value as number)"
           >
-            {{ pageItem.value }}
+            {{ page.value }}
           </button>
         </template>
       </div>
@@ -130,8 +130,6 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  currentPage: undefined,
-  current: undefined,
   pageSizeOptions: () => [10, 20, 50, 100],
   showPageSize: true,
   showInfo: true,
@@ -162,22 +160,27 @@ const endItem = computed(() => {
   return Math.min(displayedCurrent.value * props.pageSize, props.total)
 })
 
-const pageItems = computed(() => {
-  return visiblePages.value.map((page, index) => ({
-    value: page,
-    key: typeof page === 'number'
-      ? `page-${page}`
-      : `ellipsis-${index}`
-  }))
-})
-
 // 计算可见的页码
-const visiblePages = computed(() => {
-  if (totalPages.value <= props.maxVisiblePages) {
-    return Array.from({ length: totalPages.value }, (_, i) => i + 1)
+interface PageDescriptor {
+  key: string
+  value: number | string
+}
+
+const visiblePages = computed<PageDescriptor[]>(() => {
+  const makeKey = (value: number | string, indexHint: number) => {
+    return typeof value === 'number'
+      ? `page-${value}`
+      : `ellipsis-${indexHint}`
   }
 
-  const pages: (number | string)[] = []
+  if (totalPages.value <= props.maxVisiblePages) {
+    return Array.from({ length: totalPages.value }, (_, i) => ({
+      value: i + 1,
+      key: `page-${i + 1}`
+    }))
+  }
+
+  const pages: PageDescriptor[] = []
   const half = Math.floor(props.maxVisiblePages / 2)
   
   let start = Math.max(1, displayedCurrent.value - half)
@@ -188,21 +191,21 @@ const visiblePages = computed(() => {
   }
   
   if (start > 1) {
-    pages.push(1)
+    pages.push({ value: 1, key: makeKey(1, pages.length) })
     if (start > 2) {
-      pages.push('...')
+      pages.push({ value: '...', key: makeKey('...', pages.length) })
     }
   }
   
   for (let i = start; i <= end; i++) {
-    pages.push(i)
+    pages.push({ value: i, key: makeKey(i, pages.length) })
   }
   
   if (end < totalPages.value) {
     if (end < totalPages.value - 1) {
-      pages.push('...')
+      pages.push({ value: '...', key: makeKey('...', pages.length) })
     }
-    pages.push(totalPages.value)
+    pages.push({ value: totalPages.value, key: makeKey(totalPages.value, pages.length) })
   }
   
   return pages

@@ -19,16 +19,16 @@ export interface PageFile {
   size: number
   content: FileInfo[]
   number: number
-  sort: Record<string, unknown> | null
+  sort: any
   first: boolean
   last: boolean
   numberOfElements: number
-  pageable: Record<string, unknown> | null
+  pageable: any
   empty: boolean
 }
 
 // 获取分页文件列表
-export const getFiles = async (params?: Record<string, unknown>): Promise<PageFile> => {
+export const getFiles = async (params?: Record<string, any>): Promise<PageFile> => {
   const res = await apiService.get<PageFile>('/api/files', { params })
   if (!res.success) throw new Error(res.message || '获取文件列表失败')
   return res.data as PageFile

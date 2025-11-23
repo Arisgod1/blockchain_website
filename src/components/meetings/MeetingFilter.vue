@@ -320,8 +320,8 @@ interface FilterOptions {
   attendeeSizes?: string[]
   tags?: string[]
   dateRange?: {
-    start?: string
-    end?: string
+    start: string
+    end: string
   }
   sortBy?: string
   sortDirection?: 'asc' | 'desc'
@@ -337,17 +337,7 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  meetings: () => [],
-  initialFilters: () => ({
-    searchQuery: '',
-    statuses: [],
-    types: [],
-    attendeeSizes: [],
-    tags: [],
-    dateRange: undefined,
-    sortBy: 'date',
-    sortDirection: 'desc'
-  })
+  meetings: () => []
 })
 
 const emit = defineEmits<Emits>()
@@ -364,7 +354,6 @@ const hasActiveFilters = computed(() => {
 })
 
 const filteredCount = computed(() => {
-  // 这里应该根据实际逻辑计算filtered meetings数量
   return props.meetings?.length || 0
 })
 
@@ -374,14 +363,14 @@ const getStatusCount = (status: string): number => {
 }
 
 const getTypeCount = (type: string): number => {
-  return props.meetings?.filter(m => (m.types ?? []).includes(type)).length || 0
+  return props.meetings?.filter(m => Array.isArray(m.types) && m.types.includes(type)).length || 0
 }
 
 const getAttendeeSizeCount = (size: string): number => {
   if (!props.meetings) return 0
   
   return props.meetings.filter(m => {
-    const count = m.attendees?.length || 0
+    const count = (m.attendees?.length) ?? 0
     switch (size) {
       case 'small': return count < 10
       case 'medium': return count >= 10 && count <= 20
@@ -496,9 +485,8 @@ const initializeFilters = () => {
     selectedTypes.value = filters.types || []
     selectedAttendeeSizes.value = filters.attendeeSizes || []
     selectedTags.value = filters.tags || []
-    dateRange.value = {
-      start: filters.dateRange?.start || '',
-      end: filters.dateRange?.end || ''
+    if (filters.dateRange) {
+      dateRange.value = filters.dateRange
     }
     sortBy.value = filters.sortBy || 'date'
     sortDirection.value = filters.sortDirection || 'desc'
@@ -507,13 +495,9 @@ const initializeFilters = () => {
 
 // 监听初始筛选器变化
 watch(() => props.initialFilters, initializeFilters, { immediate: true })
-
-defineExpose({
-  resetFilters: clearAllFilters
-})
 </script>
 
-<style scoped lang="postcss">
+<style scoped>
 /* 基础样式 */
 .meeting-filter {
   @apply bg-white rounded-xl shadow-md border border-gray-100 p-6;
