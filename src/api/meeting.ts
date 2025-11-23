@@ -1,21 +1,8 @@
 import apiService from '@/api/client'
 import type { Meeting } from '@/types/entities'
-import { ensurePagedData, type PaginationParams } from '@/api/utils'
+import { ensurePagedData, type PaginationParams, type PageResult } from '@/api/utils'
 
-// 分页响应类型
-export interface PageMeeting {
-  totalElements: number
-  totalPages: number
-  size: number
-  content: Meeting[]
-  number: number
-  sort: any
-  first: boolean
-  last: boolean
-  numberOfElements: number
-  pageable: any
-  empty: boolean
-}
+export type PageMeeting = PageResult<Meeting>
 
 // 获取分页例会列表
 export const getMeetings = async (params?: PaginationParams & Record<string, unknown>): Promise<PageMeeting> => {

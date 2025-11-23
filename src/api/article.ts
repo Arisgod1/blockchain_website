@@ -1,21 +1,8 @@
 import apiService from '@/api/client'
 import type { Article } from '@/types/entities'
-import { ensurePagedData, type PaginationParams } from '@/api/utils'
+import { ensurePagedData, type PaginationParams, type PageResult } from '@/api/utils'
 
-// 分页响应类型
-export interface PageArticle {
-  totalElements: number
-  totalPages: number
-  size: number
-  content: Article[]
-  number: number
-  sort: any
-  first: boolean
-  last: boolean
-  numberOfElements: number
-  pageable: any
-  empty: boolean
-}
+export type PageArticle = PageResult<Article>
 
 // 获取分页文章列表
 export const getArticles = async (params?: PaginationParams & Record<string, unknown>): Promise<PageArticle> => {

@@ -444,7 +444,8 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  isCreate: true
+  isCreate: true,
+  meeting: undefined
 })
 
 const emit = defineEmits<Emits>()
@@ -628,12 +629,12 @@ const removeActionItem = (index: number) => {
   formData.value.actionItems.splice(index, 1)
 }
 
-const updateActionStatus = (index: number, status: string) => {
-  formData.value.actionItems[index].status = status as any
+const updateActionStatus = (index: number, status: ActionItem['status']) => {
+  formData.value.actionItems[index].status = status
 }
 
-const updateActionPriority = (index: number, priority: string) => {
-  formData.value.actionItems[index].priority = priority as any
+const updateActionPriority = (index: number, priority: ActionItem['priority']) => {
+  formData.value.actionItems[index].priority = priority
 }
 
 const handleSave = async () => {

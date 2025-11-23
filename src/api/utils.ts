@@ -11,6 +11,8 @@ const DEFAULT_SORT_STATE = {
   unsorted: true
 }
 
+export type SortState = typeof DEFAULT_SORT_STATE
+
 const buildPageableMeta = (page: number, size: number) => ({
   pageNumber: page,
   pageSize: size,
@@ -20,13 +22,17 @@ const buildPageableMeta = (page: number, size: number) => ({
   sort: DEFAULT_SORT_STATE
 })
 
+export type QueryPrimitive = string | number | boolean
+export type QueryValue = QueryPrimitive | QueryPrimitive[]
+export type QueryParams = Record<string, QueryValue | undefined | null>
+
 export interface PageResult<T> {
   content: T[]
   totalElements: number
   totalPages: number
   size: number
   number: number
-  sort: typeof DEFAULT_SORT_STATE
+  sort: SortState
   first: boolean
   last: boolean
   numberOfElements: number

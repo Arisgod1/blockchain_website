@@ -1,5 +1,6 @@
 import { ref } from 'vue'
-import type { Project } from '@/types/entities'
+import type { Project, ApiResponse } from '@/types/entities'
+import type { QueryParams } from '@/api/utils'
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || ''
 
@@ -13,7 +14,7 @@ export function useProjects() {
   const loading = ref(false)
   const error = ref<string | null>(null)
 
-  const buildUrl = (path: string, params?: Record<string, any>) => {
+  const buildUrl = (path: string, params?: QueryParams) => {
     // 如果 API_BASE 为空，直接使用相对路径
     const base = API_BASE ? API_BASE.replace(/\/$/, '') : ''
     const url = new URL(`${base}${path}`, base || window.location.origin)
@@ -31,7 +32,7 @@ export function useProjects() {
     return url.toString()
   }
 
-  const fetchProjects = async (params?: Record<string, any>) => {
+  const fetchProjects = async (params?: QueryParams) => {
     loading.value = true
     error.value = null
     try {
@@ -45,7 +46,7 @@ export function useProjects() {
 
       // 先尝试以 text 方式读取（兼容示例），再尝试解析 JSON
       const txt = await res.text()
-      let data: any = null
+      let data: unknown = null
       try {
         data = JSON.parse(txt)
       } catch {
@@ -56,19 +57,20 @@ export function useProjects() {
       }
 
       // 如果服务端遵循 ApiResponse<T> 结构
-      if (data && typeof data === 'object' && 'success' in data) {
+      if (isApiResponse<Project[]>(data)) {
         if (!data.success) throw new Error(data.message || '请求失败')
         projects.value = data.data ?? []
       } else if (Array.isArray(data)) {
         // 直接返回数组
-        projects.value = data
+        projects.value = data as Project[]
       } else {
         projects.value = []
       }
 
       return projects.value
-    } catch (e: any) {
-      error.value = e?.message ?? String(e)
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e)
+      error.value = message
       throw e
     } finally {
       loading.value = false
@@ -83,13 +85,14 @@ export function useProjects() {
       const res = await fetch(url, { method: 'GET', redirect: 'follow' })
       if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`)
       const data = await res.json()
-      if (data && typeof data === 'object' && 'success' in data) {
+      if (isApiResponse<Project | null>(data)) {
         if (!data.success) throw new Error(data.message || '请求失败')
-        return data.data ?? null
+        return (data.data as Project | null) ?? null
       }
-      return data
-    } catch (e: any) {
-      error.value = e?.message ?? String(e)
+      return data as Project | null
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e)
+      error.value = message
       throw e
     } finally {
       loading.value = false
@@ -97,7 +100,7 @@ export function useProjects() {
   }
 
   // 解析 fetch Response：先 text，再尝试 JSON 解析，兼容 ApiResponse<T> 或直接返回对象/数组
-  const parseResponse = async (res: Response) => {
+  const parseResponse = async (res: Response): Promise<unknown> => {
     const txt = await res.text()
     try {
       return JSON.parse(txt)
@@ -121,12 +124,12 @@ export function useProjects() {
       if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`)
       const data = await parseResponse(res)
 
-      let created: any = null
-      if (data && typeof data === 'object' && 'success' in data) {
+      let created: Project | null = null
+      if (isApiResponse<Project>(data)) {
         if (!data.success) throw new Error(data.message || '创建失败')
-        created = data.data
-      } else {
-        created = data
+        created = data.data ?? null
+      } else if (data && typeof data === 'object') {
+        created = data as Project
       }
 
       if (created) {
@@ -134,9 +137,11 @@ export function useProjects() {
         projects.value = [created, ...projects.value]
       }
 
+      if (!created) throw new Error('创建项目失败')
       return created
-    } catch (e: any) {
-      error.value = e?.message ?? String(e)
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e)
+      error.value = message
       throw e
     } finally {
       loading.value = false
@@ -159,22 +164,28 @@ export function useProjects() {
       if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`)
       const data = await parseResponse(res)
 
-      let updated: any = null
-      if (data && typeof data === 'object' && 'success' in data) {
+      let updated: Project | null = null
+      if (isApiResponse<Project>(data)) {
         if (!data.success) throw new Error(data.message || '更新失败')
-        updated = data.data
-      } else {
-        updated = data
+        updated = data.data ?? null
+      } else if (data && typeof data === 'object') {
+        updated = data as Project
       }
 
-      if (updated) {
-        const idx = projects.value.findIndex((p) => String(p.id) === String(updated.id))
-        if (idx >= 0) projects.value.splice(idx, 1, updated)
+      if (!updated) {
+        throw new Error('更新项目失败')
+      }
+
+  const { id: updatedId } = updated
+  const idx = projects.value.findIndex((p) => String(p.id) === String(updatedId))
+      if (idx >= 0) {
+        projects.value.splice(idx, 1, updated)
       }
 
       return updated
-    } catch (e: any) {
-      error.value = e?.message ?? String(e)
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e)
+      error.value = message
       throw e
     } finally {
       loading.value = false
@@ -191,7 +202,7 @@ export function useProjects() {
       const data = await parseResponse(res)
 
       // 若返回 ApiResponse 检查 success
-      if (data && typeof data === 'object' && 'success' in data && !data.success) {
+      if (isApiResponse<unknown>(data) && !data.success) {
         throw new Error(data.message || '删除失败')
       }
 
@@ -199,12 +210,17 @@ export function useProjects() {
       const idx = projects.value.findIndex((p) => String(p.id) === String(id))
       if (idx >= 0) projects.value.splice(idx, 1)
       return
-    } catch (e: any) {
-      error.value = e?.message ?? String(e)
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e)
+      error.value = message
       throw e
     } finally {
       loading.value = false
     }
+  }
+
+  function isApiResponse<T>(value: unknown): value is ApiResponse<T> {
+    return typeof value === 'object' && value !== null && 'success' in value
   }
 
   return {

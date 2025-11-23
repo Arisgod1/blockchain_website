@@ -48,7 +48,7 @@
     <!-- 会议内容预览 -->
     <div class="meeting-content">
       <p class="meeting-summary">
-  {{ meeting.summary || '暂无会议摘要' }}
+        {{ meeting.summary || '暂无会议摘要' }}
       </p>
       
       <!-- 参与人员 -->

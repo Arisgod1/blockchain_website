@@ -71,6 +71,8 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  title: '',
+  subtitle: '',
   variant: 'default',
   padding: 'md',
   hover: false,
@@ -218,16 +220,5 @@ const overlayClasses = [
 /* 确保卡片在所有内容之上 */
 :deep(*) {
   position: relative;
-}
-
-/* 响应式设计 */
-@media (max-width: 640px) {
-  .p-6 {
-    @apply p-4;
-  }
-  
-  .p-8 {
-    @apply p-6;
-  }
 }
 </style>

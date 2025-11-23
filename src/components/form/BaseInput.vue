@@ -164,6 +164,9 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import type { Component } from 'vue'
+
+type SlotComponent = string | Component
 
 interface Props {
   modelValue?: string | number
@@ -176,8 +179,8 @@ interface Props {
   error?: string
   hint?: string
   clearable?: boolean
-  prefix?: any
-  suffix?: any
+  prefix?: SlotComponent
+  suffix?: SlotComponent
   size?: 'sm' | 'md' | 'lg'
   variant?: 'default' | 'filled' | 'outlined'
   maxlength?: number
@@ -187,13 +190,23 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  modelValue: '',
   type: 'text',
+  label: '',
+  placeholder: '',
   disabled: false,
   readonly: false,
   required: false,
+  error: '',
+  hint: '',
   clearable: false,
+  prefix: undefined,
+  suffix: undefined,
   size: 'md',
   variant: 'default',
+  maxlength: undefined,
+  minlength: undefined,
+  pattern: undefined,
   autocomplete: 'off'
 })
 
@@ -438,6 +451,7 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 input[type="number"] {
+  appearance: textfield;
   -moz-appearance: textfield;
 }
 

@@ -35,22 +35,22 @@
       </div>
 
       <!-- 文章头部 -->
-            <div class="article-header">
-              <h1 class="article-title">
-                {{ article.title }}
-              </h1>
-              <div class="article-meta">
-                <div class="author-info">
-                  <img
-                    :src="article.author?.avatar || '/images/default-avatar.png'"
-                    :alt="article.author?.name || '匿名作者'"
-                    class="author-avatar"
-                  >
-                  <div class="author-details">
-                    <span class="author-name">{{ article.author?.name || '匿名作者' }}</span>
-                    <span class="publish-date">{{ formatDate(article.publishedAt) }}</span>
-                  </div>
-                </div>
+      <div class="article-header">
+        <h1 class="article-title">
+          {{ article.title }}
+        </h1>
+        <div class="article-meta">
+          <div class="author-info">
+            <img
+              :src="article.author?.avatar || '/images/default-avatar.png'"
+              :alt="article.author?.name || '匿名作者'"
+              class="author-avatar"
+            >
+            <div class="author-details">
+              <span class="author-name">{{ article.author?.name || '匿名作者' }}</span>
+              <span class="publish-date">{{ formatDate(article.publishedAt) }}</span>
+            </div>
+          </div>
           <div class="article-stats">
             <span class="stat-item">
               <EyeIcon class="stat-icon" />

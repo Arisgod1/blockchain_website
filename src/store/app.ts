@@ -4,7 +4,7 @@ import { ref, computed } from 'vue'
 export interface AppError {
   message: string
   code?: string
-  details?: any
+  details?: unknown
 }
 
 export const useAppStore = defineStore('app', () => {

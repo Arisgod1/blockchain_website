@@ -93,7 +93,7 @@
           <BasePagination 
             :current="currentPage" 
             :total="totalElements"
-             :pageSize="pageSize"
+            :page-size="pageSize"
             @change="handlePageChange" 
           />
         </div>

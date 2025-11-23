@@ -1,5 +1,5 @@
 import apiService from '@/api/client'
-import { ensurePagedData, type PaginationParams } from '@/api/utils'
+import { ensurePagedData, type PaginationParams, type PageResult } from '@/api/utils'
 
 export interface FileInfo {
   id: string
@@ -14,19 +14,7 @@ export interface FileInfo {
 }
 
 // 分页响应类型
-export interface PageFile {
-  totalElements: number
-  totalPages: number
-  size: number
-  content: FileInfo[]
-  number: number
-  sort: any
-  first: boolean
-  last: boolean
-  numberOfElements: number
-  pageable: any
-  empty: boolean
-}
+export type PageFile = PageResult<FileInfo>
 
 // 获取分页文件列表
 export const getFiles = async (params?: PaginationParams & Record<string, unknown>): Promise<PageFile> => {

@@ -130,6 +130,8 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  currentPage: undefined,
+  current: undefined,
   pageSizeOptions: () => [10, 20, 50, 100],
   showPageSize: true,
   showInfo: true,

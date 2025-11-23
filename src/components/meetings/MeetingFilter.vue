@@ -337,7 +337,8 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  meetings: () => []
+  meetings: () => [],
+  initialFilters: () => ({})
 })
 
 const emit = defineEmits<Emits>()
@@ -497,7 +498,7 @@ const initializeFilters = () => {
 watch(() => props.initialFilters, initializeFilters, { immediate: true })
 </script>
 
-<style scoped>
+<style scoped lang="postcss">
 /* 基础样式 */
 .meeting-filter {
   @apply bg-white rounded-xl shadow-md border border-gray-100 p-6;

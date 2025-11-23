@@ -90,7 +90,7 @@
         >
           <BasePagination 
             :current="currentPage" 
-            :pageSize="pageSize"
+            :page-size="pageSize"
             :total="totalItems" 
             @change="handlePageChange" 
           />

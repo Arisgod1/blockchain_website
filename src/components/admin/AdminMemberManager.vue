@@ -268,7 +268,7 @@
           <div class="pagination-section">
             <BasePagination 
               :current="pagination.current"
-              :pageSize="pagination.pageSize"
+              :page-size="pagination.pageSize"
               :total="pagination.total"
               @change="handlePageChange"
             />

@@ -1,21 +1,8 @@
 import apiService from '@/api/client'
 import type { Member } from '@/types/entities'
-import { ensurePagedData, type PaginationParams } from '@/api/utils'
+import { ensurePagedData, type PaginationParams, type PageResult } from '@/api/utils'
 
-// 分页响应类型
-export interface PageMember {
-  totalElements: number
-  totalPages: number
-  size: number
-  content: Member[]
-  number: number
-  sort: any
-  first: boolean
-  last: boolean
-  numberOfElements: number
-  pageable: any
-  empty: boolean
-}
+export type PageMember = PageResult<Member>
 
 // 获取分页成员列表
 export const getMembers = async (params?: PaginationParams & Record<string, unknown>): Promise<PageMember> => {

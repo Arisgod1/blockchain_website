@@ -113,11 +113,11 @@
               class="detail-section"
             >
               <h3 class="section-title">
-                  参与者 ({{ normalizedAttendees.length }}人)
+                参与者 ({{ normalizedAttendees.length }}人)
               </h3>
               <div class="attendees-list">
                 <div 
-                    v-for="attendee in normalizedAttendees" 
+                  v-for="attendee in normalizedAttendees" 
                   :key="attendee.id"
                   class="attendee-item"
                 >

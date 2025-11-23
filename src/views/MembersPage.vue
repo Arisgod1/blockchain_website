@@ -139,7 +139,7 @@
               <BasePagination
                 v-model:current="currentPage"
                 :total="filteredMembers.length"
-                  :pageSize="pageSize"
+                :page-size="pageSize"
                 @change="handlePageChange"
               />
             </div>

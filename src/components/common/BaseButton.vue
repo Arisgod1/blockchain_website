@@ -62,6 +62,9 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import type { Component } from 'vue'
+
+type IconProp = string | Component
 
 interface Props {
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger'
@@ -75,19 +78,24 @@ interface Props {
   type?: 'button' | 'submit' | 'reset'
   href?: string
   to?: string
-  iconLeft?: any
-  iconRight?: any
+  iconLeft?: IconProp
+  iconRight?: IconProp
 }
 
 const props = withDefaults(defineProps<Props>(), {
   variant: 'primary',
   size: 'md',
+  text: '',
   loading: false,
   disabled: false,
   fullWidth: false,
   rounded: 'md',
   tag: 'button',
-  type: 'button'
+  type: 'button',
+  href: undefined,
+  to: undefined,
+  iconLeft: undefined,
+  iconRight: undefined
 })
 
 const emit = defineEmits<{
@@ -253,6 +261,6 @@ a:focus:not(:focus-visible) {
 
 /* 确保路由链接样式正确 */
 :deep(.router-link-active) {
-  /* 路由激活状态的样式可以在这里定义 */
+  opacity: 0.95;
 }
 </style>

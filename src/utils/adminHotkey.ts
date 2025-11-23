@@ -1,7 +1,7 @@
 interface AdminHotkeyEvent {
   type: 'trigger' | 'reset'
   timestamp: number
-  data?: any
+  data?: Record<string, unknown>
 }
 
 type AdminHotkeyCallback = (event: AdminHotkeyEvent) => void
