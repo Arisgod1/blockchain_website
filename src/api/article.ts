@@ -1,5 +1,6 @@
 import apiService from '@/api/client'
 import type { Article } from '@/types/entities'
+import { ensurePagedData, type PaginationParams } from '@/api/utils'
 
 // 分页响应类型
 export interface PageArticle {
@@ -17,10 +18,10 @@ export interface PageArticle {
 }
 
 // 获取分页文章列表
-export const getArticles = async (params?: Record<string, any>): Promise<PageArticle> => {
-  const res = await apiService.get<PageArticle>('/api/posts', { params })
+export const getArticles = async (params?: PaginationParams & Record<string, unknown>): Promise<PageArticle> => {
+  const res = await apiService.get<PageArticle | Article[]>('/api/posts', { params })
   if (!res.success) throw new Error(res.message || '获取文章列表失败')
-  return res.data as PageArticle
+  return ensurePagedData<Article>(res.data, params)
 }
 
 // 根据 ID 获取单个文章

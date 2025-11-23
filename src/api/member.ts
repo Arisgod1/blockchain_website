@@ -1,5 +1,6 @@
 import apiService from '@/api/client'
 import type { Member } from '@/types/entities'
+import { ensurePagedData, type PaginationParams } from '@/api/utils'
 
 // 分页响应类型
 export interface PageMember {
@@ -17,10 +18,10 @@ export interface PageMember {
 }
 
 // 获取分页成员列表
-export const getMembers = async (params?: Record<string, any>): Promise<PageMember> => {
-  const res = await apiService.get<PageMember>('/api/members', { params })
+export const getMembers = async (params?: PaginationParams & Record<string, unknown>): Promise<PageMember> => {
+  const res = await apiService.get<PageMember | Member[]>('/api/members', { params })
   if (!res.success) throw new Error(res.message || '获取成员列表失败')
-  return res.data as PageMember
+  return ensurePagedData<Member>(res.data, params)
 }
 
 // 根据 ID 获取单个成员

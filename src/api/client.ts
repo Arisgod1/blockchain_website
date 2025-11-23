@@ -7,6 +7,7 @@ import { MOCK_ARTICLES } from '@/common_value/articles'
 import { MOCK_MEETINGS } from '@/common_value/meetings'
 import { MOCK_ADMIN_LOGS } from '@/common_value/adminLogs'
 import { MOCK_SITE_STATS, MOCK_HERO_BANNERS, MOCK_CONTACT_RESPONSE } from '@/common_value/public'
+import { MOCK_FILES } from '@/common_value/files'
 
 class ApiService {
   private instance: AxiosInstance
@@ -40,6 +41,8 @@ class ApiService {
       return MOCK_HERO_BANNERS
     } else if (url.includes('/public/contact')) {
       return MOCK_CONTACT_RESPONSE
+    } else if (url.includes('/files')) {
+      return MOCK_FILES
     }
     return null
   }

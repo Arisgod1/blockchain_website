@@ -1,5 +1,6 @@
 import apiService from '@/api/client'
 import type { Project } from '@/types/entities'
+import { ensurePagedData, type PaginationParams } from '@/api/utils'
 
 // 分页响应类型（根据文档）
 export interface PageProject {
@@ -17,10 +18,10 @@ export interface PageProject {
 }
 
 // 获取分页项目列表
-export const getProjects = async (params?: Record<string, any>): Promise<PageProject> => {
-  const res = await apiService.get<PageProject>('/api/projects', { params })
+export const getProjects = async (params?: PaginationParams & Record<string, unknown>): Promise<PageProject> => {
+  const res = await apiService.get<PageProject | Project[]>('/api/projects', { params })
   if (!res.success) throw new Error(res.message || '获取项目列表失败')
-  return res.data as PageProject
+  return ensurePagedData<Project>(res.data, params)
 }
 
 // 根据 ID 获取单个项目

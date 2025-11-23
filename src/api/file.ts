@@ -1,4 +1,5 @@
 import apiService from '@/api/client'
+import { ensurePagedData, type PaginationParams } from '@/api/utils'
 
 export interface FileInfo {
   id: string
@@ -28,10 +29,10 @@ export interface PageFile {
 }
 
 // 获取分页文件列表
-export const getFiles = async (params?: Record<string, any>): Promise<PageFile> => {
-  const res = await apiService.get<PageFile>('/api/files', { params })
+export const getFiles = async (params?: PaginationParams & Record<string, unknown>): Promise<PageFile> => {
+  const res = await apiService.get<PageFile | FileInfo[]>('/api/files', { params })
   if (!res.success) throw new Error(res.message || '获取文件列表失败')
-  return res.data as PageFile
+  return ensurePagedData<FileInfo>(res.data, params)
 }
 
 // 上传文件

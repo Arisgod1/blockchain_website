@@ -1,5 +1,6 @@
 import apiService from '@/api/client'
 import type { Meeting } from '@/types/entities'
+import { ensurePagedData, type PaginationParams } from '@/api/utils'
 
 // 分页响应类型
 export interface PageMeeting {
@@ -17,10 +18,10 @@ export interface PageMeeting {
 }
 
 // 获取分页例会列表
-export const getMeetings = async (params?: Record<string, any>): Promise<PageMeeting> => {
-  const res = await apiService.get<PageMeeting>('/api/meetings', { params })
+export const getMeetings = async (params?: PaginationParams & Record<string, unknown>): Promise<PageMeeting> => {
+  const res = await apiService.get<PageMeeting | Meeting[]>('/api/meetings', { params })
   if (!res.success) throw new Error(res.message || '获取例会列表失败')
-  return res.data as PageMeeting
+  return ensurePagedData<Meeting>(res.data, params)
 }
 
 // 根据 ID 获取单个例会
