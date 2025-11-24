@@ -1,4 +1,4 @@
-import type { PaginationInfo } from '@/types/entities'
+import type { ApiResponse, PaginationInfo } from '@/types/entities'
 
 export interface PaginationParams {
   page?: number | string
@@ -94,3 +94,31 @@ export const fallbackPaginationInfo = (result: PageResult<unknown>): PaginationI
   total: result.totalElements,
   pages: result.totalPages
 })
+
+export const isApiSuccessResponse = (response?: ApiResponse<unknown> | null): response is ApiResponse<unknown> => {
+  if (!response) return false
+  if (typeof response.code !== 'number') return false
+  return response.code >= 200 && response.code < 300
+}
+
+export const assertApiResponseSuccess = <T>(
+  response: ApiResponse<T> | null | undefined,
+  fallbackMessage: string
+): ApiResponse<T> => {
+  if (!isApiSuccessResponse(response)) {
+    const errorMessage = (response as ApiResponse<unknown> | undefined)?.message || fallbackMessage
+    throw new Error(errorMessage)
+  }
+  return response
+}
+
+export const requireApiResponseData = <T>(
+  response: ApiResponse<T> | null | undefined,
+  fallbackMessage: string
+): T => {
+  const res = assertApiResponseSuccess(response, fallbackMessage)
+  if (res.data === undefined || res.data === null) {
+    throw new Error(fallbackMessage)
+  }
+  return res.data
+}

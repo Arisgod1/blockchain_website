@@ -91,10 +91,10 @@ class ApiService {
           // 构造成功的响应结构
           return {
             data: {
-              success: true,
+              code: 200,
               data: mockData,
               message: 'Loaded from local mock data (Fallback)',
-              timestamp: new Date().toISOString()
+              timestamp: Date.now()
             },
             status: 200,
             statusText: 'OK',

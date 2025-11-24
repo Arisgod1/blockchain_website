@@ -52,113 +52,113 @@
     <!-- 页面内容 -->
     <div class="page-content">
       <div class="container">
-          <div class="content-layout">
-            <!-- 筛选侧边栏 -->
-            <aside class="filter-sidebar">
-              <MemberFilter
-                v-model:filters="filters"
-                :roles="roleOptions"
-                :tech-stacks="techStackOptions"
-                @change="handleFiltersChange"
-              />
-            </aside>
+        <div class="content-layout">
+          <!-- 筛选侧边栏 -->
+          <aside class="filter-sidebar">
+            <MemberFilter
+              v-model:filters="filters"
+              :roles="roleOptions"
+              :tech-stacks="techStackOptions"
+              @change="handleFiltersChange"
+            />
+          </aside>
 
-            <!-- 成员列表 -->
-            <main class="members-main">
-              <div
-                v-if="isLoading"
-                class="members-loading"
-              >
-                <div class="loading-spinner" />
-                <p class="loading-text">
-                  加载成员数据中...
-                </p>
-              </div>
+          <!-- 成员列表 -->
+          <main class="members-main">
+            <div
+              v-if="isLoading"
+              class="members-loading"
+            >
+              <div class="loading-spinner" />
+              <p class="loading-text">
+                加载成员数据中...
+              </p>
+            </div>
 
-              <div v-else>
-                <!-- 列表头部 -->
-                <div class="list-header">
-                  <div class="results-info">
-                    <span class="results-count">
-                      共找到 {{ filteredMembers.length }} 位成员
-                    </span>
-                    <span
-                      v-if="hasActiveFilters"
-                      class="active-filters"
-                    >
-                      （已应用筛选条件）
-                    </span>
-                  </div>
-                  <div class="view-toggle">
-                    <button
-                      class="view-btn"
-                      :class="{ active: viewMode === 'grid' }"
-                      @click="viewMode = 'grid'"
-                    >
-                      <GridIcon />
-                    </button>
-                    <button
-                      class="view-btn"
-                      :class="{ active: viewMode === 'list' }"
-                      @click="viewMode = 'list'"
-                    >
-                      <ListIcon />
-                    </button>
-                  </div>
-                </div>
-
-                <!-- 成员网格 -->
-                <div
-                  v-if="filteredMembers.length > 0"
-                  class="members-grid"
-                >
-                  <MemberCard
-                    v-for="member in paginatedMembers"
-                    :key="member.id"
-                    :member="member"
-                    @click="selectMember(member)"
-                  />
-                </div>
-
-                <!-- 空状态 -->
-                <div
-                  v-else
-                  class="empty-state"
-                >
-                  <div class="empty-icon">
-                    <UsersIcon />
-                  </div>
-                  <h3 class="empty-title">
-                    未找到匹配的成员
-                  </h3>
-                  <p class="empty-description">
-                    请尝试调整筛选条件或搜索关键词
-                  </p>
-                  <BaseButton
-                    variant="outline"
-                    @click="clearAllFilters"
+            <div v-else>
+              <!-- 列表头部 -->
+              <div class="list-header">
+                <div class="results-info">
+                  <span class="results-count">
+                    共找到 {{ filteredMembers.length }} 位成员
+                  </span>
+                  <span
+                    v-if="hasActiveFilters"
+                    class="active-filters"
                   >
-                    清除所有筛选
-                  </BaseButton>
+                    （已应用筛选条件）
+                  </span>
                 </div>
-
-                <!-- 分页 -->
-                <div
-                  v-if="filteredMembers.length > pageSize"
-                  class="pagination-wrapper"
-                >
-                  <BasePagination
-                    v-model:current="currentPage"
-                    :total="filteredMembers.length"
-                    :page-size="pageSize"
-                    @change="handlePageChange"
-                  />
+                <div class="view-toggle">
+                  <button
+                    class="view-btn"
+                    :class="{ active: viewMode === 'grid' }"
+                    @click="viewMode = 'grid'"
+                  >
+                    <GridIcon />
+                  </button>
+                  <button
+                    class="view-btn"
+                    :class="{ active: viewMode === 'list' }"
+                    @click="viewMode = 'list'"
+                  >
+                    <ListIcon />
+                  </button>
                 </div>
               </div>
-            </main>
-          </div>
+
+              <!-- 成员网格 -->
+              <div
+                v-if="filteredMembers.length > 0"
+                class="members-grid"
+              >
+                <MemberCard
+                  v-for="member in paginatedMembers"
+                  :key="member.id"
+                  :member="member"
+                  @click="selectMember(member)"
+                />
+              </div>
+
+              <!-- 空状态 -->
+              <div
+                v-else
+                class="empty-state"
+              >
+                <div class="empty-icon">
+                  <UsersIcon />
+                </div>
+                <h3 class="empty-title">
+                  未找到匹配的成员
+                </h3>
+                <p class="empty-description">
+                  请尝试调整筛选条件或搜索关键词
+                </p>
+                <BaseButton
+                  variant="outline"
+                  @click="clearAllFilters"
+                >
+                  清除所有筛选
+                </BaseButton>
+              </div>
+
+              <!-- 分页 -->
+              <div
+                v-if="filteredMembers.length > pageSize"
+                class="pagination-wrapper"
+              >
+                <BasePagination
+                  v-model:current="currentPage"
+                  :total="filteredMembers.length"
+                  :page-size="pageSize"
+                  @change="handlePageChange"
+                />
+              </div>
+            </div>
+          </main>
         </div>
       </div>
+    </div>
 
     <!-- 成员详情模态框 -->
     <BaseModal

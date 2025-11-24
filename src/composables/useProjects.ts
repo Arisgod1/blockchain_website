@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import type { Project, ApiResponse } from '@/types/entities'
-import type { QueryParams } from '@/api/utils'
+import { assertApiResponseSuccess, type QueryParams } from '@/api/utils'
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || ''
 
@@ -58,7 +58,7 @@ export function useProjects() {
 
       // 如果服务端遵循 ApiResponse<T> 结构
       if (isApiResponse<Project[]>(data)) {
-        if (!data.success) throw new Error(data.message || '请求失败')
+        assertApiResponseSuccess(data, '请求失败')
         projects.value = data.data ?? []
       } else if (Array.isArray(data)) {
         // 直接返回数组
@@ -86,7 +86,7 @@ export function useProjects() {
       if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`)
       const data = await res.json()
       if (isApiResponse<Project | null>(data)) {
-        if (!data.success) throw new Error(data.message || '请求失败')
+        assertApiResponseSuccess(data, '请求失败')
         return (data.data as Project | null) ?? null
       }
       return data as Project | null
@@ -126,7 +126,7 @@ export function useProjects() {
 
       let created: Project | null = null
       if (isApiResponse<Project>(data)) {
-        if (!data.success) throw new Error(data.message || '创建失败')
+        assertApiResponseSuccess(data, '创建失败')
         created = data.data ?? null
       } else if (data && typeof data === 'object') {
         created = data as Project
@@ -166,7 +166,7 @@ export function useProjects() {
 
       let updated: Project | null = null
       if (isApiResponse<Project>(data)) {
-        if (!data.success) throw new Error(data.message || '更新失败')
+        assertApiResponseSuccess(data, '更新失败')
         updated = data.data ?? null
       } else if (data && typeof data === 'object') {
         updated = data as Project
@@ -202,8 +202,8 @@ export function useProjects() {
       const data = await parseResponse(res)
 
       // 若返回 ApiResponse 检查 success
-      if (isApiResponse<unknown>(data) && !data.success) {
-        throw new Error(data.message || '删除失败')
+      if (isApiResponse<unknown>(data)) {
+        assertApiResponseSuccess(data, '删除失败')
       }
 
       // 同步本地列表
@@ -220,7 +220,7 @@ export function useProjects() {
   }
 
   function isApiResponse<T>(value: unknown): value is ApiResponse<T> {
-    return typeof value === 'object' && value !== null && 'success' in value
+    return typeof value === 'object' && value !== null && 'code' in value
   }
 
   return {

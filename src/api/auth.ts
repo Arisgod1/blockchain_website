@@ -1,5 +1,6 @@
 import apiService from '@/api/client'
 import type { AdminUser } from '@/types/entities'
+import { assertApiResponseSuccess, requireApiResponseData } from '@/api/utils'
 
 export interface LoginPayload {
   username: string
@@ -49,9 +50,7 @@ const fallbackLogin = (payload: LoginPayload): AuthResponse => {
 export const login = async (data: LoginPayload): Promise<AuthResponse> => {
   try {
     const res = await apiService.post<AuthResponse>('/api/auth/login', data)
-    if (!res.success) throw new Error(res.message || '登录失败')
-    if (!res.data) throw new Error('登录未返回数据')
-    return res.data
+    return requireApiResponseData(res, '登录失败')
   } catch (error) {
     console.warn('调用后端登录失败，改用 Mock 验证:', error)
     return fallbackLogin(data)
@@ -62,7 +61,7 @@ export const login = async (data: LoginPayload): Promise<AuthResponse> => {
 export const logout = async (): Promise<void> => {
   try {
     const res = await apiService.post('/api/auth/logout')
-    if (!res.success) throw new Error(res.message || '登出失败')
+    assertApiResponseSuccess(res, '登出失败')
   } catch (error) {
     console.warn('后端登出失败，忽略:', error)
   }
@@ -72,9 +71,7 @@ export const logout = async (): Promise<void> => {
 export const checkAuth = async (): Promise<AdminUser> => {
   try {
     const res = await apiService.get<AdminUser>('/api/auth/check')
-    if (!res.success) throw new Error(res.message || '未登录')
-    if (!res.data) throw new Error('检查登录状态未返回数据')
-    return res.data
+    return requireApiResponseData(res, '未登录')
   } catch (error) {
     console.warn('检查登录状态失败，尝试读取本地缓存:', error)
     const cached = localStorage.getItem('admin-user') || sessionStorage.getItem('admin-user')

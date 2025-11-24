@@ -222,11 +222,16 @@ export interface CarouselItem {
 
 // API 响应类型
 export interface ApiResponse<T = unknown> {
-  success: boolean
-  data?: T
+  /** 后端业务状态码，200 表示成功 */
+  code: number
+  /** 文本消息 */
   message?: string
+  /** 真实数据载荷 */
+  data?: T
+  /** 服务器时间戳（毫秒） */
+  timestamp: number
+  /** 可选的错误描述，兼容旧版 */
   error?: string
-  timestamp: string
 }
 
 // 分页类型

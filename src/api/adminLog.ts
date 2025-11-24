@@ -1,6 +1,7 @@
 import apiService from '@/api/client'
 import { MOCK_ADMIN_LOGS } from '@/common_value/adminLogs'
 import type { AdminLogPayload, AdminOperationLog } from '@/types/entities'
+import { assertApiResponseSuccess } from '@/api/utils'
 
 const STORAGE_KEY = 'admin-operation-logs'
 
@@ -51,7 +52,8 @@ const buildLog = (payload: AdminLogPayload): AdminOperationLog => {
 export const getAdminLogs = async (): Promise<AdminOperationLog[]> => {
   try {
     const res = await apiService.get<AdminOperationLog[]>('/api/admin/logs')
-    if (res.success && Array.isArray(res.data)) {
+    assertApiResponseSuccess(res, '获取管理员日志失败')
+    if (Array.isArray(res.data)) {
       writeLocalLogs(res.data)
       return res.data
     }
@@ -69,6 +71,7 @@ export const createAdminLog = async (payload: AdminLogPayload): Promise<AdminOpe
 
   try {
     const res = await apiService.post<AdminOperationLog>('/api/admin/logs', log)
+    assertApiResponseSuccess(res, '记录管理员日志失败')
     const created = res.data ?? log
     const current = [created, ...readLocalLogs()]
     writeLocalLogs(current)
