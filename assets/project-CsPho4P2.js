@@ -1,0 +1,2 @@
+import{c as t,d as a,f as o,g as r}from"./index-DsBG4J6s.js";const p=async e=>{const s=await t.get("/api/projects",{params:e});return a(s,"获取项目列表失败"),o(s.data,e)},i=async e=>{const s=await t.post("/api/projects",e);return r(s,"创建项目失败")},u=async(e,s)=>{const c=await t.put(`/api/projects/${e}`,s);return r(c,"更新项目失败")},j=async e=>{const s=await t.delete(`/api/projects/${e}`);a(s,"删除项目失败")};export{i as c,j as d,p as g,u};
+//# sourceMappingURL=project-CsPho4P2.js.map
