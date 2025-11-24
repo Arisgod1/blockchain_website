@@ -3,83 +3,88 @@
     ref="fieldRef"
     class="orbital-field relative w-full h-full overflow-hidden"
   >
-    <div class="orbital-field__aurora" />
-
     <div
-      class="orbital-field__core"
-      :class="coreBoosted && 'is-reactive'"
+      class="orbital-field__content"
+      :style="contentStyle"
     >
-      <div class="core__halo" />
-      <div class="core__ring" />
-      <div class="core__seed" />
-      <transition
-        name="core-pulse"
-        mode="out-in"
+      <div class="orbital-field__aurora" />
+
+      <div
+        class="orbital-field__core"
+        :class="coreBoosted && 'is-reactive'"
       >
-        <div
-          v-if="pulseVisible"
-          :key="corePulseKey"
-          class="core__shockwave"
+        <div class="core__halo" />
+        <div class="core__ring" />
+        <div class="core__seed" />
+        <transition
+          name="core-pulse"
+          mode="out-in"
+        >
+          <div
+            v-if="pulseVisible"
+            :key="corePulseKey"
+            class="core__shockwave"
+          />
+        </transition>
+      </div>
+
+      <svg
+        v-if="linkLine.visible"
+        class="orbital-field__link"
+        :viewBox="`0 0 ${fieldSize.width} ${fieldSize.height}`"
+      >
+        <line
+          :x1="linkLine.start.x"
+          :y1="linkLine.start.y"
+          :x2="linkLine.end.x"
+          :y2="linkLine.end.y"
         />
-      </transition>
-    </div>
+      </svg>
 
-    <svg
-      v-if="linkLine.visible"
-      class="orbital-field__link"
-      :viewBox="`0 0 ${fieldSize.width} ${fieldSize.height}`"
-    >
-      <line
-        :x1="linkLine.start.x"
-        :y1="linkLine.start.y"
-        :x2="linkLine.end.x"
-        :y2="linkLine.end.y"
-      />
-    </svg>
+      <div
+        v-for="(orbit, index) in orbitStyles"
+        :key="orbit.id"
+        class="orbit-ring"
+        :style="orbit.style"
+      >
+        <span
+          v-for="(angle, asteroidIndex) in asteroidAngles[index]"
+          :key="`${orbit.id}-asteroid-${asteroidIndex}`"
+          class="orbit-asteroid"
+          :class="{
+            'is-active': activeAsteroid.orbit === index && activeAsteroid.index === asteroidIndex
+          }"
+          :style="{
+            '--asteroid-angle': `${angle}deg`
+          }"
+        />
+      </div>
 
-    <div
-      v-for="(orbit, index) in orbitStyles"
-      :key="orbit.id"
-      class="orbit-ring"
-      :style="orbit.style"
-    >
-      <span
-        v-for="(angle, asteroidIndex) in asteroidAngles[index]"
-        :key="`${orbit.id}-asteroid-${asteroidIndex}`"
-        class="orbit-asteroid"
-        :class="{
-          'is-active': activeAsteroid.orbit === index && activeAsteroid.index === asteroidIndex
-        }"
+      <div
+        v-for="item in positionedItems"
+        :key="item.id"
+        :ref="(el) => setButtonRef(item.id, el as HTMLElement | null)"
+        class="orbit-item"
         :style="{
-          '--asteroid-angle': `${angle}deg`
+          left: `${item.position.x}px`,
+          top: `${item.position.y}px`
         }"
-      />
-    </div>
-
-    <div
-      v-for="item in positionedItems"
-      :key="item.id"
-      :ref="(el) => setButtonRef(item.id, el as HTMLElement | null)"
-      class="orbit-item"
-      :style="{
-        left: `${item.position.x}px`,
-        top: `${item.position.y}px`
-      }"
-    >
-      <HexBladeButton
-        :label="item.title"
-        :sub-label="item.subtitle"
-        :icon="item.icon"
-        :theme-color="item.themeColor"
-        @hover="(event) => handleHover(item, event)"
-        @leave="(event) => handleLeave(item, event)"
-        @focus="() => handleHover(item)"
-        @blur="() => handleLeave(item)"
-        @click="() => handleClick(item)"
-      />
-      <p class="orbit-item__desc">
-        {{ item.description }}
-      </p>
+      >
+        <HexBladeButton
+          :label="item.title"
+          :sub-label="item.subtitle"
+          :icon="item.icon"
+          :theme-color="item.themeColor"
+          @hover="(event) => handleHover(item, event)"
+          @leave="(event) => handleLeave(item, event)"
+          @focus="() => handleHover(item)"
+          @blur="() => handleLeave(item)"
+          @click="() => handleClick(item)"
+        />
+        <p class="orbit-item__desc">
+          {{ item.description }}
+        </p>
+      </div>
     </div>
   </div>
 </template>
@@ -125,11 +130,18 @@ const fieldSize = computed(() => ({
 
 const referenceSize = 680
 
+const MIN_LAYOUT_SCALE = 0.45
+
 const layoutScale = computed(() => {
   const minSide = Math.min(fieldSize.value.width, fieldSize.value.height)
   if (!Number.isFinite(minSide) || minSide <= 0) return 1
-  return Math.min(1, Math.max(0.6, minSide / referenceSize))
+  const normalized = minSide / referenceSize
+  return Math.min(1, Math.max(MIN_LAYOUT_SCALE, normalized))
 })
+
+const contentStyle = computed(() => ({
+  transform: `translate(-50%, -50%) scale(${layoutScale.value})`
+}))
 
 const center = computed(() => ({
   x: fieldSize.value.width / 2,
@@ -147,7 +159,7 @@ const springOptions = {
   mass: 1
 }
 
-const scaledDiameters = computed(() => orbitConfig.map((orbit) => orbit.radius * 2 * layoutScale.value))
+const scaledDiameters = computed(() => orbitConfig.map((orbit) => orbit.radius * 2))
 
 const orbitSprings = orbitConfig.map((_orbit, index) =>
   useSpring({ width: scaledDiameters.value[index] } as Partial<PermissiveMotionProperties>, springOptions)
@@ -225,6 +237,7 @@ const positionedItems = computed<PositionedItem[]>(() => {
     }
   })
 })
+
 
 function setButtonRef(id: string, el: HTMLElement | null) {
   if (!el) {
@@ -346,6 +359,15 @@ watch([scaledDiameters, activeOrbitIndex], () => {
     radial-gradient(circle at 70% 80%, rgba(147, 51, 234, 0.2), transparent 50%),
     #050508;
   min-height: 560px;
+}
+
+.orbital-field__content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  transform-origin: center;
 }
 
 .orbital-field__aurora {
