@@ -27,7 +27,7 @@
           <div class="flex justify-center gap-8">
             <div class="text-center">
               <div class="text-3xl font-bold text-orange-300">
-                2019
+                2015
               </div>
               <div class="text-sm text-blue-200">
                 成立年份
@@ -43,7 +43,7 @@
             </div>
             <div class="text-center">
               <div class="text-3xl font-bold text-purple-300">
-                28
+                15
               </div>
               <div class="text-sm text-blue-200">
                 团队成员
@@ -66,12 +66,12 @@
             <div class="space-y-6">
               <div class="prose prose-lg text-gray-600">
                 <p>
-                  大连理工大学区块链组成立于2019年，是一个专注于区块链技术研究与应用创新的学术研究团队。
+                  大连理工大学区块链组成立于2015年，是一个专注于区块链技术研究与应用创新的学术研究团队。
                   我们致力于探索区块链技术的深层原理，推动其在实际场景中的落地应用。
                 </p>
                 <p>
-                  团队汇聚了来自计算机科学、软件工程、数学等多个专业的优秀学生，
-                  在指导老师的带领下，开展前沿技术研究，参与学术交流，培养创新型人才。
+                  团队汇聚了来自软件工程等专业的优秀学生，
+                  在指导老师刘金鹏的带领下，开展前沿技术研究，参与学术交流，培养创新型人才。
                 </p>
                 <p>
                   我们相信区块链技术将重塑数字世界的信任机制，为构建更加透明、安全、高效的
@@ -98,7 +98,7 @@
                 <div class="space-y-4">
                   <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
                     <span class="text-sm font-medium text-gray-700">成立时间</span>
-                    <span class="text-sm text-blue-600 font-semibold">2019年</span>
+                    <span class="text-sm text-blue-600 font-semibold">2015年</span>
                   </div>
                   <div class="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
                     <span class="text-sm font-medium text-gray-700">指导单位</span>
@@ -147,7 +147,7 @@
                 使命
               </h3>
               <p class="text-blue-700 leading-relaxed">
-                致力于区块链技术的研究与应用创新，
+                致力于前沿技术的研究与应用创新，
                 推动分布式系统技术发展，为构建可信数字社会贡献力量。
               </p>
             </div>
@@ -179,7 +179,7 @@
                 愿景
               </h3>
               <p class="text-orange-700 leading-relaxed">
-                成为国内领先的区块链技术研究团队，
+                成为领先的前沿技术研究团队，
                 在学术研究、技术创新、人才培养等方面发挥示范作用。
               </p>
             </div>
@@ -205,8 +205,8 @@
                 价值观
               </h3>
               <p class="text-green-700 leading-relaxed">
-                诚信、创新、协作、开放，
-                秉承学术严谨态度，追求技术创新突破，倡导团队合作精神。
+                无论何处，皆能抵达。<br>
+                青春没有售价，不如立刻出发。
               </p>
             </div>
           </div>
@@ -392,16 +392,16 @@ const researchFields = [
 // 发展历程数据
 const timeline = [
   {
-    year: '2019',
+    year: '2015',
     event: '团队成立',
-    description: '大连理工大学区块链组正式成立，汇聚首批区块链技术爱好者。',
+    description: '大连理工大学花旗组正式成立，汇聚首批技术爱好者。',
     colorClass: 'bg-blue-500',
     badgeClass: 'bg-blue-100 text-blue-800'
   },
   {
-    year: '2020',
-    event: '研究方向确定',
-    description: '确立六大研究领域：共识算法、智能合约、DeFi、NFT、扩容方案、跨链技术。',
+    year: '2015-2020',
+    event: '花旗杯屡获殊荣',
+    description: '连续多年获得花旗杯竞赛奖项，展现出色的团队实力。',
     colorClass: 'bg-orange-500',
     badgeClass: 'bg-orange-100 text-orange-800'
   },
@@ -421,8 +421,8 @@ const timeline = [
   },
   {
     year: '2023',
-    event: '校企合作',
-    description: '与多家企业建立合作关系，推动区块链技术的产业化应用。',
+    event: '新时代培养',
+    description: '重构培养方案，拥抱新技术。',
     colorClass: 'bg-indigo-500',
     badgeClass: 'bg-indigo-100 text-indigo-800'
   },
@@ -432,6 +432,13 @@ const timeline = [
     description: '继续深化研究，布局新兴技术领域，培养更多区块链专业人才。',
     colorClass: 'bg-teal-500',
     badgeClass: 'bg-teal-100 text-teal-800'
+  },
+  {
+    year: '2025',
+    event: '大模型学习',
+    description: '深度结合大模型，深度学习等前沿技术，推动区块链技术的创新发展。',
+    colorClass: 'bg-yellow-500',
+    badgeClass: 'bg-yellow-100 text-yellow-800'
   }
 ]
 </script>

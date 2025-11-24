@@ -289,10 +289,10 @@
                         邮箱
                       </h3>
                       <p class="text-gray-600">
-                        blockchain@dut.edu.cn
+                        www.shuaige521@outlook.com
                       </p>
                       <p class="text-gray-600">
-                        research@dutblockchain.com
+                        arisone@foxmail.com
                       </p>
                     </div>
                   </div>
@@ -318,10 +318,10 @@
                         电话
                       </h3>
                       <p class="text-gray-600">
-                        +86 411-8470-6000
+                        +86 18540291417
                       </p>
                       <p class="text-gray-600">
-                        +86 138-0000-0000
+                        +86 18241171417
                       </p>
                     </div>
                   </div>
@@ -347,10 +347,10 @@
                         工作时间
                       </h3>
                       <p class="text-gray-600">
-                        周一至周五: 9:00 - 18:00
+                        周一至周五: 8:00 - 22:00
                       </p>
                       <p class="text-gray-600">
-                        周末: 10:00 - 16:00
+                        周末: 10:00 - 22:00
                       </p>
                     </div>
                   </div>
@@ -363,67 +363,55 @@
                   关注我们
                 </h3>
                 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <a
-                    href="#"
-                    class="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors group"
-                  >
-                    <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
-                      <svg
-                        class="w-5 h-5 text-white"
-                        fill="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z" />
-                      </svg>
-                    </div>
-                    <span class="font-medium text-gray-700 group-hover:text-blue-600">Twitter</span>
-                  </a>
-                  
-                  <a
-                    href="#"
-                    class="flex items-center space-x-3 p-3 bg-red-50 rounded-lg hover:bg-red-100 transition-colors group"
-                  >
-                    <div class="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center">
-                      <svg
-                        class="w-5 h-5 text-white"
-                        fill="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-                      </svg>
-                    </div>
-                    <span class="font-medium text-gray-700 group-hover:text-red-600">YouTube</span>
-                  </a>
-                  
-                  <a
-                    href="#"
-                    class="flex items-center space-x-3 p-3 bg-gray-800 rounded-lg hover:bg-gray-900 transition-colors group"
+                    href="https://github.com/Arisgod1/BlockChain_GIt"
+                    class="flex items-center space-x-3 p-3 bg-gray-800 rounded-lg hover:bg-gray-900 transition-colors group sm:col-span-2"
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
                     <div class="w-10 h-10 bg-gray-700 rounded-lg flex items-center justify-center">
-                      <svg
-                        class="w-5 h-5 text-white"
-                        fill="currentColor"
-                        viewBox="0 0 24 24"
+                      <img
+                        :src="githubIcon"
+                        alt="GitHub"
+                        class="w-5 h-5 filter invert"
+                        loading="lazy"
+                        decoding="async"
                       >
-                        <path d="M12 0C5.374 0 0 5.373 0 12s5.374 12 12 12 12-5.373 12-12S18.626 0 12 0zm5.568 8.16c-.169 1.858-.891 3.475-2.156 4.839-.445.48-.96.904-1.545 1.272-.585-.368-1.1-.792-1.545-1.272-1.265-1.364-1.987-2.981-2.156-4.839C8.404 8.524 8 9.247 8 10.065V13.87c0 .818.404 1.541 1.176 1.905.169 1.858.891 3.475 2.156 4.839.445.48.96.904 1.545 1.272.585-.368 1.1-.792 1.545-1.272 1.265-1.364 1.987-2.981 2.156-4.839.772-.364 1.176-1.087 1.176-1.905v-3.805c0-.818-.404-1.541-1.176-1.905z" />
-                      </svg>
                     </div>
                     <span class="font-medium text-white group-hover:text-gray-300">GitHub</span>
                   </a>
-                  
+                  <a
+                    href="#"
+                    class="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors group"
+                    role="button"
+                    @click.prevent="openQrModal('qq')"
+                  >
+                    <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                      <img
+                        :src="qqIcon"
+                        alt="QQ群"
+                        class="w-5 h-5 invert"
+                        loading="lazy"
+                      >
+                    </div>
+                    <span class="font-medium text-gray-700 group-hover:text-blue-600">QQ群</span>
+                  </a>
+                
                   <a
                     href="#"
                     class="flex items-center space-x-3 p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors group"
+                    role="button"
+                    @click.prevent="openQrModal('wechat')"
                   >
                     <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
-                      <svg
-                        class="w-5 h-5 text-white"
-                        fill="currentColor"
-                        viewBox="0 0 24 24"
+                      <img
+                        :src="wechatIcon"
+                        alt="WeChat"
+                        class="w-5 h-5"
+                        loading="lazy"
+                        decoding="async"
                       >
-                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488" />
-                      </svg>
                     </div>
                     <span class="font-medium text-gray-700 group-hover:text-green-600">WeChat</span>
                   </a>
@@ -461,7 +449,7 @@
                 学术合作
               </h3>
               <p class="text-gray-600 leading-relaxed">
-                与高校、研究机构建立合作关系，共同推进区块链技术的学术研究和技术创新。
+                与高校、研究机构建立合作关系，共同推进技术的学术研究和技术创新。
               </p>
             </div>
 
@@ -482,10 +470,10 @@
                 </svg>
               </div>
               <h3 class="text-xl font-semibold text-gray-800 mb-4">
-                企业合作
+                比赛合作
               </h3>
               <p class="text-gray-600 leading-relaxed">
-                为企业提供区块链技术咨询、解决方案设计、技术培训等专业服务。
+                为想要进行各种比赛的同学提供技术咨询、解决方案设计、技术培训等服务。
               </p>
             </div>
 
@@ -509,7 +497,7 @@
                 人才招聘
               </h3>
               <p class="text-gray-600 leading-relaxed">
-                招募对区块链技术充满热情的人才，共同参与前沿项目的研究与开发。
+                招募对前沿技术充满热情的人才，共同参与前沿项目的研究与开发。
               </p>
             </div>
           </div>
@@ -592,13 +580,43 @@
                 <p class="text-lg font-medium">
                   大连理工大学
                 </p>
-                <p>辽宁省大连市金州区湾里街道图强路321号大连理工大学</p>
+                <p>辽宁省大连市金州区湾里街道图强路321号大连理工大学(开发区校区)教学楼a315</p>
               </div>
             </div>
           </div>
         </div>
       </section>
     </main>
+
+    <!-- 二维码弹窗 -->
+    <div
+      v-if="qrModal.visible"
+      class="fixed inset-0 bg-black/50 flex items-center justify-center z-40"
+      @click="closeQrModal"
+    >
+      <div
+        class="bg-white rounded-2xl p-10 max-w-xl w-full mx-6 text-center shadow-2xl"
+        @click.stop
+      >
+        <h3 class="text-xl font-bold text-gray-800 mb-4">
+          {{ qrModal.title }}
+        </h3>
+        <img
+          :src="qrModal.image"
+          :alt="qrModal.title"
+          class="w-72 h-72 object-contain mx-auto mb-4"
+        >
+        <p class="text-sm text-gray-500 mb-6">
+          可长按识别二维码或扫码了解详情。
+        </p>
+        <button
+          class="bg-gradient-to-r from-purple-600 to-blue-600 text-white py-2 px-6 rounded-lg font-medium hover:shadow-lg transition-all duration-300"
+          @click="closeQrModal"
+        >
+          关闭
+        </button>
+      </div>
+    </div>
 
     <!-- 提交成功提示 -->
     <div 
@@ -652,7 +670,11 @@
 import { ref, reactive, onMounted, computed } from 'vue'
 import { getSiteStats, submitContactMessage } from '@/api/public'
 import type { SiteStats, ContactRequest } from '@/types/entities'
-
+import githubIcon from '@/assets/github.svg'
+import qqIcon from '@/assets/qq.svg'
+import wechatIcon from '@/assets/wechat.svg'
+import socialQrPlaceholder from '@/assets/qr-code.png'
+import wechatQr from '@/assets/wechat_QR.png'
 // 页面元数据设置 + 数据加载
 onMounted(() => {
   document.title = '联系我们 - 大连理工大学区块链组'
@@ -735,19 +757,30 @@ const showSuccess = ref(false)
 const submitError = ref<string | null>(null)
 const lastTicketId = ref<string | null>(null)
 
+const socialQrSources: Record<'qq' | 'wechat', string> = {
+  qq: socialQrPlaceholder,
+  wechat: wechatQr
+}
+
+const qrModal = reactive({
+  visible: false,
+  title: '',
+  image: ''
+})
+
 // 常见问题数据
 const faqs = [
   {
     question: '如何加入区块链组？',
-    answer: '我们欢迎对区块链技术充满热情的同学加入。您可以通过发送邮件或在联系我们页面留言，说明您的背景和兴趣，我们会尽快回复您。'
+    answer: '我们欢迎对前沿技术充满热情的同学加入。您可以通过发送邮件或在联系我们页面留言，说明您的背景和兴趣，我们会尽快回复您。校内同学可以在学年末参与面试考核进组。'
   },
   {
     question: '你们提供哪些技术支持？',
-    answer: '我们提供区块链技术咨询、智能合约开发、DeFi应用设计、NFT技术实现、共识算法优化等多种技术支持服务。'
+    answer: '我们提供前沿技术咨询、智能合约开发、DeFi应用设计、NFT技术实现、共识算法优化等多种技术支持服务。'
   },
   {
     question: '可以与你们合作开展项目吗？',
-    answer: '当然可以！我们与多家企业和研究机构建立了合作关系。如果您有具体的项目需求或合作意向，请通过邮件或联系表单与我们沟通。'
+    answer: '当然可以！如果您有具体的项目需求或合作意向，请通过邮件或联系表单与我们沟通。'
   },
   {
     question: '你们的研究方向有哪些？',
@@ -769,6 +802,18 @@ function toggleFaq(index: number) {
 // 处理表单提交
 function resetForm() {
   Object.assign(form, { ...defaultFormState })
+}
+
+function openQrModal(type: 'qq' | 'wechat') {
+  const image = socialQrSources[type]
+  if (!image) return
+  qrModal.title = type === 'qq' ? 'QQ群二维码' : 'WeChat 二维码'
+  qrModal.image = image
+  qrModal.visible = true
+}
+
+function closeQrModal() {
+  qrModal.visible = false
 }
 
 async function handleSubmit() {

@@ -3,7 +3,7 @@
     <section class="home-grid">
       <article class="info-pane">
         <p class="info-pane__eyebrow">
-          DUT Blockchain · Since 2018
+          DUT Blockchain · Since 2015
         </p>
         <h1>
           链接未来的
@@ -38,7 +38,7 @@
             class="ghost-action"
             @click="goContact"
           >
-            预约共创
+            共创
             <span>→</span>
           </button>
         </div>
