@@ -27,8 +27,11 @@
       viewBox="0 0 320 140"
       preserveAspectRatio="none"
     >
-      <path
-        d="M16 4 L304 4 L316 60 L280 136 L12 136 L4 28 Z"
+      <polygon
+        points="36,0 284,0 320,70 284,140 36,140 0,70"
+        stroke-linejoin="round"
+        stroke-linecap="round"
+        vector-effect="non-scaling-stroke"
         fill="none"
       />
     </svg>
@@ -188,12 +191,13 @@ onBeforeUnmount(() => {
   --hb-sheen: rgba(255, 255, 255, 0.25);
   --hb-border: #b4e1ff;
   --hb-glow: rgba(180, 225, 255, 0.45);
+  --hb-notch: 11.25%;
   width: max-content;
-  min-width: 140px;
+  min-width: 220px;
   min-height: 64px;
   border: none;
   cursor: pointer;
-  clip-path: polygon(8% 0%, 95% 0%, 100% 45%, 90% 100%, 0% 100%, 0% 18%);
+  clip-path: polygon(var(--hb-notch) 0%, calc(100% - var(--hb-notch)) 0%, 100% 50%, calc(100% - var(--hb-notch)) 100%, var(--hb-notch) 100%, 0% 50%);
   background: transparent;
   padding: 0;
   font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
@@ -219,7 +223,8 @@ onBeforeUnmount(() => {
   pointer-events: none;
   position: absolute;
   inset: 0;
-  border-radius: 18px;
+  border-radius: 0;
+  clip-path: inherit;
 }
 
 .hex-blade__bg {
@@ -271,6 +276,7 @@ onBeforeUnmount(() => {
   animation: scanShift 2.5s linear infinite;
 }
 
+
 @keyframes scanShift {
   0% {
     background-position: 0% 0%;
@@ -314,7 +320,7 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 20px 32px;
+  padding: 20px 40px;
   z-index: 2;
 }
 
