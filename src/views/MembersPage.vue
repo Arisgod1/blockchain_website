@@ -52,101 +52,113 @@
     <!-- 页面内容 -->
     <div class="page-content">
       <div class="container">
-        <div class="content-layout">
-          <!-- 筛选侧边栏 -->
-          <aside class="filter-sidebar">
-            <MemberFilter
-              v-model:filters="filters"
-              :roles="roleOptions"
-              :tech-stacks="techStackOptions"
-              @change="handleFiltersChange"
-            />
-          </aside>
-
-          <!-- 成员列表 -->
-          <main class="members-main">
-            <!-- 列表头部 -->
-            <div class="list-header">
-              <div class="results-info">
-                <span class="results-count">
-                  共找到 {{ filteredMembers.length }} 位成员
-                </span>
-                <span
-                  v-if="hasActiveFilters"
-                  class="active-filters"
-                >
-                  （已应用筛选条件）
-                </span>
-              </div>
-              <div class="view-toggle">
-                <button
-                  class="view-btn"
-                  :class="{ active: viewMode === 'grid' }"
-                  @click="viewMode = 'grid'"
-                >
-                  <GridIcon />
-                </button>
-                <button
-                  class="view-btn"
-                  :class="{ active: viewMode === 'list' }"
-                  @click="viewMode = 'list'"
-                >
-                  <ListIcon />
-                </button>
-              </div>
-            </div>
-
-            <!-- 成员网格 -->
-            <div
-              v-if="filteredMembers.length > 0"
-              class="members-grid"
-            >
-              <MemberCard
-                v-for="member in paginatedMembers"
-                :key="member.id"
-                :member="member"
-                @click="selectMember(member)"
+          <div class="content-layout">
+            <!-- 筛选侧边栏 -->
+            <aside class="filter-sidebar">
+              <MemberFilter
+                v-model:filters="filters"
+                :roles="roleOptions"
+                :tech-stacks="techStackOptions"
+                @change="handleFiltersChange"
               />
-            </div>
+            </aside>
 
-            <!-- 空状态 -->
-            <div
-              v-else
-              class="empty-state"
-            >
-              <div class="empty-icon">
-                <UsersIcon />
-              </div>
-              <h3 class="empty-title">
-                未找到匹配的成员
-              </h3>
-              <p class="empty-description">
-                请尝试调整筛选条件或搜索关键词
-              </p>
-              <BaseButton
-                variant="outline"
-                @click="clearAllFilters"
+            <!-- 成员列表 -->
+            <main class="members-main">
+              <div
+                v-if="isLoading"
+                class="members-loading"
               >
-                清除所有筛选
-              </BaseButton>
-            </div>
+                <div class="loading-spinner" />
+                <p class="loading-text">
+                  加载成员数据中...
+                </p>
+              </div>
 
-            <!-- 分页 -->
-            <div
-              v-if="filteredMembers.length > pageSize"
-              class="pagination-wrapper"
-            >
-              <BasePagination
-                v-model:current="currentPage"
-                :total="filteredMembers.length"
-                :page-size="pageSize"
-                @change="handlePageChange"
-              />
-            </div>
-          </main>
+              <div v-else>
+                <!-- 列表头部 -->
+                <div class="list-header">
+                  <div class="results-info">
+                    <span class="results-count">
+                      共找到 {{ filteredMembers.length }} 位成员
+                    </span>
+                    <span
+                      v-if="hasActiveFilters"
+                      class="active-filters"
+                    >
+                      （已应用筛选条件）
+                    </span>
+                  </div>
+                  <div class="view-toggle">
+                    <button
+                      class="view-btn"
+                      :class="{ active: viewMode === 'grid' }"
+                      @click="viewMode = 'grid'"
+                    >
+                      <GridIcon />
+                    </button>
+                    <button
+                      class="view-btn"
+                      :class="{ active: viewMode === 'list' }"
+                      @click="viewMode = 'list'"
+                    >
+                      <ListIcon />
+                    </button>
+                  </div>
+                </div>
+
+                <!-- 成员网格 -->
+                <div
+                  v-if="filteredMembers.length > 0"
+                  class="members-grid"
+                >
+                  <MemberCard
+                    v-for="member in paginatedMembers"
+                    :key="member.id"
+                    :member="member"
+                    @click="selectMember(member)"
+                  />
+                </div>
+
+                <!-- 空状态 -->
+                <div
+                  v-else
+                  class="empty-state"
+                >
+                  <div class="empty-icon">
+                    <UsersIcon />
+                  </div>
+                  <h3 class="empty-title">
+                    未找到匹配的成员
+                  </h3>
+                  <p class="empty-description">
+                    请尝试调整筛选条件或搜索关键词
+                  </p>
+                  <BaseButton
+                    variant="outline"
+                    @click="clearAllFilters"
+                  >
+                    清除所有筛选
+                  </BaseButton>
+                </div>
+
+                <!-- 分页 -->
+                <div
+                  v-if="filteredMembers.length > pageSize"
+                  class="pagination-wrapper"
+                >
+                  <BasePagination
+                    v-model:current="currentPage"
+                    :total="filteredMembers.length"
+                    :page-size="pageSize"
+                    @change="handlePageChange"
+                  />
+                </div>
+              </div>
+            </main>
+          </div>
         </div>
       </div>
-    </div>
 
     <!-- 成员详情模态框 -->
     <BaseModal
@@ -254,11 +266,12 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import type { Member } from '@/types/entities'
-import { 
-  UsersIcon, 
-  GridIcon, 
-  ListIcon, 
-  GithubIcon, 
+import { getMembers } from '@/api/member'
+import {
+  UsersIcon,
+  GridIcon,
+  ListIcon,
+  GithubIcon,
   EmailIcon,
   CalendarIcon,
   ProjectIcon
@@ -279,185 +292,89 @@ interface MemberFiltersState {
 
 type MemberFiltersPayload = Partial<MemberFiltersState>
 
-// 页面元数据设置
-onMounted(() => {
-  document.title = '团队成员 - 大连理工大学区块链组'
-  const metaDescription = document.querySelector('meta[name="description"]')
-  if (metaDescription) {
-    metaDescription.setAttribute('content', '区块链组团队成员介绍，了解团队专业技能和研究方向')
-  } else {
-    const meta = document.createElement('meta')
-    meta.name = 'description'
-    meta.content = '区块链组团队成员介绍，了解团队专业技能和研究方向'
-    document.head.appendChild(meta)
-  }
-})
+const allMembers = ref<Member[]>([])
+const isLoading = ref(false)
 
-// 模拟成员数据
-const mockMembers: Member[] = [
-  {
-    id: '1',
-    name: '张同学',
-    role: '组长',
-    avatar: '/images/avatars/zhang.jpg',
-    grade: '研二',
-    major: '计算机科学与技术',
-    skills: ['Solidity', 'Web3.js', 'React', 'DeFi'],
-    bio: '专注于智能合约开发和DeFi应用研究，有丰富的以太坊开发经验',
-    github: 'https://github.com/zhang',
-    email: 'zhang@example.com',
-    joinDate: '2023-09-01',
-    isActive: true,
-    projectCount: 8
-  },
-  {
-    id: '2',
-    name: '李同学',
-    role: '技术负责人',
-    avatar: '/images/avatars/li.jpg',
-    grade: '大三',
-    major: '软件工程',
-    skills: ['Python', 'Django', '区块链底层', '共识算法'],
-    bio: '区块链底层技术研究者，熟悉多种共识算法和P2P网络协议',
-    github: 'https://github.com/li',
-    email: 'li@example.com',
-    joinDate: '2023-03-01',
-    isActive: true,
-    projectCount: 12
-  },
-  {
-    id: '3',
-    name: '王同学',
-    role: '前端开发',
-    avatar: '/images/avatars/wang.jpg',
-    grade: '大二',
-    major: '数字媒体技术',
-    skills: ['Vue.js', 'CSS', 'UI设计', 'Three.js'],
-    bio: '热爱前端开发和用户体验设计，专注于3D可视化界面开发',
-    github: 'https://github.com/wang',
-    email: 'wang@example.com',
-    joinDate: '2024-03-01',
-    isActive: true,
-    projectCount: 5
-  }
-]
-
-// 扩展到28位成员
-const allMembers = ref<Member[]>([
-  ...mockMembers,
-  ...Array.from({ length: 25 }, (_, i) => ({
-    id: `${i + 4}`,
-    name: `成员${i + 4}`,
-    role: ['开发成员', '研究员', '前端开发', '后端开发'][Math.floor(Math.random() * 4)],
-    avatar: `/images/avatars/member${i + 4}.jpg`,
-    grade: ['大一', '大二', '大三', '大四', '研一', '研二'][Math.floor(Math.random() * 6)],
-    major: ['计算机科学与技术', '软件工程', '数字媒体技术', '信息安全'][Math.floor(Math.random() * 4)],
-    skills: [
-      ['Vue.js', 'React', 'TypeScript'],
-      ['Python', 'Django', '机器学习'],
-      ['Solidity', 'Web3.js', 'DeFi'],
-      ['Node.js', 'MongoDB', 'Express'],
-      ['Java', 'Spring', 'MySQL'],
-      ['Go', 'Docker', 'Kubernetes']
-    ][Math.floor(Math.random() * 6)],
-    bio: '专注于相关技术领域的研究与开发',
-    github: `https://github.com/member${i + 4}`,
-    email: `member${i + 4}@example.com`,
-    joinDate: `202${3 + Math.floor(Math.random()  * 2)}-${String(Math.floor(Math.random() * 12) + 1).padStart(2, '0')}-01`,
-    isActive: Math.random() > 0.2,
-    projectCount: Math.floor(Math.random() * 15) + 1
-  }))
-])
-
-// 筛选相关
 const filters = ref<MemberFiltersState>({
   search: '',
   role: 'all',
-  skills: [] as string[],
+  skills: [],
   sortBy: 'name',
-  isActive: undefined as boolean | undefined
+  isActive: undefined
 })
 
-// 视图模式
 const viewMode = ref<'grid' | 'list'>('grid')
-
-// 分页
 const currentPage = ref(1)
 const pageSize = ref(12)
-
-// 模态框
 const showMemberModal = ref(false)
 const selectedMember = ref<Member | null>(null)
 
-// 角色选项
-const roleOptions = [
-  { id: 'all', name: '全部成员', count: allMembers.value.length },
-  { id: '组长', name: '组长', count: allMembers.value.filter(m => m.role === '组长').length },
-  { id: '技术负责人', name: '技术负责人', count: allMembers.value.filter(m => m.role === '技术负责人').length },
-  { id: '前端开发', name: '前端开发', count: allMembers.value.filter(m => m.role === '前端开发').length },
-  { id: '后端开发', name: '后端开发', count: allMembers.value.filter(m => m.role === '后端开发').length },
-  { id: '开发成员', name: '开发成员', count: allMembers.value.filter(m => m.role === '开发成员').length },
-  { id: '研究员', name: '研究员', count: allMembers.value.filter(m => m.role === '研究员').length }
-]
+const roleOptions = computed(() => {
+  const counts = allMembers.value.reduce<Record<string, number>>((acc, member) => {
+    const role = member.role || '未分类'
+    acc[role] = (acc[role] ?? 0) + 1
+    return acc
+  }, {})
 
-// 技术栈选项
+  return [
+    { id: 'all', name: '全部成员', count: allMembers.value.length },
+    ...Object.entries(counts).map(([role, count]) => ({
+      id: role,
+      name: role,
+      count
+    }))
+  ]
+})
+
 const techStackOptions = [
   'Solidity', 'Web3.js', 'React', 'Vue.js', 'Python', 'Django',
   'Node.js', 'TypeScript', 'IPFS', 'Ethereum', 'DeFi', 'NFT',
   'Java', 'Spring', 'Go', 'Docker', 'Kubernetes', 'MongoDB'
 ]
 
-// 统计数据
 const totalMembers = computed(() => allMembers.value.length)
-const activeMembers = computed(() => allMembers.value.filter(m => m.isActive).length)
-const totalProjects = computed(() => 
+const activeMembers = computed(() => allMembers.value.filter((member) => member.isActive).length)
+const totalProjects = computed(() =>
   allMembers.value.reduce((sum, member) => sum + (member.projectCount || 0), 0)
 )
 
-// 是否有激活的筛选条件
-const hasActiveFilters = computed(() => {
-  return filters.value.search || 
-         filters.value.role !== 'all' || 
-         filters.value.skills.length > 0 ||
-         filters.value.isActive !== undefined
-})
+const hasActiveFilters = computed(() =>
+  Boolean(filters.value.search ||
+    filters.value.role !== 'all' ||
+    filters.value.skills.length > 0 ||
+    filters.value.isActive !== undefined)
+)
 
-// 过滤成员
 const filteredMembers = computed(() => {
-  let result = allMembers.value
+  let result = [...allMembers.value]
 
-  // 按搜索关键词过滤
   if (filters.value.search) {
     const query = filters.value.search.toLowerCase()
-    result = result.filter(member =>
+    result = result.filter((member) =>
       member.name.toLowerCase().includes(query) ||
-      member.skills.some(skill => skill.toLowerCase().includes(query)) ||
+      member.skills.some((skill) => skill.toLowerCase().includes(query)) ||
       member.role.toLowerCase().includes(query)
     )
   }
 
-  // 按角色过滤
   if (filters.value.role && filters.value.role !== 'all') {
-    result = result.filter(member => member.role === filters.value.role)
+    result = result.filter((member) => member.role === filters.value.role)
   }
 
-  // 按技能过滤
   if (filters.value.skills.length > 0) {
-    result = result.filter(member =>
-      filters.value.skills.every(skill =>
-        member.skills.some(memberSkill => 
+    result = result.filter((member) =>
+      filters.value.skills.every((skill) =>
+        member.skills.some((memberSkill) =>
           memberSkill.toLowerCase().includes(skill.toLowerCase())
         )
       )
     )
   }
 
-  // 按活跃状态过滤
   if (filters.value.isActive !== undefined) {
-    result = result.filter(member => member.isActive === filters.value.isActive)
+    result = result.filter((member) => member.isActive === filters.value.isActive)
   }
 
-  // 排序
   result = result.sort((a, b) => {
     switch (filters.value.sortBy) {
       case 'name':
@@ -476,33 +393,48 @@ const filteredMembers = computed(() => {
   return result
 })
 
-// 分页后的成员
 const paginatedMembers = computed(() => {
   const start = (currentPage.value - 1) * pageSize.value
   const end = start + pageSize.value
   return filteredMembers.value.slice(start, end)
 })
 
-// 处理筛选变化
+const fetchPageSize = computed(() => Math.max(pageSize.value * 3, 30))
+
+const loadMembers = async () => {
+  isLoading.value = true
+  try {
+    const response = await getMembers({
+      page: 0,
+      size: fetchPageSize.value,
+      keyword: filters.value.search || undefined,
+      role: filters.value.role !== 'all' ? filters.value.role : undefined
+    })
+    allMembers.value = response.content ?? []
+  } catch (error) {
+    console.error('获取成员列表失败:', error)
+    allMembers.value = []
+  } finally {
+    isLoading.value = false
+  }
+}
+
 const handleFiltersChange = (newFilters: MemberFiltersPayload) => {
   filters.value = { ...filters.value, ...newFilters }
   currentPage.value = 1
+  loadMembers()
 }
 
-// 处理分页变化
 const handlePageChange = (page: number) => {
   currentPage.value = page
-  // 滚动到顶部
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
-// 选择成员
 const selectMember = (member: Member) => {
   selectedMember.value = member
   showMemberModal.value = true
 }
 
-// 清除所有筛选
 const clearAllFilters = () => {
   filters.value = {
     search: '',
@@ -512,13 +444,28 @@ const clearAllFilters = () => {
     isActive: undefined
   }
   currentPage.value = 1
+  loadMembers()
 }
 
-// 格式化日期
 const formatDate = (dateString: string) => {
   const date = new Date(dateString)
   return `${date.getFullYear()}年${date.getMonth() + 1}月`
 }
+
+onMounted(() => {
+  document.title = '团队成员 - 大连理工大学区块链组'
+  const metaDescription = document.querySelector('meta[name="description"]')
+  if (metaDescription) {
+    metaDescription.setAttribute('content', '区块链组团队成员介绍，了解团队专业技能和研究方向')
+  } else {
+    const meta = document.createElement('meta')
+    meta.name = 'description'
+    meta.content = '区块链组团队成员介绍，了解团队专业技能和研究方向'
+    document.head.appendChild(meta)
+  }
+
+  loadMembers()
+})
 </script>
 
 <style scoped lang="postcss">
@@ -582,6 +529,18 @@ const formatDate = (dateString: string) => {
 
 .members-main {
   @apply flex-1;
+}
+
+.members-loading {
+  @apply flex flex-col items-center justify-center py-16;
+}
+
+.loading-spinner {
+  @apply w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4;
+}
+
+.loading-text {
+  @apply text-gray-600;
 }
 
 .list-header {

@@ -139,15 +139,11 @@ const fetchFiles = async () => {
   loading.value = true
   try {
     const res = await getFiles({ page: currentPage.value - 1, size: pageSize.value })
-    if (Array.isArray(res)) {
-      files.value = res
-      totalPages.value = 1
-      totalElements.value = res.length
-    } else {
-      files.value = res.content || []
-      totalPages.value = res.totalPages || 1
-      totalElements.value = res.totalElements || 0
-    }
+    files.value = res.content
+    totalPages.value = res.totalPages
+    totalElements.value = res.totalElements
+    pageSize.value = res.size
+    currentPage.value = res.number + 1
   } catch (error) {
     console.error('Failed to fetch files:', error)
   } finally {

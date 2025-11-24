@@ -256,7 +256,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import ArticleCard from '@/components/blog/ArticleCard.vue'
 import BlogFilter from '@/components/blog/BlogFilter.vue'
@@ -326,6 +326,65 @@ const categoryValueMap: Record<string, string> = {
   all: ''
 }
 
+const mapDisplayCategoryToValue = (label: string): string => {
+  const entry = Object.entries(categoryValueMap).find(([, display]) => display === label)
+  return entry?.[0] ?? label
+}
+
+const buildArticleQueryParams = () => {
+  const params: Record<string, unknown> = {
+    page: currentPage.value - 1,
+    size: pageSize.value
+  }
+
+  const filters = activeFilters.value
+
+  if (filters?.searchQuery) {
+    params.keyword = filters.searchQuery
+  }
+
+  const mappedFilterCategory = filters?.category && filters.category !== 'all' ? filters.category : ''
+  const mappedCloudCategory = selectedCategory.value ? mapDisplayCategoryToValue(selectedCategory.value) : ''
+  const categoryParam = mappedCloudCategory || mappedFilterCategory
+  if (categoryParam) {
+    params.category = categoryParam
+  }
+
+  if (filters?.tags?.length) {
+    params.tag = filters.tags.join(',')
+  }
+
+  if (filters?.sortBy) {
+    params.sortBy = filters.sortBy
+  }
+
+  if (filters?.sortOrder) {
+    params.sortOrder = filters.sortOrder
+  }
+
+  if (filters?.author) {
+    params.author = filters.author
+  }
+
+  if (filters?.dateRange) {
+    params.dateRange = filters.dateRange
+  }
+
+  if (filters?.featuredOnly) {
+    params.featured = true
+  }
+
+  if (typeof filters?.minReadTime === 'number' && filters.minReadTime > 0) {
+    params.minReadTime = filters.minReadTime
+  }
+
+  if (filters?.difficulties?.length) {
+    params.difficulty = filters.difficulties.join(',')
+  }
+
+  return params
+}
+
 type ShareableArticle = EnrichedArticle
 
 const router = useRouter()
@@ -346,9 +405,10 @@ const showArticleModal = ref(false)
 // 文章数据
 const articles = ref<Article[]>([])
 const filteredArticles = ref<Article[]>([])
+const totalElements = ref(0)
 
 // 计算属性
-const totalArticles = computed(() => articles.value.length)
+const totalArticles = computed(() => totalElements.value || articles.value.length)
 const totalAuthors = computed(() => {
   const authorIds = articles.value
     .map(article => article.author?.id)
@@ -358,13 +418,9 @@ const totalAuthors = computed(() => {
 const totalViews = computed(() => articles.value.reduce((sum, a) => sum + a.views, 0))
 const totalLikes = computed(() => articles.value.reduce((sum, a) => sum + a.likes, 0))
 
-const totalPages = computed(() => Math.ceil(filteredArticles.value.length / pageSize.value))
+const totalPages = computed(() => Math.max(1, Math.ceil((totalElements.value || filteredArticles.value.length || 1) / pageSize.value)))
 
-const paginatedArticles = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value
-  const end = start + pageSize.value
-  return filteredArticles.value.slice(start, end)
-})
+const paginatedArticles = computed(() => filteredArticles.value)
 
 const visiblePages = computed(() => {
   const pages = []
@@ -434,12 +490,14 @@ const toggleCategoryCloud = () => {
 
 const selectCategory = (category: string) => {
   selectedCategory.value = selectedCategory.value === category ? '' : category
-  applyFilters()
+  currentPage.value = 1
+  void loadArticles()
 }
 
 const handleFilterChange = (filters: BlogFilterOptions) => {
   activeFilters.value = filters
-  fetchFilteredArticles(filters)
+  currentPage.value = 1
+  void loadArticles()
 }
 
 const handleBookmark = (articleId: string) => {
@@ -447,6 +505,7 @@ const handleBookmark = (articleId: string) => {
   if (article) {
     article.bookmarked = !article.bookmarked
   }
+  applyFilters()
 }
 
 const handleShare = (article: ShareableArticle, platform = 'general') => {
@@ -490,6 +549,7 @@ const resetAllFilters = () => {
   if (blogFilterRef.value?.resetFilters) {
     blogFilterRef.value.resetFilters()
   }
+  void loadArticles()
 }
 
 const scrollToTop = () => {
@@ -501,42 +561,42 @@ const handleScroll = () => {
 }
 
 // 数据获取
-const fetchArticles = async () => {
+const loadArticles = async () => {
   loading.value = true
   try {
-    const res = await getArticles({ page: currentPage.value - 1, size: pageSize.value })
+    const res = await getArticles(buildArticleQueryParams())
     if (Array.isArray(res)) {
       articles.value = res
+      totalElements.value = res.length
     } else {
       articles.value = res.content || []
+      totalElements.value = res.totalElements || articles.value.length
     }
-    filteredArticles.value = [...articles.value]
+    applyFilters()
   } catch (error) {
     console.error('获取文章失败:', error)
-    // 如果 API 失败，client.ts 已经处理了 Mock 数据降级
-    // 这里可以保留 generateMockArticles 作为最后的兜底，或者直接依赖 client.ts
     if (articles.value.length === 0) {
-       articles.value = generateMockArticles()
-       filteredArticles.value = [...articles.value]
+      articles.value = generateMockArticles()
+      totalElements.value = articles.value.length
+      applyFilters()
     }
   } finally {
     loading.value = false
   }
 }
 
-const fetchFilteredArticles = async (filters: BlogFilterOptions) => {
-  // 根据筛选条件过滤文章
-  // 实际项目中应该调用 API
-  loading.value = true
-  try {
-    await new Promise(resolve => setTimeout(resolve, 500))
-    applyFilters(filters)
-  } catch (error) {
-    console.error('筛选文章失败:', error)
-  } finally {
-    loading.value = false
+watch(currentPage, (newPage, oldPage) => {
+  if (newPage !== oldPage) {
+    void loadArticles()
   }
-}
+})
+
+watch(pageSize, (newSize, oldSize) => {
+  if (newSize !== oldSize) {
+    currentPage.value = 1
+    void loadArticles()
+  }
+})
 
 const applyFilters = (filtersOverride?: BlogFilterOptions | null) => {
   const filters = filtersOverride ?? activeFilters.value
@@ -583,7 +643,6 @@ const applyFilters = (filtersOverride?: BlogFilterOptions | null) => {
   }
 
   filteredArticles.value = filtered
-  currentPage.value = 1
 }
 
 // 生成模拟文章数据
@@ -631,7 +690,7 @@ const generateMockArticles = (): Article[] => {
 
 // 生命周期
 onMounted(() => {
-  fetchArticles()
+  loadArticles()
   window.addEventListener('scroll', handleScroll)
 })
 

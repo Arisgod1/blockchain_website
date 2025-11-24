@@ -129,7 +129,7 @@
         </div>
 
         <div
-          v-else-if="filteredMembers.length === 0"
+          v-else-if="members.length === 0"
           class="empty-state"
         >
           <div class="empty-icon">
@@ -152,7 +152,7 @@
             class="members-grid"
           >
             <div 
-              v-for="member in paginatedMembers" 
+              v-for="member in members" 
               :key="member.id"
               class="member-grid-item"
             >
@@ -173,7 +173,7 @@
             class="members-list"
           >
             <div 
-              v-for="member in paginatedMembers" 
+              v-for="member in members" 
               :key="member.id"
               class="member-list-item"
             >
@@ -324,7 +324,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useHead } from '@vueuse/head'
 import { getMembers, createMember, updateMember, deleteMember } from '@/api/member'
 import { 
@@ -347,6 +347,7 @@ interface MemberFilterOptions extends Omit<FilterOptions, 'sortBy'> {
   skills: string[]
   role?: string
   sortBy: string
+  isActive?: boolean
 }
 
 // 设置页面元数据
@@ -368,7 +369,8 @@ const filters = ref<MemberFilterOptions>({
   sortBy: 'name',
   sortOrder: 'asc',
   skills: [],
-  role: 'all'
+  role: 'all',
+  isActive: undefined
 })
 
 const pagination = ref({
@@ -395,53 +397,6 @@ const deleteModal = ref({
 })
 
 // 计算属性
-const filteredMembers = computed(() => {
-  let result = [...members.value]
-
-  // 搜索筛选
-  if (filters.value.search) {
-    const searchTerm = filters.value.search.toLowerCase()
-    result = result.filter(member => 
-      member.name.toLowerCase().includes(searchTerm) ||
-      member.role.toLowerCase().includes(searchTerm) ||
-      member.skills.some(skill => 
-        skill.toLowerCase().includes(searchTerm)
-      )
-    )
-  }
-
-  // 状态筛选
-  if (filters.value.status === 'active') {
-    result = result.filter(member => member.isActive)
-  } else if (filters.value.status === 'inactive') {
-    result = result.filter(member => !member.isActive)
-  }
-
-  // 排序
-  result.sort((a, b) => {
-    const key = filters.value.sortBy as keyof Member
-    const aValue = a[key] ?? ''
-    const bValue = b[key] ?? ''
-    
-    if (filters.value.sortOrder === 'asc') {
-      return aValue > bValue ? 1 : -1
-    } else {
-      return aValue < bValue ? 1 : -1
-    }
-  })
-
-  return result
-})
-
-const paginatedMembers = computed(() => {
-  const start = (pagination.value.current - 1) * pagination.value.pageSize
-  const end = start + pagination.value.pageSize
-  return filteredMembers.value.slice(start, end)
-})
-
-watch(filteredMembers, (nextMembers) => {
-  pagination.value.total = nextMembers.length
-})
 
 type MemberLogAction = 'create' | 'update' | 'delete' | 'refresh'
 
@@ -459,7 +414,7 @@ const logMemberAction = (action: MemberLogAction, message: string, result: 'succ
   })
 }
 
-const totalMembers = computed(() => members.value.length)
+const totalMembers = computed(() => pagination.value.total)
 
 const activeMembers = computed(() => {
   return members.value.filter(member => member.isActive).length
@@ -487,17 +442,53 @@ const formatDate = (dateStr: string) => {
   return new Date(dateStr).toLocaleDateString('zh-CN')
 }
 
+const buildMemberQueryParams = () => {
+  const params: Record<string, unknown> = {
+    page: pagination.value.current - 1,
+    size: pagination.value.pageSize
+  }
+
+  const keyword = filters.value.search?.trim()
+  if (keyword) {
+    params.keyword = keyword
+  }
+
+  if (filters.value.role && filters.value.role !== 'all') {
+    params.role = filters.value.role
+  }
+
+  if (filters.value.status) {
+    params.status = filters.value.status
+  }
+
+  if (typeof filters.value.isActive === 'boolean') {
+    params.status = filters.value.isActive ? 'active' : 'inactive'
+  }
+
+  if (filters.value.skills?.length) {
+    params.skills = filters.value.skills
+  }
+
+  if (filters.value.sortBy) {
+    params.sortBy = filters.value.sortBy
+  }
+
+  if (filters.value.sortOrder) {
+    params.sortOrder = filters.value.sortOrder
+  }
+
+  return params
+}
+
 const loadMembers = async () => {
   loading.value = true
   try {
-    const response = await getMembers({
-      page: pagination.value.current - 1,
-      size: pagination.value.pageSize,
-      keyword: filters.value.search,
-    })
+    const response = await getMembers(buildMemberQueryParams())
     
     members.value = response.content
     pagination.value.total = response.totalElements
+    pagination.value.pageSize = response.size
+    pagination.value.current = response.number + 1
   } catch (error) {
     console.error('加载成员数据失败:', error)
   } finally {
@@ -507,10 +498,12 @@ const loadMembers = async () => {
 
 const handleFilterChange = () => {
   pagination.value.current = 1
+  loadMembers()
 }
 
 const handlePageChange = (page: number) => {
   pagination.value.current = page
+  loadMembers()
 }
 
 const handleCreate = () => {
@@ -537,15 +530,11 @@ const handleEdit = (member: Member) => {
 }
 
 const handleToggleStatus = async (member: Member) => {
+  const nextStatus = !member.isActive
   try {
-    // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 500))
-    
-    const index = members.value.findIndex(m => m.id === member.id)
-    if (index !== -1) {
-      members.value[index].isActive = !members.value[index].isActive
-    }
-    const statusLabel = members.value[index]?.isActive ? '活跃' : '非活跃'
+    await updateMember(member.id, { isActive: nextStatus })
+    await loadMembers()
+    const statusLabel = nextStatus ? '活跃' : '非活跃'
     logMemberAction('update', `切换成员「${member.name}」状态为 ${statusLabel}`, 'success', member.id)
   } catch (error) {
     console.error('切换成员状态失败:', error)

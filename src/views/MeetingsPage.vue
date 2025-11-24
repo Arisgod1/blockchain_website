@@ -307,12 +307,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useHead } from '@vueuse/head'
 import MeetingCard from '@/components/meetings/MeetingCard.vue'
 import MeetingFilter from '@/components/meetings/MeetingFilter.vue'
 import MeetingDetailModal from '@/components/meetings/MeetingDetailModal.vue'
 import FileViewerModal from '@/components/meetings/FileViewerModal.vue'
+import { getMeetings } from '@/api/meeting'
 import type { Meeting, MeetingFile } from '@/types/entities'
 
 type MeetingRecord = Meeting
@@ -359,88 +360,119 @@ const isMobile = ref(false)
 // 筛选条件
 const currentFilters = ref<MeetingFilterValues>({})
 
-// 模拟会议数据
-const meetings = ref<MeetingRecord[]>([
-  {
-    id: '1',
-    title: '区块链技术发展趋势讨论',
-    date: '2024-12-15T14:00:00',
-    summary: '讨论了2024年区块链技术的主要发展方向，包括Layer2扩展性解决方案、跨链技术和隐私保护的最新进展。',
-    status: 'completed',
-    types: ['technical', 'weekly'],
-    attendees: [
-      { id: '1', name: '张三', avatar: '/avatars/zhang.jpg', role: '组长' },
-      { id: '2', name: '李四', avatar: '/avatars/li.jpg', role: '技术负责人' },
-      { id: '3', name: '王五', avatar: '/avatars/wang.jpg', role: '开发成员' }
-    ],
-    duration: 120,
-    issues: [
-      { id: '1', title: 'DeFi协议安全性分析', status: 'completed' },
-      { id: '2', title: 'NFT市场技术挑战', status: 'in-progress' }
-    ],
-    files: [
-      { id: '1', name: '会议纪要_20241215.pdf', type: 'pdf', size: '2.3MB', url: '/files/meeting_1_minutes.pdf' },
-      { id: '2', name: '技术讨论_区块链趋势.pptx', type: 'pptx', size: '5.1MB', url: '/files/meeting_1_presentation.pptx' }
-    ],
-    tags: ['DeFi', 'Layer2', '跨链'],
-    location: '会议室A',
-    recording: '/recordings/meeting_1.mp4',
-    minutes: '/files/meeting_1_detailed_minutes.md'
-  },
-  {
-    id: '2',
-    title: '项目进展汇报与规划',
-    date: '2024-12-08T15:30:00',
-    summary: '各项目组汇报了最新进展，讨论了下一步开发计划和资源配置需求。',
-    status: 'completed',
-    types: ['project', 'weekly'],
-    attendees: [
-      { id: '1', name: '张三', avatar: '/avatars/zhang.jpg' },
-      { id: '2', name: '赵六', avatar: '/avatars/zhao.jpg' },
-      { id: '4', name: '钱七', avatar: '/avatars/qian.jpg' }
-    ],
-    duration: 90,
-    issues: [
-      { id: '3', title: '智能合约部署计划', status: 'completed' },
-      { id: '4', title: '测试环境搭建', status: 'pending' }
-    ],
-    files: [
-      { id: '3', name: '项目进展报告.pdf', type: 'pdf', size: '1.8MB', url: '/files/meeting_2_report.pdf' }
-    ],
-    tags: ['项目管理', '智能合约', '测试'],
-    location: '会议室B'
-  },
-  {
-    id: '3',
-    title: '学术论文分享：零知识证明技术',
-    date: '2024-12-01T16:00:00',
-    summary: '深入讨论了零知识证明的原理、应用场景以及在区块链中的实现方案。',
-    status: 'completed',
-    types: ['seminar', 'training'],
-    attendees: [
-      { id: '1', name: '张三', avatar: '/avatars/zhang.jpg' },
-      { id: '5', name: '孙八', avatar: '/avatars/sun.jpg' },
-      { id: '6', name: '周九', avatar: '/avatars/zhou.jpg' }
-    ],
-    duration: 150,
-    issues: [
-      { id: '5', title: 'zk-SNARK实现细节', status: 'completed' },
-      { id: '6', title: '性能优化方案', status: 'in-progress' }
-    ],
-    files: [
-      { id: '4', name: '零知识证明技术分享.pdf', type: 'pdf', size: '4.2MB', url: '/files/meeting_3_presentation.pdf' },
-      { id: '5', name: '相关论文集合.zip', type: 'zip', size: '15.6MB', url: '/files/meeting_3_papers.zip' }
-    ],
-    tags: ['零知识证明', '密码学', '学术研究'],
-    location: '学术报告厅',
-    recording: '/recordings/meeting_3.mp4'
+const meetings = ref<MeetingRecord[]>([])
+
+const fetchPageSize = computed(() => Math.max(itemsPerPage.value * 5, 60))
+
+const buildQueryParams = () => {
+  const params: Record<string, unknown> = {
+    page: 0,
+    size: fetchPageSize.value
   }
-])
+
+  if (currentFilters.value.searchQuery) {
+    params.topic = currentFilters.value.searchQuery
+  }
+
+  if (currentFilters.value.types?.length) {
+    params.type = currentFilters.value.types.join(',')
+  }
+
+  if (currentFilters.value.dateRange?.start || currentFilters.value.dateRange?.end) {
+    params.dateRange = `${currentFilters.value.dateRange?.start ?? ''},${currentFilters.value.dateRange?.end ?? ''}`
+  }
+
+  return params
+}
+
+const loadMeetings = async () => {
+  isLoading.value = true
+  try {
+    const response = await getMeetings(buildQueryParams())
+    meetings.value = response.content ?? []
+  } catch (error) {
+    console.error('获取会议列表失败:', error)
+    meetings.value = []
+  } finally {
+    isLoading.value = false
+  }
+}
 
 // 计算属性
 const filteredMeetings = computed(() => {
-  // 这里应该根据currentFilters进行筛选
-  return meetings.value
+  let result = [...meetings.value]
+  const filters = currentFilters.value
+
+  if (filters.searchQuery) {
+    const query = filters.searchQuery.toLowerCase()
+    result = result.filter(meeting => {
+      const titleMatch = meeting.title.toLowerCase().includes(query)
+      const summaryText = meeting.summary?.toLowerCase() ?? ''
+      const summaryMatch = summaryText.includes(query)
+      const tagMatch = meeting.tags?.some(tag => tag.toLowerCase().includes(query)) ?? false
+      return titleMatch || summaryMatch || tagMatch
+    })
+  }
+
+  if (filters.statuses?.length) {
+    result = result.filter(meeting => {
+      const status = meeting.status ?? ''
+      return filters.statuses?.includes(status) ?? false
+    })
+  }
+
+  if (filters.types?.length) {
+    result = result.filter(meeting => meeting.types?.some(type => filters.types?.includes(type)) ?? false)
+  }
+
+  if (filters.tags?.length) {
+    result = result.filter(meeting => meeting.tags?.some(tag => filters.tags?.includes(tag)) ?? false)
+  }
+
+  if (filters.attendeeSizes?.length) {
+    result = result.filter(meeting => {
+      const count = Array.isArray(meeting.attendees) ? meeting.attendees.length : 0
+      return filters.attendeeSizes?.some(size => {
+        if (size === 'small') return count < 10
+        if (size === 'medium') return count >= 10 && count <= 20
+        if (size === 'large') return count > 20
+        return false
+      }) ?? false
+    })
+  }
+
+  if (filters.dateRange?.start) {
+    const startDate = new Date(filters.dateRange.start).getTime()
+    result = result.filter(meeting => new Date(meeting.date).getTime() >= startDate)
+  }
+
+  if (filters.dateRange?.end) {
+    const endDate = new Date(filters.dateRange.end).getTime()
+    result = result.filter(meeting => new Date(meeting.date).getTime() <= endDate)
+  }
+
+  const sortBy = filters.sortBy ?? 'date'
+  const sortDirection = filters.sortDirection ?? 'desc'
+
+  result.sort((a, b) => {
+    const direction = sortDirection === 'asc' ? 1 : -1
+    switch (sortBy) {
+      case 'title':
+        return direction * a.title.localeCompare(b.title)
+      case 'attendee_count': {
+        const countA = Array.isArray(a.attendees) ? a.attendees.length : 0
+        const countB = Array.isArray(b.attendees) ? b.attendees.length : 0
+        return direction * (countA - countB)
+      }
+      case 'duration':
+        return direction * ((a.duration ?? 0) - (b.duration ?? 0))
+      case 'date':
+      default:
+        return direction * (new Date(a.date).getTime() - new Date(b.date).getTime())
+    }
+  })
+
+  return result
 })
 
 const paginatedMeetings = computed(() => {
@@ -474,7 +506,27 @@ const hasMoreItems = computed(() => {
 })
 
 const hasActiveFilters = computed(() => {
-  return Object.keys(currentFilters.value).length > 0
+  const filters = currentFilters.value
+  return Boolean(
+    filters.searchQuery ||
+    filters.statuses?.length ||
+    filters.types?.length ||
+    filters.attendeeSizes?.length ||
+    filters.tags?.length ||
+    filters.dateRange?.start ||
+    filters.dateRange?.end
+  )
+})
+
+watch(filteredMeetings, () => {
+  if (filteredMeetings.value.length === 0) {
+    currentPage.value = 1
+    return
+  }
+
+  if (currentPage.value > totalPages.value) {
+    currentPage.value = Math.max(1, totalPages.value)
+  }
 })
 
 // 统计数据
@@ -506,8 +558,9 @@ const getDisplayedCount = (): number => {
 }
 
 const handleFilterChange = (filters: MeetingFilterValues) => {
-  currentFilters.value = { ...filters }
+  currentFilters.value = { ...currentFilters.value, ...filters }
   currentPage.value = 1
+  void loadMeetings()
 }
 
 const handleViewDetail = (meeting: MeetingRecord) => {
@@ -539,15 +592,16 @@ const closeFilesModal = () => {
 const clearAllFilters = () => {
   currentFilters.value = {}
   currentPage.value = 1
+  void loadMeetings()
 }
 
 const loadMore = async () => {
+  if (!hasMoreItems.value || isLoadingMore.value) return
   isLoadingMore.value = true
-  // 模拟加载更多数据
   setTimeout(() => {
     currentPage.value++
     isLoadingMore.value = false
-  }, 1000)
+  }, 300)
 }
 
 const checkScreenSize = () => {
@@ -558,12 +612,7 @@ const checkScreenSize = () => {
 onMounted(() => {
   checkScreenSize()
   window.addEventListener('resize', checkScreenSize)
-  
-  // 模拟加载数据
-  isLoading.value = true
-  setTimeout(() => {
-    isLoading.value = false
-  }, 1500)
+  void loadMeetings()
 })
 
 onUnmounted(() => {

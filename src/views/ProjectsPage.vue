@@ -106,7 +106,7 @@
           <div class="toolbar-right">
             <div class="per-page-selector">
               <select
-                v-model="perPage"
+                v-model.number="perPage"
                 class="per-page-select"
                 @change="handlePerPageChange"
               >
@@ -186,8 +186,8 @@
           class="pagination-container"
         >
           <div class="pagination-info">
-            显示 {{ (currentPage - 1) * perPage + 1 }} - {{ Math.min(currentPage * perPage, filteredProjects.length) }} 项，
-            共 {{ filteredProjects.length }} 项
+            显示 {{ paginationRange.start }} - {{ paginationRange.end }} 项，
+            共 {{ totalElements }} 项
           </div>
           <div class="pagination">
             <button 
@@ -297,7 +297,7 @@ const viewMode = ref<'grid' | 'list'>('grid')
 const showMobileFilters = ref(false)
 const currentPage = ref(1)
 const perPage = ref(12)
-const totalProjects = ref<Project[]>([])
+const projects = ref<Project[]>([])
 const isCreateModalVisible = ref(false)
 const selectedProject = ref<Project | null>(null)
 const filters = ref<FilterOptions>({})
@@ -305,26 +305,32 @@ const totalElements = ref(0)
 
 // 计算属性
 const stats = computed(() => {
-  const totalProjectsCount = totalProjects.value.length
-  const activeProjectsCount = totalProjects.value.filter(p => String(p.status) === String(Status.InProgress) || String(p.status).toUpperCase() === 'IN_PROGRESS').length
-  const completedProjectsCount = totalProjects.value.filter(p => String(p.status) === String(Status.Completed) || String(p.status).toUpperCase() === 'COMPLETED').length
-  
-  // 模拟贡献者数量
-  const uniqueContributors = new Set(totalProjects.value.flatMap(p => p.contributors || [])).size
-  
+  const activeProjectsCount = projects.value.filter(p => String(p.status) === String(Status.InProgress) || String(p.status).toUpperCase() === 'IN_PROGRESS').length
+  const completedProjectsCount = projects.value.filter(p => String(p.status) === String(Status.Completed) || String(p.status).toUpperCase() === 'COMPLETED').length
+  const uniqueContributors = new Set(projects.value.flatMap(p => p.contributors || [])).size
+
   return {
-    totalProjects: totalProjectsCount,
+    totalProjects: totalElements.value,
     activeProjects: activeProjectsCount,
     completedProjects: completedProjectsCount,
     totalContributors: Math.max(uniqueContributors, 15)
   }
 })
 
-const filteredProjects = computed(() => totalProjects.value)
+const filteredProjects = computed(() => projects.value)
 
-const totalPages = computed(() => Math.ceil(totalElements.value / perPage.value))
+const totalPages = computed(() => Math.max(1, Math.ceil(totalElements.value / perPage.value || 1)))
 
-const paginatedProjects = computed(() => totalProjects.value)
+const paginatedProjects = computed(() => projects.value)
+
+const paginationRange = computed(() => {
+  if (totalElements.value === 0) {
+    return { start: 0, end: 0 }
+  }
+  const start = (currentPage.value - 1) * perPage.value + 1
+  const end = Math.min(currentPage.value * perPage.value, totalElements.value)
+  return { start, end }
+})
 
 const visiblePages = computed(() => {
   const pages = []
@@ -363,7 +369,7 @@ const handleFilterChange = (newFilters: ProjectFilterSelection) => {
     sortOrder: newFilters.sortOrder
   }
   currentPage.value = 1
-  loadProjects()
+  void loadProjects()
 }
 
 const setViewMode = (mode: 'grid' | 'list') => {
@@ -400,9 +406,9 @@ const showProjectDocumentation = (project: Project) => {
 }
 
 const handleProjectLike = (project: Project) => {
-  const index = totalProjects.value.findIndex(p => p.id === project.id)
+  const index = projects.value.findIndex(p => p.id === project.id)
   if (index > -1) {
-    totalProjects.value[index] = { ...project }
+    projects.value[index] = { ...project }
   }
 
   if (selectedProject.value?.id === project.id) {
@@ -411,35 +417,47 @@ const handleProjectLike = (project: Project) => {
 }
 
 const resetFilters = () => {
+  filters.value = {}
   currentPage.value = 1
-  // 重置筛选条件
+  void loadProjects()
 }
 
-// 模拟数据加载
 const loadProjects = async () => {
   isLoading.value = true
   try {
-    const res = await getProjects({
+    const queryParams: Record<string, unknown> = {
       page: currentPage.value - 1,
       size: perPage.value,
-      keyword: filters.value.search,
-      category: filters.value.category,
-      status: filters.value.status
-    })
-    totalProjects.value = res.content || []
-    // Update total count if needed for pagination, but totalPages is computed from filteredProjects
-    // We need to update how pagination works if we use server-side pagination
+      keyword: filters.value.search || undefined,
+      category: filters.value.category && filters.value.category !== 'all' ? filters.value.category : undefined,
+      status: filters.value.status,
+      tag: filters.value.tags && filters.value.tags.length > 0 ? filters.value.tags[0] : undefined,
+      sortBy: filters.value.sortBy,
+      sortOrder: filters.value.sortOrder
+    }
+    const res = await getProjects(queryParams)
+    projects.value = res.content || []
+    totalElements.value = res.totalElements || projects.value.length
   } catch (err) {
     console.error('获取项目列表失败', err)
-    totalProjects.value = []
+    projects.value = []
+    totalElements.value = 0
   } finally {
     isLoading.value = false
   }
 }
 
-// 监听筛选条件变化
-watch([filteredProjects, perPage], () => {
-  currentPage.value = 1
+watch(currentPage, (newPage, oldPage) => {
+  if (newPage !== oldPage) {
+    void loadProjects()
+  }
+})
+
+watch(perPage, (newSize, oldSize) => {
+  if (newSize !== oldSize) {
+    currentPage.value = 1
+    void loadProjects()
+  }
 })
 
 // 生命周期
@@ -451,10 +469,11 @@ onMounted(() => {
 const openCreateModal = () => { isCreateModalVisible.value = true }
 const closeCreateModal = () => { isCreateModalVisible.value = false }
 
-const handleProjectCreated = (project: Project) => {
-  // 将新项目添加到列表顶部并关闭模态
-  totalProjects.value.unshift(project)
+const handleProjectCreated = () => {
   closeCreateModal()
+  // 刷新列表以确保数据与后端一致
+  currentPage.value = 1
+  void loadProjects()
 }
 
 </script>

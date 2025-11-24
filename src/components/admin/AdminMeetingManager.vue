@@ -21,8 +21,8 @@
     <!-- 筛选器 -->
     <div class="filter-section">
       <MeetingFilter 
-        v-model:filters="filters"
-        @change="handleFilterChange"
+        :initial-filters="filters"
+        @filter-change="handleFilterChange"
       />
     </div>
 
@@ -129,7 +129,7 @@
         </div>
 
         <div
-          v-else-if="filteredMeetings.length === 0"
+          v-else-if="meetings.length === 0"
           class="empty-state"
         >
           <div class="empty-icon">
@@ -152,7 +152,7 @@
             class="meetings-grid"
           >
             <div 
-              v-for="meeting in paginatedMeetings" 
+              v-for="meeting in meetings" 
               :key="meeting.id"
               class="meeting-grid-item"
             >
@@ -173,7 +173,7 @@
             class="meetings-list"
           >
             <div 
-              v-for="meeting in paginatedMeetings" 
+              v-for="meeting in meetings" 
               :key="meeting.id"
               class="meeting-list-item"
             >
@@ -302,9 +302,39 @@ import { GridIcon, ListIcon } from '@/components/icons'
 import MeetingFilter from '@/components/meetings/MeetingFilter.vue'
 import MeetingCard from '@/components/meetings/MeetingCard.vue'
 import MeetingDetailModal from '@/components/meetings/MeetingDetailModal.vue'
-import type { Meeting, FilterOptions } from '@/types/entities'
+import type { Meeting } from '@/types/entities'
 import { onAdminRefresh } from '@/utils/adminEvents'
 import { recordAdminOperation } from '@/composables/useAdminLogs'
+
+interface MeetingFilterState {
+  searchQuery?: string
+  statuses?: string[]
+  types?: string[]
+  attendeeSizes?: string[]
+  tags?: string[]
+  dateRange?: {
+    start: string
+    end: string
+  }
+  sortBy?: string
+  sortDirection?: 'asc' | 'desc'
+}
+
+const normalizeMeetingFilters = (incoming?: MeetingFilterState): MeetingFilterState => ({
+  searchQuery: incoming?.searchQuery ?? '',
+  statuses: incoming?.statuses ?? [],
+  types: incoming?.types ?? [],
+  attendeeSizes: incoming?.attendeeSizes ?? [],
+  tags: incoming?.tags ?? [],
+  dateRange: incoming?.dateRange
+    ? {
+        start: incoming.dateRange.start ?? '',
+        end: incoming.dateRange.end ?? ''
+      }
+    : undefined,
+  sortBy: incoming?.sortBy ?? 'date',
+  sortDirection: incoming?.sortDirection ?? 'desc'
+})
 
 // 设置页面元数据
 useHead({
@@ -319,18 +349,59 @@ const meetings = ref<Meeting[]>([])
 const loading = ref(false)
 const viewMode = ref<'grid' | 'list'>('grid')
 
-const filters = ref<FilterOptions>({
-  search: '',
-  status: '',
-  sortBy: 'date',
-  sortOrder: 'desc'
-})
+const filters = ref<MeetingFilterState>(normalizeMeetingFilters())
 
 const pagination = ref({
   current: 1,
   pageSize: 12,
   total: 0
 })
+
+const buildMeetingQueryParams = () => {
+  const params: Record<string, unknown> = {
+    page: pagination.value.current - 1,
+    size: pagination.value.pageSize
+  }
+
+  const keyword = filters.value.searchQuery?.trim()
+  if (keyword) {
+    params.keyword = keyword
+  }
+
+  if (filters.value.statuses?.length) {
+    params.statuses = filters.value.statuses
+  }
+
+  if (filters.value.types?.length) {
+    params.types = filters.value.types
+  }
+
+  if (filters.value.attendeeSizes?.length) {
+    params.attendeeSizes = filters.value.attendeeSizes
+  }
+
+  if (filters.value.tags?.length) {
+    params.tags = filters.value.tags
+  }
+
+  if (filters.value.dateRange?.start) {
+    params.startDate = filters.value.dateRange.start
+  }
+
+  if (filters.value.dateRange?.end) {
+    params.endDate = filters.value.dateRange.end
+  }
+
+  if (filters.value.sortBy) {
+    params.sortBy = filters.value.sortBy
+  }
+
+  if (filters.value.sortDirection) {
+    params.sortOrder = filters.value.sortDirection
+  }
+
+  return params
+}
 
 const detailModal = ref({
   show: false,
@@ -350,9 +421,6 @@ const deleteModal = ref({
 })
 
 // 计算属性
-const filteredMeetings = computed(() => meetings.value)
-
-const paginatedMeetings = computed(() => meetings.value)
 
 type MeetingLogAction = 'create' | 'update' | 'delete' | 'refresh' | 'duplicate'
 
@@ -374,12 +442,12 @@ watch(() => pagination.value.current, () => {
   loadMeetings()
 })
 
-watch(() => filters.value, () => {
+watch(filters, () => {
   pagination.value.current = 1
   loadMeetings()
 }, { deep: true })
 
-const totalMeetings = computed(() => meetings.value.length)
+const totalMeetings = computed(() => pagination.value.total)
 
 const recentMeetings = computed(() => {
   const thisWeek = new Date()
@@ -410,16 +478,12 @@ const formatDate = (dateStr: string) => {
 const loadMeetings = async () => {
   loading.value = true
   try {
-    const response = await getMeetings({
-      page: pagination.value.current - 1, // API uses 0-based indexing
-      size: pagination.value.pageSize,
-      keyword: filters.value.search,
-      // startDate: filters.value.dateRange?.start, // Assuming filters might have dateRange later or we ignore it for now if not in FilterOptions
-      // endDate: filters.value.dateRange?.end
-    })
+    const response = await getMeetings(buildMeetingQueryParams())
     
     meetings.value = response.content
     pagination.value.total = response.totalElements
+    pagination.value.pageSize = response.size
+    pagination.value.current = response.number + 1
   } catch (error) {
     console.error('加载例会数据失败:', error)
   } finally {
@@ -427,8 +491,8 @@ const loadMeetings = async () => {
   }
 }
 
-const handleFilterChange = () => {
-  pagination.value.current = 1
+const handleFilterChange = (nextFilters: MeetingFilterState) => {
+  filters.value = normalizeMeetingFilters(nextFilters)
 }
 
 const handlePageChange = (page: number) => {
@@ -479,16 +543,21 @@ const handleDelete = (meeting: Meeting) => {
   }
 }
 
-const handleDuplicate = (meeting: Meeting) => {
-  const duplicatedMeeting = {
-    ...meeting,
-    id: Date.now().toString(),
-    title: `${meeting.title} (副本)`,
-    date: new Date().toISOString().split('T')[0]
+const handleDuplicate = async (meeting: Meeting) => {
+  try {
+    const payload: Partial<Meeting> = {
+      ...meeting,
+      id: undefined,
+      title: `${meeting.title} (副本)`,
+      date: new Date().toISOString().split('T')[0]
+    }
+    const duplicated = await createMeeting(payload)
+    await loadMeetings()
+    logMeetingAction('duplicate', `复制例会「${meeting.title}」`, 'success', duplicated.id)
+  } catch (error) {
+    console.error('复制例会失败:', error)
+    logMeetingAction('duplicate', `复制例会「${meeting.title}」失败`, 'failure', meeting.id)
   }
-  
-  meetings.value.unshift(duplicatedMeeting)
-  logMeetingAction('duplicate', `复制例会「${meeting.title}」`, 'success', meeting.id)
 }
 
 const handleSave = async (meeting: Meeting) => {
