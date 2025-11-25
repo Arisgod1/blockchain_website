@@ -522,7 +522,7 @@ const handleProjectCreated = () => {
 .page-content {
   @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8;
   display: grid;
-  grid-template-columns: 300px 1fr;
+  grid-template-columns: 400px 1fr;
   gap: 2rem;
 }
 
@@ -531,7 +531,7 @@ const handleProjectCreated = () => {
 }
 
 .sidebar-header {
-  @apply flex items-center justify-between mb-6;
+  @apply flex items-center justify-between mb-8;
 }
 
 .sidebar-title {

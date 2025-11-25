@@ -24,19 +24,7 @@
     <!-- 筛选器网格 -->
     <div class="filter-grid">
       <!-- 分类筛选 -->
-      <div class="filter-group">
-        <label class="filter-label">项目分类</label>
-        <div class="category-tags">
-          <button
-            v-for="category in categories"
-            :key="category.value"
-            :class="['category-tag', { active: selectedCategory === category.value }]"
-            @click="selectCategory(category.value)"
-          >
-            {{ category.label }}
-          </button>
-        </div>
-      </div>
+      
 
       <!-- 状态筛选 -->
       <div class="filter-group">
@@ -132,21 +120,14 @@
               完成进度
             </option>
           </select>
-          <button 
-            class="sort-order-btn"
-            :class="{ desc: sortOrder === 'desc' }"
-            @click="toggleSortOrder"
-          >
-            <ArrowUpIcon v-if="sortOrder === 'asc'" />
-            <ArrowDownIcon v-else />
-          </button>
+         
         </div>
       </div>
 
       <!-- 团队规模 -->
       <div class="filter-group">
         <label class="filter-label">团队规模</label>
-        <div class="team-size-options">
+        
           <label 
             v-for="size in teamSizes" 
             :key="size.value"
@@ -160,7 +141,7 @@
             >
             <span class="size-text">{{ size.label }}</span>
           </label>
-        </div>
+        
       </div>
 
       <!-- 活跃状态 -->
@@ -515,7 +496,7 @@ const emit = defineEmits<Emits>()
 }
 
 .sort-options {
-  @apply flex gap-2;
+  @apply flex gap-1;
 }
 
 .sort-select {
