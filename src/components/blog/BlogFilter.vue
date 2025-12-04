@@ -26,39 +26,25 @@
       <!-- 分类筛选 -->
       <div class="filter-group">
         <label class="filter-label">文章分类</label>
-        <div class="category-tags">
-          <button
-            v-for="category in categories"
-            :key="category.value"
-            :class="['category-tag', { active: selectedCategory === category.value }]"
-            @click="selectCategory(category.value)"
+        <div>
+          <select
+            v-model="selectedCategory"
+            class="category-select"
+            @change="handleCategoryChange"
           >
-            <component
-              :is="category.icon"
-              v-if="category.icon"
-              class="category-icon"
-            />
-            {{ category.label }}
-          </button>
+            <option
+              v-for="category in categories"
+              :key="category.value"
+              :value="category.value"
+            >
+              {{ category.label }}
+            </option>
+          </select>
         </div>
       </div>
 
       <!-- 标签云 -->
-      <div class="filter-group">
-        <label class="filter-label">热门标签</label>
-        <div class="tag-cloud">
-          <button
-            v-for="tag in popularTags"
-            :key="tag.name"
-            :class="['tag-cloud-item', { active: selectedTags.includes(tag.name) }]"
-            :style="{ fontSize: `${Math.max(0.8, Math.min(1.4, tag.weight))}rem` }"
-            @click="toggleTag(tag.name)"
-          >
-            {{ tag.name }}
-            <span class="tag-count">{{ tag.count }}</span>
-          </button>
-        </div>
-      </div>
+      
 
       <!-- 作者筛选 -->
       <div class="filter-group">
@@ -151,29 +137,7 @@
       </div>
 
       <!-- 阅读难度 -->
-      <div class="filter-group">
-        <label class="filter-label">阅读难度</label>
-        <div class="difficulty-filters">
-          <label 
-            v-for="level in difficultyLevels" 
-            :key="level.value"
-            class="difficulty-option"
-          >
-            <input
-              v-model="selectedDifficulties"
-              type="checkbox"
-              :value="level.value"
-              @change="handleDifficultyChange"
-            >
-            <span
-              class="difficulty-text"
-              :class="`difficulty-${level.value}`"
-            >
-              {{ level.label }}
-            </span>
-          </label>
-        </div>
-      </div>
+      
     </div>
 
     <!-- 活跃标签显示 -->
@@ -384,8 +348,14 @@ const handleSearch = () => {
   emitFilterChange()
 }
 
+// called when category select changes
 const selectCategory = (category: string) => {
   selectedCategory.value = category
+  emitFilterChange()
+}
+
+const handleCategoryChange = () => {
+  // select's v-model already updated selectedCategory
   emitFilterChange()
 }
 
@@ -576,13 +546,21 @@ const emit = defineEmits<Emits>()
 }
 
 .author-select,
-.date-select,
+.date-select {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+}
+
 .sort-select {
+  @apply px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  min-width: 200px;
+}
+
+.category-select {
   @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent;
 }
 
 .sort-options {
-  @apply flex gap-2;
+  @apply flex gap-0 ;
 }
 
 .sort-order-btn {

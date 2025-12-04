@@ -62,49 +62,10 @@
       </div>
 
       <!-- 会议类型 -->
-      <div class="filter-group">
-        <label class="filter-label">会议类型</label>
-        <div class="filter-options">
-          <label 
-            v-for="type in typeOptions"
-            :key="type.value"
-            class="filter-option"
-          >
-            <input
-              v-model="selectedTypes"
-              type="checkbox"
-              :value="type.value"
-              class="filter-checkbox"
-              @change="handleFilterChange"
-            >
-            <span class="filter-text">{{ type.label }}</span>
-            <span class="filter-count">({{ getTypeCount(type.value) }})</span>
-          </label>
-        </div>
-      </div>
+      
 
       <!-- 参与人数 -->
-      <div class="filter-group">
-        <label class="filter-label">参与人数</label>
-        <div class="filter-options">
-          <label 
-            v-for="size in attendeeSizeOptions"
-            :key="size.value"
-            class="filter-option"
-          >
-            <input
-              v-model="selectedAttendeeSizes"
-              type="checkbox"
-              :value="size.value"
-              class="filter-checkbox"
-              @change="handleFilterChange"
-            >
-            <span class="filter-text">{{ size.label }}</span>
-            <span class="filter-count">({{ getAttendeeSizeCount(size.value) }})</span>
-          </label>
-        </div>
-      </div>
-
+     
       <!-- 时间范围 -->
       <div class="filter-group">
         <label class="filter-label">时间范围</label>
@@ -116,6 +77,7 @@
             @change="handleFilterChange"
           >
           <span class="date-separator">至</span>
+          
           <input
             v-model="dateRange.end"
             type="date"
@@ -126,20 +88,7 @@
       </div>
 
       <!-- 标签筛选 -->
-      <div class="filter-group">
-        <label class="filter-label">相关标签</label>
-        <div class="tag-cloud">
-          <button
-            v-for="tag in popularTags"
-            :key="tag"
-            class="tag-button"
-            :class="{ 'is-active': selectedTags.includes(tag) }"
-            @click="toggleTag(tag)"
-          >
-            {{ tag }}
-          </button>
-        </div>
-      </div>
+      
     </div>
 
     <!-- 排序选项 -->
@@ -572,7 +521,7 @@ watch(() => props.initialFilters, initializeFilters, { immediate: true })
 
 /* 日期范围 */
 .date-range {
-  @apply flex items-center space-x-2;
+  @apply  items-center space-x-2;
 }
 
 .date-input {

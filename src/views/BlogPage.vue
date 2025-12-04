@@ -63,14 +63,7 @@
           <GridIcon />
           网格
         </button>
-        <button
-          class="action-btn"
-          :class="{ active: showBookmarkedOnly }"
-          @click="toggleBookmark"
-        >
-          <BookmarkIcon />
-          收藏
-        </button>
+        
       </div>
     </header>
 

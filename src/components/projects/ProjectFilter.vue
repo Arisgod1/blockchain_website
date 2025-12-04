@@ -7,7 +7,7 @@
         <input
           v-model="searchQuery"
           type="text"
-          placeholder="搜索项目名称、描述、技术栈..."
+          placeholder="搜索项目名称、描述..."
           class="search-input"
           @input="handleSearch"
         >
@@ -46,54 +46,7 @@
         </div>
       </div>
 
-      <!-- 技术栈筛选 -->
-      <div class="filter-group">
-        <label class="filter-label">技术栈</label>
-        <div class="tech-stack-filters">
-          <div
-            v-if="selectedTechStack.length > 0"
-            class="selected-techs"
-          >
-            <span 
-              v-for="tech in selectedTechStack" 
-              :key="tech"
-              class="selected-tech-tag"
-            >
-              {{ tech }}
-              <button
-                class="remove-tech-btn"
-                @click="removeTech(tech)"
-              >
-                <XIcon />
-              </button>
-            </span>
-            <button
-              class="clear-tech-btn"
-              @click="clearTechStack"
-            >
-              清除全部
-            </button>
-          </div>
-          <div class="tech-stack-selector">
-            <select 
-              v-model="techToAdd"
-              class="tech-select"
-              @change="addTech"
-            >
-              <option value="">
-                选择技术栈
-              </option>
-              <option 
-                v-for="tech in availableTechStack" 
-                :key="tech"
-                :value="tech"
-              >
-                {{ tech }}
-              </option>
-            </select>
-          </div>
-        </div>
-      </div>
+      
 
       <!-- 排序选项 -->
       <div class="filter-group">
@@ -124,40 +77,10 @@
         </div>
       </div>
 
-      <!-- 团队规模 -->
-      <div class="filter-group">
-        <label class="filter-label">团队规模</label>
-        
-          <label 
-            v-for="size in teamSizes" 
-            :key="size.value"
-            class="team-size-option"
-          >
-            <input
-              v-model="selectedTeamSizes"
-              type="checkbox"
-              :value="size.value"
-              @change="handleTeamSizeChange"
-            >
-            <span class="size-text">{{ size.label }}</span>
-          </label>
-        
-      </div>
+     
+     
 
-      <!-- 活跃状态 -->
-      <div class="filter-group">
-        <label class="filter-label">活跃状态</label>
-        <div class="activity-filter">
-          <label class="activity-option">
-            <input
-              v-model="showActiveOnly"
-              type="checkbox"
-              @change="handleActivityFilter"
-            >
-            <span class="activity-text">只显示活跃项目</span>
-          </label>
-        </div>
-      </div>
+
     </div>
 
     <!-- 筛选结果统计 -->
@@ -246,13 +169,7 @@ const projectStatuses = [
   { label: '已暂停', value: 'paused' }
 ]
 
-// 技术栈选项
-const availableTechStack = [
-  'Solidity', 'Rust', 'Go', 'JavaScript', 'TypeScript',
-  'Python', 'Java', 'C++', 'React', 'Vue.js', 'Node.js',
-  'Web3.js', 'Ethers.js', 'Hardhat', 'Truffle', 'IPFS',
-  'The Graph', 'GraphQL', 'PostgreSQL', 'MongoDB', 'Redis'
-]
+
 
 // 团队规模选项
 const teamSizes = [

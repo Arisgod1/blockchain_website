@@ -7,7 +7,7 @@
         <input
           v-model="localFilters.search"
           type="text"
-          placeholder="搜索成员姓名或技能..."
+          placeholder="搜索成员姓名..."
           class="search-input"
           @input="handleSearch"
         >
@@ -44,22 +44,7 @@
     </div>
 
     <!-- 技术栈筛选 -->
-    <div class="filter-section">
-      <h4 class="filter-title">
-        技术栈
-      </h4>
-      <div class="filter-chips">
-        <button
-          v-for="tech in techStacks"
-          :key="tech"
-          class="filter-chip"
-          :class="{ active: localFilters.skills.includes(tech) }"
-          @click="toggleSkill(tech)"
-        >
-          {{ tech }}
-        </button>
-      </div>
-    </div>
+    
 
     <!-- 排序选项 -->
     <div class="filter-section">
@@ -71,6 +56,9 @@
         class="sort-select"
         @change="handleSortChange"
       >
+       <option value="role">
+          按角色
+        </option>
         <option value="name">
           按姓名排序
         </option>
@@ -80,9 +68,7 @@
         <option value="projectCount">
           按项目数量
         </option>
-        <option value="role">
-          按角色
-        </option>
+        
       </select>
     </div>
 

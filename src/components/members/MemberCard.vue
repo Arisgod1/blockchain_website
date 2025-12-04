@@ -12,10 +12,10 @@
       <div class="card-front">
         <div class="member-avatar">
           <img 
-            :src="member.avatar || '/images/default-avatar.png'" 
+            :src="member.avatar || defaultAvatar" 
             :alt="member.name" 
             @error="handleImageError"
-          >
+          />
           <div
             class="member-role-badge"
             :class="`role-${getRoleClass(member.role)}`"
@@ -105,6 +105,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import defaultAvatar from '@/assets/zhaoshuyang.png'
 import type { Member } from '@/types/entities'
 import { GithubIcon, EmailIcon, LinkedInIcon, CalendarIcon, ProjectIcon } from '@/components/icons'
 
@@ -147,7 +148,7 @@ const formatJoinDate = (dateString: string) => {
 // 处理头像加载失败
 const handleImageError = (event: Event) => {
   const img = event.target as HTMLImageElement
-  img.src = '/images/default-avatar.png'
+  img.src = defaultAvatar
 }
 
 defineExpose({

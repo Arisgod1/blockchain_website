@@ -281,7 +281,7 @@ import MemberFilter from '@/components/members/MemberFilter.vue'
 import BaseButton from '@/components/common/BaseButton.vue'
 import BasePagination from '@/components/common/BasePagination.vue'
 import BaseModal from '@/components/common/BaseModal.vue'
-
+import{throttle } from '@/utils/jieliu.ts'
 interface MemberFiltersState {
   search: string
   role: string
@@ -299,7 +299,7 @@ const filters = ref<MemberFiltersState>({
   search: '',
   role: 'all',
   skills: [],
-  sortBy: 'name',
+  sortBy: 'role',
   isActive: undefined
 })
 
@@ -418,11 +418,11 @@ const loadMembers = async () => {
     isLoading.value = false
   }
 }
-
+const throttlloadMembers = throttle(loadMembers, 5000);
 const handleFiltersChange = (newFilters: MemberFiltersPayload) => {
   filters.value = { ...filters.value, ...newFilters }
   currentPage.value = 1
-  loadMembers()
+  throttlloadMembers()
 }
 
 const handlePageChange = (page: number) => {
@@ -444,7 +444,7 @@ const clearAllFilters = () => {
     isActive: undefined
   }
   currentPage.value = 1
-  loadMembers()
+  throttlloadMembers()
 }
 
 const formatDate = (dateString: string) => {
@@ -464,7 +464,7 @@ onMounted(() => {
     document.head.appendChild(meta)
   }
 
-  loadMembers()
+  throttlloadMembers()
 })
 </script>
 
