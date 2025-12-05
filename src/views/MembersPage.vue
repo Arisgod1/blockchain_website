@@ -281,7 +281,7 @@ import MemberFilter from '@/components/members/MemberFilter.vue'
 import BaseButton from '@/components/common/BaseButton.vue'
 import BasePagination from '@/components/common/BasePagination.vue'
 import BaseModal from '@/components/common/BaseModal.vue'
-import{throttle } from '@/utils/jieliu.ts'
+import { throttle } from '@/utils/jieliu'
 interface MemberFiltersState {
   search: string
   role: string
@@ -401,6 +401,62 @@ const paginatedMembers = computed(() => {
 
 const fetchPageSize = computed(() => Math.max(pageSize.value * 3, 30))
 
+type RawMember = Partial<Member> & Record<string, unknown>
+
+const normalizeMember = (raw: RawMember): Member => {
+  const joinDate = typeof raw.joinDate === 'string' && raw.joinDate
+    ? raw.joinDate
+    : typeof raw.createdAt === 'string' && raw.createdAt
+      ? raw.createdAt
+      : ''
+
+  const skills = Array.isArray(raw.skills)
+    ? (raw.skills as unknown[]).filter((skill): skill is string => typeof skill === 'string')
+    : []
+
+  const projectCount = typeof raw.projectCount === 'number'
+    ? raw.projectCount
+    : 0
+
+  const status = typeof raw.status === 'string' ? raw.status : undefined
+  const isActive = typeof raw.isActive === 'boolean'
+    ? raw.isActive
+    : status === 'ACTIVE'
+
+  const id = raw.id !== undefined ? String(raw.id) : `${Date.now()}-${Math.random().toString(36).slice(2)}`
+  const name = typeof raw.name === 'string' ? raw.name : '未知成员'
+  const role = typeof raw.role === 'string' ? raw.role : '成员'
+
+  return {
+    id,
+    name,
+    role,
+    avatar: typeof raw.avatar === 'string' && raw.avatar
+      ? raw.avatar
+      : typeof raw.avatarUrl === 'string'
+        ? raw.avatarUrl
+        : undefined,
+    bio: typeof raw.bio === 'string' ? raw.bio : undefined,
+    skills,
+    grade: typeof raw.grade === 'string' ? raw.grade : undefined,
+    major: typeof raw.major === 'string' ? raw.major : undefined,
+    projectCount,
+    email: typeof raw.email === 'string' ? raw.email : undefined,
+    github: typeof raw.github === 'string'
+      ? raw.github
+      : typeof raw.githubUrl === 'string'
+        ? raw.githubUrl
+        : undefined,
+    linkedin: typeof raw.linkedin === 'string'
+      ? raw.linkedin
+      : typeof raw.linkedinUrl === 'string'
+        ? raw.linkedinUrl
+        : undefined,
+    joinDate,
+    isActive
+  }
+}
+
 const loadMembers = async () => {
   isLoading.value = true
   try {
@@ -410,7 +466,8 @@ const loadMembers = async () => {
       keyword: filters.value.search || undefined,
       role: filters.value.role !== 'all' ? filters.value.role : undefined
     })
-    allMembers.value = response.content ?? []
+    const rawList = response.content ?? []
+    allMembers.value = rawList.map((member) => normalizeMember(member as RawMember))
   } catch (error) {
     console.error('获取成员列表失败:', error)
     allMembers.value = []
@@ -448,7 +505,9 @@ const clearAllFilters = () => {
 }
 
 const formatDate = (dateString: string) => {
+  if (!dateString) return '未知'
   const date = new Date(dateString)
+  if (Number.isNaN(date.getTime())) return '未知'
   return `${date.getFullYear()}年${date.getMonth() + 1}月`
 }
 

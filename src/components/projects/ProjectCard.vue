@@ -7,7 +7,7 @@
   >
     <div class="project-image">
       <img 
-        :src="project.images?.[0] || project.imageUrl || '/images/default-project.png'" 
+        :src="project.images?.[0] ||  withDefaults" 
         :alt="project.title || project.name || '项目封面'"
         @error="handleImageError"
       >
@@ -150,7 +150,7 @@ import {
   CalendarCheckIcon,
   UsersIcon
 } from '@/components/icons'
-
+import  withDefaults  from '@/assets/logo-circle.png'
 interface Props {
   project: Project
 }

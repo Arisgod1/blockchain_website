@@ -1,6 +1,7 @@
 import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from 'axios'
 import { useAppStore } from '@/store/app'
 import type { ApiResponse } from '@/types/entities'
+import type { PageResult } from '@/api/utils'
 import { MOCK_PROJECTS } from '@/common_value/projects'
 import { MOCK_MEMBERS } from '@/common_value/members'
 import { MOCK_ARTICLES } from '@/common_value/articles'
@@ -22,6 +23,44 @@ class ApiService {
     })
 
     this.setupInterceptors()
+  }
+
+  private isPageResultPayload(payload: unknown): payload is PageResult<unknown> {
+    if (!payload || typeof payload !== 'object') return false
+    const record = payload as Record<string, unknown>
+    return Array.isArray(record.content) && typeof record.totalElements === 'number' && typeof record.totalPages === 'number'
+  }
+
+  private normalizeResponsePayload<T>(raw: unknown): ApiResponse<T> {
+    if (raw && typeof raw === 'object') {
+      const record = raw as Record<string, unknown>
+
+      if (typeof record.code === 'number') {
+        return {
+          code: record.code,
+          message: typeof record.message === 'string' ? record.message : undefined,
+          data: record.data as T,
+          timestamp: typeof record.timestamp === 'number' ? record.timestamp : Date.now(),
+          error: typeof record.error === 'string' ? record.error : undefined
+        }
+      }
+
+      if (this.isPageResultPayload(record)) {
+        return {
+          code: 200,
+          message: 'OK',
+          data: raw as T,
+          timestamp: Date.now()
+        }
+      }
+    }
+
+    return {
+      code: 200,
+      message: 'OK',
+      data: raw as T,
+      timestamp: Date.now()
+    }
   }
 
   private getMockData(url: string): unknown {
@@ -162,31 +201,31 @@ class ApiService {
   // GET 请求
   async get<T>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
     const response = await this.instance.get(url, config)
-    return response.data
+    return this.normalizeResponsePayload<T>(response.data)
   }
 
   // POST 请求
   async post<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
     const response = await this.instance.post(url, data, config)
-    return response.data
+    return this.normalizeResponsePayload<T>(response.data)
   }
 
   // PUT 请求
   async put<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
     const response = await this.instance.put(url, data, config)
-    return response.data
+    return this.normalizeResponsePayload<T>(response.data)
   }
 
   // PATCH 请求
   async patch<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
     const response = await this.instance.patch(url, data, config)
-    return response.data
+    return this.normalizeResponsePayload<T>(response.data)
   }
 
   // DELETE 请求
   async delete<T>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
     const response = await this.instance.delete(url, config)
-    return response.data
+    return this.normalizeResponsePayload<T>(response.data)
   }
 
   // 文件上传
@@ -198,7 +237,7 @@ class ApiService {
         ...config?.headers
       }
     })
-    return response.data
+    return this.normalizeResponsePayload<T>(response.data)
   }
 
   // 下载文件

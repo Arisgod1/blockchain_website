@@ -5,7 +5,7 @@
   >
     <div class="article-image">
       <img 
-        :src="article.coverImage || '/images/default-article.jpg'" 
+        :src="avatar||article.coverImage || avatar" 
         :alt="article.title"
         loading="lazy"
         @error="handleImageError"
@@ -33,7 +33,7 @@
         <div class="article-meta">
           <div class="author-info">
             <img 
-              :src="article.author?.avatar || '/images/default-avatar.png'" 
+              :src="article.author?.avatar || defaultAvatar" 
               :alt="article.author?.name || '匿名作者'" 
               class="author-avatar"
               @error="handleAuthorAvatarError"
@@ -109,7 +109,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Article } from '@/types/entities'
-
+import avatar from '@/assets/richang2.png'
+import defaultAvatar from '@/assets/zhaoshuyang.png'
 interface Props {
   article: Article
 }
