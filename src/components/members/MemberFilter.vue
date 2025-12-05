@@ -56,7 +56,7 @@
         class="sort-select"
         @change="handleSortChange"
       >
-       <option value="role">
+        <option value="role">
           按角色
         </option>
         <option value="name">
@@ -68,7 +68,6 @@
         <option value="projectCount">
           按项目数量
         </option>
-        
       </select>
     </div>
 
@@ -179,20 +178,6 @@ const clearSearch = () => {
 // 选择角色
 const selectRole = (roleId: string) => {
   localFilters.value.role = roleId
-  updateFilters()
-}
-
-// 切换技能筛选
-const toggleSkill = (skill: string) => {
-  const skills = localFilters.value.skills
-  const index = skills.indexOf(skill)
-  
-  if (index > -1) {
-    skills.splice(index, 1)
-  } else {
-    skills.push(skill)
-  }
-  
   updateFilters()
 }
 

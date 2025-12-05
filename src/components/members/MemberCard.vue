@@ -15,7 +15,7 @@
             :src="member.avatar || defaultAvatar" 
             :alt="member.name" 
             @error="handleImageError"
-          />
+          >
           <div
             class="member-role-badge"
             :class="`role-${getRoleClass(member.role)}`"

@@ -97,6 +97,37 @@ const routes: RouteRecordRaw[] = [
         name: 'AdminMembers',
         component: () => import('@/components/admin/AdminMemberManager.vue'),
         meta: { title: '成员管理' }
+      },
+      {
+        path: 'projects',
+        name: 'AdminProjects',
+        component: () => import('@/components/admin/AdminProjectManager.vue'),
+        meta: { title: '项目管理' }
+      },
+      {
+        path: 'articles',
+        name: 'AdminArticles',
+        component: () => import('@/components/admin/AdminArticleManager.vue'),
+        meta: { title: '内容管理' }
+      },
+      {
+        path: 'files',
+        name: 'AdminFiles',
+        component: () => import('@/components/admin/AdminFileManager.vue'),
+        meta: { title: '文件管理' }
+      },
+      {
+        path: 'logs',
+        name: 'AdminLogs',
+        component: () => import('@/components/admin/AdminLogViewer.vue'),
+        meta: { title: '操作日志' }
+      },
+      {
+        path: 'settings',
+        name: 'AdminSettings',
+        // 占位组件，待后续完善系统设置页
+        component: { template: '<div />' },
+        meta: { title: '系统设置' }
       }
     ]
   },

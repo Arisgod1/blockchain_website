@@ -65,7 +65,7 @@
                   class="nav-link"
                   :class="{ active: activeTab === 'meetings' }"
                   title="例会管理"
-                  @click="activeTab = 'meetings'"
+                  @click="switchTab('meetings')"
                 >
                   <span class="nav-icon">📋</span>
                   <span
@@ -80,7 +80,7 @@
                   class="nav-link"
                   :class="{ active: activeTab === 'members' }"
                   title="成员管理"
-                  @click="activeTab = 'members'"
+                  @click="switchTab('members')"
                 >
                   <span class="nav-icon">👥</span>
                   <span
@@ -95,7 +95,7 @@
                   class="nav-link"
                   :class="{ active: activeTab === 'projects' }"
                   title="项目管理"
-                  @click="activeTab = 'projects'"
+                  @click="switchTab('projects')"
                 >
                   <span class="nav-icon">📊</span>
                   <span
@@ -110,7 +110,7 @@
                   class="nav-link"
                   :class="{ active: activeTab === 'articles' }"
                   title="内容管理"
-                  @click="activeTab = 'articles'"
+                  @click="switchTab('articles')"
                 >
                   <span class="nav-icon">📝</span>
                   <span
@@ -125,7 +125,7 @@
                   class="nav-link"
                   :class="{ active: activeTab === 'files' }"
                   title="文件管理"
-                  @click="activeTab = 'files'"
+                  @click="switchTab('files')"
                 >
                   <span class="nav-icon">📁</span>
                   <span
@@ -150,7 +150,7 @@
                   class="nav-link"
                   :class="{ active: activeTab === 'settings' }"
                   title="系统设置"
-                  @click="activeTab = 'settings'"
+                  @click="switchTab('settings')"
                 >
                   <span class="nav-icon">⚙️</span>
                   <span
@@ -165,7 +165,7 @@
                   class="nav-link"
                   :class="{ active: activeTab === 'logs' }"
                   title="操作日志"
-                  @click="activeTab = 'logs'"
+                  @click="switchTab('logs')"
                 >
                   <span class="nav-icon">📄</span>
                   <span
@@ -183,77 +183,7 @@
       <main class="admin-main">
         <div class="main-content">
           <!-- 例会管理 -->
-          <div
-            v-if="activeTab === 'meetings'"
-            class="tab-content"
-          >
-            <AdminMeetingManager />
-          </div>
-
-          <!-- 成员管理 -->
-          <div
-            v-else-if="activeTab === 'members'"
-            class="tab-content"
-          >
-            <AdminMemberManager />
-          </div>
-
-          <!-- 项目管理 -->
-          <div
-            v-else-if="activeTab === 'projects'"
-            class="tab-content"
-          >
-            <AdminProjectManager />
-          </div>
-
-          <!-- 内容管理 -->
-          <div
-            v-else-if="activeTab === 'articles'"
-            class="tab-content"
-          >
-            <AdminArticleManager />
-          </div>
-
-          <!-- 文件管理 -->
-          <div
-            v-else-if="activeTab === 'files'"
-            class="tab-content"
-          >
-            <AdminFileManager />
-          </div>
-
-          <!-- 系统设置 -->
-          <div
-            v-else-if="activeTab === 'settings'"
-            class="tab-content"
-          >
-            <div class="coming-soon">
-              <div class="coming-soon-icon">
-                ⚙️
-              </div>
-              <h2>系统设置</h2>
-              <p>该功能正在开发中，敬请期待...</p>
-            </div>
-          </div>
-
-          <!-- 操作日志 -->
-          <div
-            v-else-if="activeTab === 'logs'"
-            class="tab-content"
-          >
-            <AdminLogViewer />
-          </div>
-
-          <!-- 默认标签页 -->
-          <div
-            v-else
-            class="tab-content"
-          >
-            <div class="welcome-section">
-              <h2>欢迎使用管理员后台</h2>
-              <p>选择左侧菜单开始管理功能</p>
-            </div>
-          </div>
+          <RouterView />
         </div>
       </main>
     </div>
@@ -289,15 +219,10 @@
 </template>
 
 <script setup lang="ts">
- import { ref, onMounted, onUnmounted } from 'vue'
+ import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useHead } from '@vueuse/head'
 import { BaseButton, BaseModal } from '@/components/common'
-import AdminMeetingManager from '@/components/admin/AdminMeetingManager.vue'
-import AdminMemberManager from '@/components/admin/AdminMemberManager.vue'
-import AdminProjectManager from '@/components/admin/AdminProjectManager.vue'
-import AdminArticleManager from '@/components/admin/AdminArticleManager.vue'
-import AdminFileManager from '@/components/admin/AdminFileManager.vue'
-import AdminLogViewer from '@/components/admin/AdminLogViewer.vue'
 import { dispatchAdminRefresh } from '@/utils/adminEvents'
 import type { AdminUser } from '@/types/entities'
 
@@ -311,12 +236,53 @@ useHead({
 
 // 响应式数据
 const sidebarCollapsed = ref(false)
-const activeTab = ref('welcome')
+type TabKey = 'meetings' | 'members' | 'projects' | 'articles' | 'files' | 'settings' | 'logs'
+const activeTab = ref<TabKey>('meetings')
 const confirmExitModal = ref(false)
 const exiting = ref(false)
 
 // 当前管理员信息
 const currentAdmin = ref<AdminUser | null>(null)
+
+const router = useRouter()
+const route = useRoute()
+
+const tabRouteMap: Record<TabKey, string> = {
+  meetings: 'AdminDashboard',
+  members: 'AdminMembers',
+  projects: 'AdminProjects',
+  articles: 'AdminArticles',
+  files: 'AdminFiles',
+  settings: 'AdminSettings',
+  logs: 'AdminLogs'
+}
+
+const resolveTabFromRoute = (name?: string | symbol): TabKey => {
+  switch (name) {
+    case 'AdminMembers':
+      return 'members'
+    case 'AdminProjects':
+      return 'projects'
+    case 'AdminArticles':
+      return 'articles'
+    case 'AdminFiles':
+      return 'files'
+    case 'AdminSettings':
+      return 'settings'
+    case 'AdminLogs':
+      return 'logs'
+    default:
+      return 'meetings'
+  }
+}
+
+const switchTab = (tab: TabKey) => {
+  activeTab.value = tab
+  const targetName = tabRouteMap[tab]
+  if (route.name !== targetName) {
+    router.push({ name: targetName }).catch(() => {})
+  }
+}
 
 // 快捷键处理
 const handleKeyboardShortcuts = (event: KeyboardEvent) => {
@@ -340,7 +306,7 @@ const handleKeyboardShortcuts = (event: KeyboardEvent) => {
     const tab = keyMap[event.key]
     if (tab) {
       event.preventDefault()
-      activeTab.value = tab
+      switchTab(tab as TabKey)
     }
   }
   
@@ -404,6 +370,9 @@ onMounted(() => {
     }
   }
   
+  // 根据当前路由同步 tab
+  activeTab.value = resolveTabFromRoute(route.name)
+
   // 注册快捷键事件监听
   document.addEventListener('keydown', handleKeyboardShortcuts)
 })
@@ -412,6 +381,16 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener('keydown', handleKeyboardShortcuts)
 })
+
+watch(
+  () => route.name,
+  (name) => {
+    const resolved = resolveTabFromRoute(name)
+    if (activeTab.value !== resolved) {
+      activeTab.value = resolved
+    }
+  }
+)
 </script>
 
 <style scoped>

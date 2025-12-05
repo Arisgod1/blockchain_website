@@ -63,7 +63,6 @@
           <GridIcon />
           网格
         </button>
-        
       </div>
     </header>
 
@@ -260,7 +259,6 @@ import {
   FilterIcon,
   ListIcon,
   GridIcon,
-  BookmarkIcon,
   XIcon,
   ChevronUpIcon,
   ChevronDownIcon,
@@ -472,10 +470,6 @@ const toggleView = () => {
   viewMode.value = viewMode.value === 'grid' ? 'list' : 'grid'
 }
 
-const toggleBookmark = () => {
-  showBookmarkedOnly.value = !showBookmarkedOnly.value
-  applyFilters()
-}
 
 const toggleCategoryCloud = () => {
   showCategoryCloud.value = !showCategoryCloud.value

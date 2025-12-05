@@ -73,14 +73,8 @@
               完成进度
             </option>
           </select>
-         
         </div>
       </div>
-
-     
-     
-
-
     </div>
 
     <!-- 筛选结果统计 -->
@@ -129,8 +123,6 @@ import { ref, watch } from 'vue'
 import {
   SearchIcon,
   XIcon,
-  ArrowUpIcon,
-  ArrowDownIcon,
   RotateCcwIcon,
   BookmarkIcon,
   DownloadIcon
@@ -148,35 +140,12 @@ interface FilterOptions {
   showActiveOnly: boolean
 }
 
-// 分类选项
-const categories = [
-  { label: '全部', value: 'all' },
-  { label: 'DeFi', value: 'defi' },
-  { label: 'NFT', value: 'nft' },
-  { label: 'Web3', value: 'web3' },
-  { label: '智能合约', value: 'smart-contract' },
-  { label: '共识算法', value: 'consensus' },
-  { label: '钱包', value: 'wallet' },
-  { label: '交易所', value: 'exchange' },
-  { label: '元宇宙', value: 'metaverse' }
-]
-
 // 项目状态选项
 const projectStatuses = [
   { label: '规划中', value: 'planning' },
   { label: '开发中', value: 'in-progress' },
   { label: '已完成', value: 'completed' },
   { label: '已暂停', value: 'paused' }
-]
-
-
-
-// 团队规模选项
-const teamSizes = [
-  { label: '1-5人', value: 'small' },
-  { label: '6-10人', value: 'medium' },
-  { label: '11-20人', value: 'large' },
-  { label: '20人以上', value: 'xlarge' }
 ]
 
 // 响应式数据
@@ -199,50 +168,11 @@ const handleSearch = () => {
   emitFilterChange()
 }
 
-const selectCategory = (category: string) => {
-  selectedCategory.value = category
-  emitFilterChange()
-}
-
 const handleStatusChange = () => {
   emitFilterChange()
 }
 
-const addTech = () => {
-  if (techToAdd.value && !selectedTechStack.value.includes(techToAdd.value)) {
-    selectedTechStack.value.push(techToAdd.value)
-    techToAdd.value = ''
-    emitFilterChange()
-  }
-}
-
-const removeTech = (tech: string) => {
-  const index = selectedTechStack.value.indexOf(tech)
-  if (index > -1) {
-    selectedTechStack.value.splice(index, 1)
-    emitFilterChange()
-  }
-}
-
-const clearTechStack = () => {
-  selectedTechStack.value = []
-  emitFilterChange()
-}
-
 const handleSortChange = () => {
-  emitFilterChange()
-}
-
-const toggleSortOrder = () => {
-  sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
-  emitFilterChange()
-}
-
-const handleTeamSizeChange = () => {
-  emitFilterChange()
-}
-
-const handleActivityFilter = () => {
   emitFilterChange()
 }
 

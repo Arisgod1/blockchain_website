@@ -137,7 +137,6 @@
       </div>
 
       <!-- 阅读难度 -->
-      
     </div>
 
     <!-- 活跃标签显示 -->
@@ -296,14 +295,6 @@ const categories = [
   { label: '学术研究', value: 'research', icon: 'BookOpenIcon' }
 ]
 
-// 阅读难度选项
-const difficultyLevels = [
-  { label: '入门', value: 'beginner' },
-  { label: '中级', value: 'intermediate' },
-  { label: '高级', value: 'advanced' },
-  { label: '专家', value: 'expert' }
-]
-
 // 响应式数据
 const searchQuery = ref('')
 const selectedCategory = ref('all')
@@ -321,20 +312,6 @@ const showAdvanced = ref(false)
 const totalCount = ref(128) // 总文章数
 const filteredCount = ref(128) // 筛选后文章数
 
-// 模拟数据
-const popularTags = ref([
-  { name: 'Solidity', count: 25, weight: 1.3 },
-  { name: 'DeFi', count: 32, weight: 1.4 },
-  { name: 'NFT', count: 18, weight: 1.1 },
-  { name: '智能合约', count: 28, weight: 1.35 },
-  { name: 'Web3', count: 22, weight: 1.2 },
-  { name: '共识算法', count: 15, weight: 1.0 },
-  { name: '加密货币', count: 20, weight: 1.15 },
-  { name: '区块链', count: 35, weight: 1.4 },
-  { name: '安全', count: 12, weight: 0.9 },
-  { name: '钱包', count: 16, weight: 1.05 }
-])
-
 const authors = ref([
   { id: 1, name: '张三', articleCount: 15 },
   { id: 2, name: '李四', articleCount: 12 },
@@ -348,24 +325,8 @@ const handleSearch = () => {
   emitFilterChange()
 }
 
-// called when category select changes
-const selectCategory = (category: string) => {
-  selectedCategory.value = category
-  emitFilterChange()
-}
-
 const handleCategoryChange = () => {
   // select's v-model already updated selectedCategory
-  emitFilterChange()
-}
-
-const toggleTag = (tag: string) => {
-  const index = selectedTags.value.indexOf(tag)
-  if (index > -1) {
-    selectedTags.value.splice(index, 1)
-  } else {
-    selectedTags.value.push(tag)
-  }
   emitFilterChange()
 }
 
@@ -396,10 +357,6 @@ const handleSortChange = () => {
 
 const toggleSortOrder = () => {
   sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
-  emitFilterChange()
-}
-
-const handleDifficultyChange = () => {
   emitFilterChange()
 }
 

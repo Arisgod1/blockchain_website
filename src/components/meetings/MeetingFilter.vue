@@ -88,7 +88,6 @@
       </div>
 
       <!-- 标签筛选 -->
-      
     </div>
 
     <!-- 排序选项 -->
@@ -230,22 +229,11 @@ const typeOptions = [
   { value: 'seminar', label: '学术报告' }
 ]
 
-const attendeeSizeOptions = [
-  { value: 'small', label: '小型 (< 10人)' },
-  { value: 'medium', label: '中型 (10-20人)' },
-  { value: 'large', label: '大型 (> 20人)' }
-]
-
 const sortOptions = [
   { value: 'date', label: '日期' },
   { value: 'title', label: '标题' },
   { value: 'attendee_count', label: '参与人数' },
   { value: 'duration', label: '时长' }
-]
-
-const popularTags = [
-  'DeFi', 'NFT', '智能合约', '区块链', 'Web3', 
-  'Layer2', '共识算法', '隐私计算'
 ]
 
 // 响应式数据
@@ -312,24 +300,6 @@ const getStatusCount = (status: string): number => {
   return props.meetings?.filter(m => m.status === status).length || 0
 }
 
-const getTypeCount = (type: string): number => {
-  return props.meetings?.filter(m => Array.isArray(m.types) && m.types.includes(type)).length || 0
-}
-
-const getAttendeeSizeCount = (size: string): number => {
-  if (!props.meetings) return 0
-  
-  return props.meetings.filter(m => {
-    const count = (m.attendees?.length) ?? 0
-    switch (size) {
-      case 'small': return count < 10
-      case 'medium': return count >= 10 && count <= 20
-      case 'large': return count > 20
-      default: return false
-    }
-  }).length
-}
-
 // 文本转换方法
 const getStatusText = (status: string): string => {
   const option = statusOptions.find(o => o.value === status)
@@ -357,16 +327,6 @@ const handleSortChange = (value: string) => {
 
 const toggleSortDirection = () => {
   sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc'
-  emitFilterChange()
-}
-
-const toggleTag = (tag: string) => {
-  const index = selectedTags.value.indexOf(tag)
-  if (index > -1) {
-    selectedTags.value.splice(index, 1)
-  } else {
-    selectedTags.value.push(tag)
-  }
   emitFilterChange()
 }
 
