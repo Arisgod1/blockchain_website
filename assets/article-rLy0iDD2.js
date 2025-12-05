@@ -1,2 +1,0 @@
-import{c as e,d as a,f as i,g as c}from"./index-DsBG4J6s.js";const o=async s=>{const t=await e.get("/api/posts",{params:s});return a(t,"获取文章列表失败"),i(t.data,s)},p=async s=>{const t=await e.post("/api/posts",s);return c(t,"创建文章失败")},u=async(s,t)=>{const r=await e.put(`/api/posts/${s}`,t);return c(r,"更新文章失败")},d=async s=>{const t=await e.delete(`/api/posts/${s}`);a(t,"删除文章失败")};export{p as c,d,o as g,u};
-//# sourceMappingURL=article-rLy0iDD2.js.map
