@@ -260,11 +260,21 @@ const tabRouteMap: Record<TabKey, string> = {
 const resolveTabFromRoute = (name?: string | symbol): TabKey => {
   switch (name) {
     case 'AdminMembers':
+    case 'AdminMemberCreate':
+    case 'AdminMemberEdit':
       return 'members'
     case 'AdminProjects':
+    case 'AdminProjectCreate':
+    case 'AdminProjectEdit':
       return 'projects'
     case 'AdminArticles':
+    case 'AdminArticleCreate':
+    case 'AdminArticleEdit':
       return 'articles'
+    case 'AdminMeetingCreate':
+    case 'AdminMeetingEdit':
+    case 'AdminDashboard':
+      return 'meetings'
     case 'AdminFiles':
       return 'files'
     case 'AdminSettings':

@@ -89,22 +89,7 @@
                     （已应用筛选条件）
                   </span>
                 </div>
-                <div class="view-toggle">
-                  <button
-                    class="view-btn"
-                    :class="{ active: viewMode === 'grid' }"
-                    @click="viewMode = 'grid'"
-                  >
-                    <GridIcon />
-                  </button>
-                  <button
-                    class="view-btn"
-                    :class="{ active: viewMode === 'list' }"
-                    @click="viewMode = 'list'"
-                  >
-                    <ListIcon />
-                  </button>
-                </div>
+                
               </div>
 
               <!-- 成员网格 -->
@@ -172,7 +157,7 @@
       >
         <div class="member-header">
           <img
-            :src="selectedMember.avatar || '/images/default-avatar.png'"
+            :src="selectedMember.avatar || '/images/default-avatar.svg'"
             :alt="selectedMember.name"
             class="member-avatar-large"
           >
@@ -404,6 +389,14 @@ const fetchPageSize = computed(() => Math.max(pageSize.value * 3, 30))
 type RawMember = Partial<Member> & Record<string, unknown>
 
 const normalizeMember = (raw: RawMember): Member => {
+  const toAbsoluteAvatar = (value?: string) => {
+    if (!value) return undefined
+    const normalized = value.replace(/\\/g, '/').replace(/^\//, '')
+    if (/^https?:\/\//i.test(normalized)) return normalized
+    const base = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '')
+    return base ? `${base}/${normalized}` : normalized
+  }
+
   const joinDate = typeof raw.joinDate === 'string' && raw.joinDate
     ? raw.joinDate
     : typeof raw.createdAt === 'string' && raw.createdAt
@@ -431,11 +424,13 @@ const normalizeMember = (raw: RawMember): Member => {
     id,
     name,
     role,
-    avatar: typeof raw.avatar === 'string' && raw.avatar
-      ? raw.avatar
-      : typeof raw.avatarUrl === 'string'
-        ? raw.avatarUrl
-        : undefined,
+    avatar: toAbsoluteAvatar(
+      typeof raw.avatar === 'string' && raw.avatar
+        ? raw.avatar
+        : typeof raw.avatarUrl === 'string'
+          ? raw.avatarUrl
+          : undefined
+    ),
     bio: typeof raw.bio === 'string' ? raw.bio : undefined,
     skills,
     grade: typeof raw.grade === 'string' ? raw.grade : undefined,

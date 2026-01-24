@@ -46,10 +46,7 @@
             <CalendarIcon class="stat-icon" />
             <span class="stat-text">{{ formatJoinDate(member.joinDate) }}</span>
           </div>
-          <div class="stat">
-            <ProjectIcon class="stat-icon" />
-            <span class="stat-text">{{ member.projectCount || Math.floor(Math.random() * 10) + 1 }}个项目</span>
-          </div>
+          
         </div>
       </div>
       
@@ -100,6 +97,39 @@
         </div>
       </div>
     </div>
+    <div
+      v-if="showActions"
+      class="card-actions"
+    >
+      <button
+        class="action-btn view-btn"
+        title="查看详情"
+        @click.stop="emit('view', member)"
+      >
+        👁️
+      </button>
+      <button
+        class="action-btn edit-btn"
+        title="编辑"
+        @click.stop="emit('edit', member)"
+      >
+        ✏️
+      </button>
+      <button
+        class="action-btn toggle-btn"
+        :title="member.isActive ? '设为非活跃' : '设为活跃'"
+        @click.stop="emit('toggle-status', member)"
+      >
+        {{ member.isActive ? '⏸️' : '▶️' }}
+      </button>
+      <button
+        class="action-btn delete-btn"
+        title="删除"
+        @click.stop="emit('delete', member)"
+      >
+        🗑️
+      </button>
+    </div>
   </div>
 </template>
 
@@ -111,9 +141,19 @@ import { GithubIcon, EmailIcon, LinkedInIcon, CalendarIcon, ProjectIcon } from '
 
 interface Props {
   member: Member
+  showActions?: boolean
 }
 
-defineProps<Props>()
+withDefaults(defineProps<Props>(), {
+  showActions: false
+})
+
+const emit = defineEmits<{
+  (e: 'view', member: Member): void
+  (e: 'edit', member: Member): void
+  (e: 'delete', member: Member): void
+  (e: 'toggle-status', member: Member): void
+}>()
 
 const isFlipped = ref(false)
 
@@ -158,12 +198,25 @@ defineExpose({
 
 <style scoped lang="postcss">
 .member-card-container {
-  @apply relative w-72 h-96 mx-auto cursor-pointer perspective-1000;
+  @apply relative w-72 mx-auto cursor-pointer perspective-1000 flex flex-col items-center gap-3;
 }
 
 .card-inner {
-  @apply relative w-full h-full transition-transform duration-700 transform-style-preserve-3d;
+  @apply relative w-full min-h-[22rem] transition-transform duration-700 transform-style-preserve-3d;
 }
+
+.card-actions {
+  @apply w-full flex flex-wrap items-center justify-center gap-2;
+}
+
+.action-btn {
+  @apply px-3 py-2 rounded-md text-sm border border-gray-200 bg-white shadow-sm hover:shadow transition;
+}
+
+.view-btn { @apply text-blue-600; }
+.edit-btn { @apply text-amber-600; }
+.toggle-btn { @apply text-indigo-600; }
+.delete-btn { @apply text-red-600; }
 
 .card-inner.is-flipped {
   @apply rotate-y-180;

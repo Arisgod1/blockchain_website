@@ -129,7 +129,7 @@
         </div>
 
         <div
-          v-else-if="members.length === 0"
+          v-else-if="filteredMembers.length === 0"
           class="empty-state"
         >
           <div class="empty-icon">
@@ -152,7 +152,7 @@
             class="members-grid"
           >
             <div 
-              v-for="member in members" 
+              v-for="member in paginatedMembers" 
               :key="member.id"
               class="member-grid-item"
             >
@@ -173,7 +173,7 @@
             class="members-list"
           >
             <div 
-              v-for="member in members" 
+              v-for="member in paginatedMembers" 
               :key="member.id"
               class="member-list-item"
             >
@@ -269,8 +269,9 @@
             <BasePagination 
               :current="pagination.current"
               :page-size="pagination.pageSize"
-              :total="pagination.total"
-              @change="handlePageChange"
+              :total="paginationTotal"
+              @page-change="handlePageChange"
+              @update:page-size="handlePageSizeChange"
             />
           </div>
         </div>
@@ -284,61 +285,54 @@
       @close="detailModal.show = false"
     />
 
-    <!-- 编辑/创建弹窗 -->
-    <MemberEditModal 
-      v-model:show="editModal.show"
-      :member="editModal.member"
-      :is-create="editModal.isCreate"
-      @save="handleSave"
-      @close="editModal.show = false"
-    />
-
-    <!-- 删除确认弹窗 -->
-    <BaseModal 
-      v-model:show="deleteModal.show"
-      title="确认删除"
-      size="sm"
+    <div
+      class="search-actions"
+      style="margin-left:1rem; display:flex; gap:0.5rem; align-items:center;"
     >
-      <p>确定要删除成员「{{ deleteModal.member?.name }}」吗？</p>
-      <p class="warning-text">
-        此操作不可撤销。
-      </p>
+      <input
+        v-model="searchQuery"
+        class="search-input"
+        placeholder="搜索姓名或关键字"
+      >
+      <BaseButton
+        variant="primary"
+        @click="applySearch"
+      >
+        搜索
+      </BaseButton>
+      <BaseButton
+        variant="secondary"
+        @click="resetSearch"
+      >
+        重置
+      </BaseButton>
+      <BaseButton
+        variant="primary"
+        @click="goCreateMember"
+      >
+        新建
+      </BaseButton>
+    </div>
 
-      <template #footer>
-        <BaseButton 
-          variant="secondary" 
-          @click="deleteModal.show = false"
-        >
-          取消
-        </BaseButton>
-        <BaseButton 
-          variant="danger"
-          :loading="deleteModal.loading"
-          @click="confirmDelete"
-        >
-          删除
-        </BaseButton>
-      </template>
-    </BaseModal>
+    <!-- 删除通过确认框处理（与项目管理一致） -->
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useHead } from '@vueuse/head'
-import { getMembers, createMember, updateMember, deleteMember } from '@/api/member'
+import { getMembers, updateMember, deleteMember } from '@/api/member'
 import { 
   BaseButton, 
   BaseCard, 
   BasePagination, 
-  BaseModal,
   LoadingSpinner 
 } from '@/components/common'
 import { GridIcon, ListIcon } from '@/components/icons'
 import MemberFilter from '@/components/members/MemberFilter.vue'
 import MemberCard from '@/components/members/MemberCard.vue'
 import MemberDetailModal from '@/components/members/MemberDetailModal.vue'
-import MemberEditModal from '@/components/members/MemberEditModal.vue'
 import type { Member, FilterOptions } from '@/types/entities'
 import { onAdminRefresh } from '@/utils/adminEvents'
 import { recordAdminOperation } from '@/composables/useAdminLogs'
@@ -366,12 +360,31 @@ const viewMode = ref<'grid' | 'list'>('grid')
 const filters = ref<MemberFilterOptions>({
   search: '',
   status: '',
-  sortBy: 'name',
+  sortBy: 'id',
   sortOrder: 'asc',
   skills: [],
   role: 'all',
   isActive: undefined
 })
+
+const searchQuery = ref('')
+
+const applySearch = () => {
+  filters.value.search = searchQuery.value
+  pagination.value.current = 1
+}
+
+const router = useRouter()
+
+const resetSearch = () => {
+  searchQuery.value = ''
+  filters.value.search = ''
+  pagination.value.current = 1
+}
+
+const goCreateMember = () => {
+  router.push({ name: 'AdminMemberCreate' })
+}
 
 const pagination = ref({
   current: 1,
@@ -379,22 +392,12 @@ const pagination = ref({
   total: 0
 })
 
-const detailModal = ref({
+const detailModal = reactive({
   show: false,
   member: null as Member | null
-})
+}) as { show: boolean; member: Member | null }
 
-const editModal = ref({
-  show: false,
-  member: null as Member | null,
-  isCreate: false
-})
-
-const deleteModal = ref({
-  show: false,
-  member: null as Member | null,
-  loading: false
-})
+// 删除改为使用 `confirm()`，不再需要 deleteModal
 
 // 计算属性
 
@@ -414,7 +417,7 @@ const logMemberAction = (action: MemberLogAction, message: string, result: 'succ
   })
 }
 
-const totalMembers = computed(() => pagination.value.total)
+const totalMembers = computed(() => filteredMembers.value.length)
 
 const activeMembers = computed(() => {
   return members.value.filter(member => member.isActive).length
@@ -437,58 +440,104 @@ const avgSkillsPerMember = computed(() => {
   return Math.round((totalSkills / members.value.length) * 10) / 10
 })
 
+const filteredMembers = computed(() => {
+  const keyword = filters.value.search?.trim().toLowerCase() || ''
+  const sortBy = filters.value.sortBy || 'name'
+  const sortOrder = filters.value.sortOrder === 'desc' ? -1 : 1
+
+  const matchesKeyword = (member: Member) => {
+    if (!keyword) return true
+    return (
+      member.name?.toLowerCase().includes(keyword) ||
+      member.role?.toLowerCase().includes(keyword) ||
+      member.bio?.toLowerCase().includes(keyword) ||
+      member.skills?.some((skill) => skill.toLowerCase().includes(keyword))
+    )
+  }
+
+  const matchesRole = (member: Member) => {
+    if (!filters.value.role || filters.value.role === 'all') return true
+    return member.role === filters.value.role
+  }
+
+  const matchesStatus = (member: Member) => {
+    if (typeof filters.value.isActive !== 'boolean') return true
+    return member.isActive === filters.value.isActive
+  }
+
+  const matchesSkills = (member: Member) => {
+    if (!filters.value.skills?.length) return true
+    return filters.value.skills.every((skill) => member.skills?.includes(skill))
+  }
+
+  const list = members.value.filter((member) =>
+    matchesKeyword(member) && matchesRole(member) && matchesStatus(member) && matchesSkills(member)
+  )
+
+  return list.sort((a, b) => {
+    if (sortBy === 'id') {
+      const aNum = Number(a.id)
+      const bNum = Number(b.id)
+      if (!Number.isNaN(aNum) && !Number.isNaN(bNum)) {
+        return (aNum - bNum) * sortOrder
+      }
+      return String(a.id ?? '').localeCompare(String(b.id ?? '')) * sortOrder
+    }
+    if (sortBy === 'joinDate') {
+      return (new Date(a.joinDate).getTime() - new Date(b.joinDate).getTime()) * sortOrder
+    }
+    if (sortBy === 'projectCount') {
+      return ((a.projectCount || 0) - (b.projectCount || 0)) * sortOrder
+    }
+    if (sortBy === 'role') {
+      return (a.role || '').localeCompare(b.role || '') * sortOrder
+    }
+    return (a.name || '').localeCompare(b.name || '') * sortOrder
+  })
+})
+
+const paginationTotal = computed(() => filteredMembers.value.length)
+
+const paginatedMembers = computed(() => {
+  const start = (pagination.value.current - 1) * pagination.value.pageSize
+  return filteredMembers.value.slice(start, start + pagination.value.pageSize)
+})
+
 // 方法
 const formatDate = (dateStr: string) => {
   return new Date(dateStr).toLocaleDateString('zh-CN')
 }
 
 const buildMemberQueryParams = () => {
-  const params: Record<string, unknown> = {
-    page: pagination.value.current - 1,
-    size: pagination.value.pageSize
+  return {
+    page: 0,
+    size: 1000
   }
-
-  const keyword = filters.value.search?.trim()
-  if (keyword) {
-    params.keyword = keyword
-  }
-
-  if (filters.value.role && filters.value.role !== 'all') {
-    params.role = filters.value.role
-  }
-
-  if (filters.value.status) {
-    params.status = filters.value.status
-  }
-
-  if (typeof filters.value.isActive === 'boolean') {
-    params.status = filters.value.isActive ? 'active' : 'inactive'
-  }
-
-  if (filters.value.skills?.length) {
-    params.skills = filters.value.skills
-  }
-
-  if (filters.value.sortBy) {
-    params.sortBy = filters.value.sortBy
-  }
-
-  if (filters.value.sortOrder) {
-    params.sortOrder = filters.value.sortOrder
-  }
-
-  return params
 }
+
+const normalizeMember = (member: Member): Member => ({
+  ...member,
+  // 防御性填充，避免后续计算中出现 undefined
+  avatar: (() => {
+    const raw = member.avatar ?? (member as Member & { avatarUrl?: string }).avatarUrl ?? ''
+    const normalized = raw.replace(/\\/g, '/').replace(/^\//, '')
+    if (!normalized) return ''
+    if (/^https?:\/\//i.test(normalized)) return normalized
+    const base = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '')
+    return base ? `${base}/${normalized}` : normalized
+  })(),
+  skills: member.skills ?? [],
+  joinDate: member.joinDate ?? '',
+  isActive: member.isActive ?? false
+})
 
 const loadMembers = async () => {
   loading.value = true
   try {
     const response = await getMembers(buildMemberQueryParams())
-    
-    members.value = response.content
-    pagination.value.total = response.totalElements
-    pagination.value.pageSize = response.size
-    pagination.value.current = response.number + 1
+    members.value = (response.content || []).map(normalizeMember)
+    pagination.value.total = members.value.length
+    pagination.value.current = 1
   } catch (error) {
     console.error('加载成员数据失败:', error)
   } finally {
@@ -498,38 +547,43 @@ const loadMembers = async () => {
 
 const handleFilterChange = () => {
   pagination.value.current = 1
-  loadMembers()
 }
 
 const handlePageChange = (page: number) => {
   pagination.value.current = page
-  loadMembers()
 }
 
-const handleCreate = () => {
-  editModal.value = {
-    show: true,
-    member: null,
-    isCreate: true
+const handlePageSizeChange = (size: number) => {
+  pagination.value.pageSize = size
+  pagination.value.current = 1
+}
+
+watch(filteredMembers, (list) => {
+  const maxPage = Math.max(1, Math.ceil(list.length / pagination.value.pageSize))
+  if (pagination.value.current > maxPage) {
+    pagination.value.current = maxPage
   }
+})
+
+const handleCreate = () => {
+  console.debug('[AdminMemberManager] handleCreate called - navigate to editor')
+  router.push({ name: 'AdminMemberCreate' })
 }
 
 const handleView = (member: Member) => {
-  detailModal.value = {
-    show: true,
-    member
-  }
+  console.debug('[AdminMemberManager] handleView', member && member.id)
+  detailModal.show = true
+  detailModal.member = member
 }
 
 const handleEdit = (member: Member) => {
-  editModal.value = {
-    show: true,
-    member: { ...member },
-    isCreate: false
-  }
+  console.debug('[AdminMemberManager] handleEdit - navigate to editor', member && member.id)
+  if (!member || !member.id) return
+  router.push({ name: 'AdminMemberEdit', params: { id: member.id } })
 }
 
 const handleToggleStatus = async (member: Member) => {
+  console.debug('[AdminMemberManager] handleToggleStatus', member && member.id)
   const nextStatus = !member.isActive
   try {
     await updateMember(member.id, { isActive: nextStatus })
@@ -542,49 +596,20 @@ const handleToggleStatus = async (member: Member) => {
   }
 }
 
-const handleDelete = (member: Member) => {
-  deleteModal.value = {
-    show: true,
-    member,
-    loading: false
-  }
-}
-
-const handleSave = async (member: Member) => {
+const handleDelete = async (member: Member) => {
+  console.debug('[AdminMemberManager] handleDelete', member && member.id)
+  if (!confirm(`确定要删除成员 "${member.name}" 吗？`)) return
   try {
-    if (editModal.value.isCreate) {
-      const created = await createMember(member)
-      logMemberAction('create', `创建成员「${created.name}」`, 'success', created.id)
-    } else {
-      const updated = await updateMember(member.id, member)
-      logMemberAction('update', `更新成员「${updated.name}」`, 'success', updated.id)
-    }
+    await deleteMember(member.id)
     await loadMembers()
-    editModal.value.show = false
-  } catch (error) {
-    console.error('保存成员失败:', error)
-    const action: MemberLogAction = editModal.value.isCreate ? 'create' : 'update'
-    logMemberAction(action, `保存成员「${member.name}」失败`, 'failure', member.id)
-  }
-}
-
-const confirmDelete = async () => {
-  const target = deleteModal.value.member
-  if (!target) return
-  deleteModal.value.loading = true
-  
-  try {
-    await deleteMember(target.id)
-    await loadMembers()
-    deleteModal.value.show = false
-    logMemberAction('delete', `删除成员「${target.name}」`, 'success', target.id)
+    logMemberAction('delete', `删除成员「${member.name}」`, 'success', member.id)
   } catch (error) {
     console.error('删除成员失败:', error)
-    logMemberAction('delete', `删除成员「${target.name}」失败`, 'failure', target.id)
-  } finally {
-    deleteModal.value.loading = false
+    logMemberAction('delete', `删除成员「${member.name}」失败`, 'failure', member.id)
   }
 }
+
+// 删除使用 confirm()，无需额外的 confirmDelete 函数
 
 const handleRefresh = () => {
   loadMembers()

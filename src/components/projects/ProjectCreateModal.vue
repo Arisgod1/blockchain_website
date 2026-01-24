@@ -20,6 +20,16 @@
             >
           </label>
 
+            <label class="flex flex-col">
+              <span class="text-sm text-gray-700">开始时间</span>
+              <input
+                v-model="form.startDate"
+                type="date"
+                required
+                class="mt-1 p-2 border rounded"
+              >
+            </label>
+
           <label class="flex flex-col">
             <span class="text-sm text-gray-700">简短描述</span>
             <input
@@ -97,12 +107,14 @@ const form = reactive<{
   category: string
   status: ProjectStatusValue
   progress: number
+  startDate: string
 }>({
   title: '',
   shortDescription: '',
   category: '',
   status: 'planning',
-  progress: 0
+  progress: 0,
+  startDate: new Date().toISOString().slice(0, 10)
 })
 
 const close = () => emit('close')
@@ -116,6 +128,7 @@ const submit = async () => {
       category: form.category,
   status: form.status,
       progress: form.progress,
+      startDate: form.startDate,
       likes: 0,
       views: 0,
       isLiked: false
@@ -129,6 +142,7 @@ const submit = async () => {
     form.category = ''
     form.status = 'planning'
     form.progress = 0
+    form.startDate = new Date().toISOString().slice(0, 10)
   } catch (err) {
     console.error('创建项目失败', err)
     const message = err instanceof Error ? err.message : '创建项目失败'

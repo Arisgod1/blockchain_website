@@ -9,6 +9,8 @@ import { MOCK_MEETINGS } from '@/common_value/meetings'
 import { MOCK_ADMIN_LOGS } from '@/common_value/adminLogs'
 import { MOCK_SITE_STATS, MOCK_HERO_BANNERS, MOCK_CONTACT_RESPONSE } from '@/common_value/public'
 import { MOCK_FILES } from '@/common_value/files'
+axios.defaults.withCredentials = true;
+
 
 class ApiService {
   private instance: AxiosInstance
@@ -16,6 +18,7 @@ class ApiService {
   constructor() {
     this.instance = axios.create({
       baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8082',
+      withCredentials: true,
       timeout: 10000,
       headers: {
         'Content-Type': 'application/json'
@@ -121,24 +124,26 @@ class ApiService {
       async (error) => {
         const appStore = useAppStore()
         const url = error.config?.url || ''
+        const hasResponse = Boolean(error.response)
+        const isNetworkError = !hasResponse
         
-        // 尝试获取 Mock 数据
-        const mockData = this.getMockData(url)
-
-        if (mockData) {
-          console.warn(`API 请求失败: ${url}，已降级使用本地 Mock 数据`)
-          // 构造成功的响应结构
-          return {
-            data: {
-              code: 200,
-              data: mockData,
-              message: 'Loaded from local mock data (Fallback)',
-              timestamp: Date.now()
-            },
-            status: 200,
-            statusText: 'OK',
-            headers: {},
-            config: error.config
+        // 仅在纯网络错误（无响应）时降级到本地 Mock，避免掩盖真实后端错误
+        if (isNetworkError) {
+          const mockData = this.getMockData(url)
+          if (mockData) {
+            console.warn(`API 请求失败: ${url}，已降级使用本地 Mock 数据`)
+            return {
+              data: {
+                code: 200,
+                data: mockData,
+                message: 'Loaded from local mock data (Fallback)',
+                timestamp: Date.now()
+              },
+              status: 200,
+              statusText: 'OK',
+              headers: {},
+              config: error.config
+            }
           }
         }
 
@@ -207,6 +212,7 @@ class ApiService {
   // POST 请求
   async post<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
     const response = await this.instance.post(url, data, config)
+    true
     return this.normalizeResponsePayload<T>(response.data)
   }
 

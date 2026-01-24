@@ -6,6 +6,7 @@
     >
       <div
         v-if="visible"
+        ref="rootEl"
         class="fixed inset-0 z-50 flex items-center justify-center p-4"
         @click="handleBackdropClick"
       >
@@ -270,6 +271,25 @@ watch(() => visible.value, (newValue) => {
     })
   } else {
     unlockScroll()
+  }
+})
+
+// 临时调试：打印 visible 变化并记录 Teleport 挂载情况
+const rootEl = ref<HTMLElement | null>(null)
+watch(() => visible.value, (newValue) => {
+  try {
+    console.debug('[BaseModal] visible changed ->', newValue, 'rootEl=', rootEl.value)
+    if (newValue) {
+      // 等待 DOM 更新后检查 rootEl 是否已插入到 body
+      nextTick(() => {
+        const inBody = rootEl.value ? document.body.contains(rootEl.value) : false
+        console.debug('[BaseModal] after nextTick: root in body=', inBody, 'rootEl=', rootEl.value)
+        // 临时：如果发现没有插入，强制打印当前 body children count
+        if (!inBody) console.debug('[BaseModal] body children count=', document.body.children.length)
+      })
+    }
+  } catch (e) {
+    console.warn('[BaseModal] debug watcher error', e)
   }
 })
 

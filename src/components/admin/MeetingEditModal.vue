@@ -413,6 +413,7 @@ interface Props {
   show: boolean
   meeting?: Meeting | null
   isCreate?: boolean
+  inline?: boolean
 }
 
 interface FormData {
@@ -445,16 +446,31 @@ interface Emits {
 
 const props = withDefaults(defineProps<Props>(), {
   isCreate: true,
-  meeting: undefined
+  meeting: undefined,
+  inline: false
 })
 
 const emit = defineEmits<Emits>()
 
 // 响应式数据
+const today = () => new Date().toISOString().split('T')[0]
+
+const splitMeetingTime = (meetingTime?: string) => {
+  if (!meetingTime) {
+    return { date: today(), time: '14:00' }
+  }
+  const [datePart, timePartRaw] = meetingTime.split('T')
+  const timePart = timePartRaw ? timePartRaw.slice(0, 5) : '14:00'
+  return {
+    date: datePart || today(),
+    time: timePart || '14:00'
+  }
+}
+
 const createDefaultFormData = (): FormData => ({
   id: undefined,
   title: '',
-  date: new Date().toISOString().split('T')[0],
+  date: today(),
   time: '14:00',
   location: '',
   attendees: [],
@@ -478,14 +494,15 @@ const mapMeetingToFormData = (meeting: Meeting): FormData => {
   const attendees = (meeting.attendees ?? []).map(attendee =>
     typeof attendee === 'string' ? attendee : attendee.name
   )
+  const { date, time } = splitMeetingTime(meeting.meetingTime)
 
   return {
     ...createDefaultFormData(),
     ...meeting,
     id: meeting.id,
     title: meeting.title ?? '',
-    date: meeting.date ?? new Date().toISOString().split('T')[0],
-    time: meeting.time ?? '14:00',
+    date,
+    time,
     location: meeting.location ?? '',
     attendees,
     agenda: meeting.agenda ?? [],
@@ -659,8 +676,12 @@ const handleSave = async () => {
       ? Date.now().toString()
       : (formData.value.id ?? props.meeting?.id ?? Date.now().toString())
 
+    const mergedTime = formData.value.time.length === 5 ? `${formData.value.time}:00` : formData.value.time
+    const meetingTime = `${formData.value.date}T${mergedTime}`
     const meeting: Meeting = {
       ...formData.value,
+      meetingTime,
+      meeting_time: meetingTime,
       id: resolvedId,
       attachments: formData.value.attachments ?? []
     }

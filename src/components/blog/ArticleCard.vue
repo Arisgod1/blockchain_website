@@ -181,14 +181,14 @@ const getCategoryClass = (category: string) => {
   return categoryMap[category] || 'default'
 }
 
-const handleImageError = (event: Event) => {
+  const handleImageError = (event: Event) => {
   const img = event.target as HTMLImageElement
-  img.src = '/images/default-article.jpg'
+  img.src = '/images/default-article.svg'
 }
 
-const handleAuthorAvatarError = (event: Event) => {
+  const handleAuthorAvatarError = (event: Event) => {
   const img = event.target as HTMLImageElement
-  img.src = '/images/default-avatar.png'
+  img.src = '/images/default-avatar.svg'
 }
 
 const tagClicked = (tag: string) => {

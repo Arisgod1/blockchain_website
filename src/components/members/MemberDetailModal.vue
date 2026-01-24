@@ -108,7 +108,7 @@
 
       <!-- 头像 -->
       <div
-        v-if="member.avatar"
+        v-if="member"
         class="detail-section"
       >
         <h3 class="section-title">
@@ -116,9 +116,10 @@
         </h3>
         <div class="avatar-container">
           <img 
-            :src="member.avatar" 
+            :src="avatarSrc" 
             :alt="member.name"
             class="detail-avatar"
+            @error="handleAvatarError"
           >
         </div>
       </div>
@@ -139,6 +140,7 @@
 import { computed } from 'vue'
 import { BaseModal, BaseButton } from '@/components/common'
 import type { Member } from '@/types/entities'
+import defaultAvatar from '@/assets/zhaoshuyang.png'
 
 interface Props {
   show: boolean
@@ -166,6 +168,13 @@ const show = computed({
   get: () => props.show,
   set: (value: boolean) => emit('update:show', value)
 })
+
+const avatarSrc = computed(() => props.member?.avatar || defaultAvatar)
+
+const handleAvatarError = (event: Event) => {
+  const img = event.target as HTMLImageElement
+  img.src = defaultAvatar
+}
 </script>
 
 <style scoped>

@@ -16,4 +16,15 @@ app.use(createHead())
 app.use(MotionPlugin)
 
 // 挂载应用
+// 全局错误捕获，便于诊断生产环境未捕获的错误
+window.addEventListener('error', (ev) => {
+	// eslint-disable-next-line no-console
+	console.error('[global error]', ev.error || ev.message, ev)
+})
+
+window.addEventListener('unhandledrejection', (ev) => {
+	// eslint-disable-next-line no-console
+	console.error('[unhandled rejection]', ev.reason)
+})
+
 app.mount('#app')

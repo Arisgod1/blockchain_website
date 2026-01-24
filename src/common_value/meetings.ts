@@ -4,8 +4,8 @@ export const MOCK_MEETINGS: Meeting[] = [
   {
     id: '1',
     title: '第10次全体例会',
-    date: '2023-11-01',
-    time: '19:00',
+    meetingTime: '2023-11-01',
+    meeting_time: '19:00',
     location: '创新中心302',
     attendees: ['张三', '李四', '王五'],
     agenda: ['项目进度汇报', '下周工作计划', '技术分享'],
@@ -28,8 +28,8 @@ export const MOCK_MEETINGS: Meeting[] = [
   {
     id: '2',
     title: '技术研讨会：零知识证明',
-    date: '2023-11-15',
-    time: '14:00',
+    meetingTime: '2023-11-15',
+    meeting_time: '14:00',
     location: '线上会议',
     attendees: ['张三', '王五'],
     agenda: ['zk-SNARKs原理讲解', '应用案例分析'],

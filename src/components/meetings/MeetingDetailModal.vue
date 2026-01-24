@@ -30,7 +30,7 @@
                 >
                   <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z" />
                 </svg>
-                {{ formatDate(meeting?.date) }}
+                {{ formatDate(meeting?.meetingTime) }}
               </div>
               <div class="meta-item">
                 <svg
@@ -326,6 +326,7 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue'
 import type { Meeting, MeetingAttendee, MeetingFile } from '@/types/entities'
+import { mergeAttendeesWithMembers } from '@/utils/attendeeMapper'
 
 interface Props {
   meeting: Meeting | null
@@ -344,19 +345,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<Emits>()
-const normalizedAttendees = computed<MeetingAttendee[]>(() => {
-  if (!props.meeting?.attendees) return []
-  return props.meeting.attendees.map(attendee => {
-    if (typeof attendee === 'string') {
-      return {
-        id: attendee,
-        name: attendee,
-        avatar: '/images/default-avatar.png'
-      }
-    }
-    return attendee
-  })
-})
+const normalizedAttendees = computed<MeetingAttendee[]>(() => mergeAttendeesWithMembers(props.meeting?.attendees ?? []))
 
 // 方法
 const handleClose = () => {
@@ -496,7 +485,7 @@ watch(() => props.isOpen, (isOpen) => {
 })
 </script>
 
-<style scoped>
+<style scoped lang="postcss">
 /* 模态框基础样式 */
 .meeting-detail-modal {
   @apply fixed inset-0 z-50 flex items-center justify-center p-4

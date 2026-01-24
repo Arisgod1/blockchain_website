@@ -164,8 +164,8 @@ export type MeetingStatus = 'upcoming' | 'ongoing' | 'completed' | 'cancelled' |
 export interface Meeting {
   id: string
   title: string
-  date: string
-  time?: string
+  meetingTime: string
+  meeting_time?: string
   summary?: string
   location?: string
   status?: MeetingStatus
@@ -184,6 +184,8 @@ export interface Meeting {
   minutes?: string
   recorder?: string
   isPublic?: boolean
+  actions?: string[]
+  notes?: string
 }
 
 // 行动项类型

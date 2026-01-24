@@ -81,7 +81,7 @@ const routes: RouteRecordRaw[] = [
     name: 'Admin',
     component: () => import('@/components/admin/AdminLayout.vue'),
     meta: {
-      title: '管理员后台',
+      title: 'get',
       description: '管理员功能后台',
       requiresAdmin: true
     },
@@ -105,16 +105,65 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '项目管理' }
       },
       {
+        path: 'projects/new',
+        name: 'AdminProjectCreate',
+        component: () => import('@/views/admin/ProjectEditorPage.vue'),
+        meta: { title: '新建项目' }
+      },
+      {
+        path: 'projects/:id/edit',
+        name: 'AdminProjectEdit',
+        component: () => import('@/views/admin/ProjectEditorPage.vue'),
+        meta: { title: '编辑项目' }
+      },
+      {
         path: 'articles',
         name: 'AdminArticles',
         component: () => import('@/components/admin/AdminArticleManager.vue'),
         meta: { title: '内容管理' }
       },
       {
+        path: 'articles/new',
+        name: 'AdminArticleCreate',
+        component: () => import('@/views/admin/ArticleEditorPage.vue'),
+        meta: { title: '新建文章' }
+      },
+      {
+        path: 'articles/:id/edit',
+        name: 'AdminArticleEdit',
+        component: () => import('@/views/admin/ArticleEditorPage.vue'),
+        meta: { title: '编辑文章' }
+      },
+      {
         path: 'files',
         name: 'AdminFiles',
         component: () => import('@/components/admin/AdminFileManager.vue'),
         meta: { title: '文件管理' }
+      },
+      // 新增：独立编辑页，避免模态弹窗问题
+      {
+        path: 'meetings/new',
+        name: 'AdminMeetingCreate',
+        component: () => import('@/views/admin/MeetingEditorPage.vue'),
+        meta: { title: '新建例会' }
+      },
+      {
+        path: 'meetings/:id/edit',
+        name: 'AdminMeetingEdit',
+        component: () => import('@/views/admin/MeetingEditorPage.vue'),
+        meta: { title: '编辑例会' }
+      },
+      {
+        path: 'members/new',
+        name: 'AdminMemberCreate',
+        component: () => import('@/views/admin/MemberEditorPage.vue'),
+        meta: { title: '新建成员' }
+      },
+      {
+        path: 'members/:id/edit',
+        name: 'AdminMemberEdit',
+        component: () => import('@/views/admin/MemberEditorPage.vue'),
+        meta: { title: '编辑成员' }
       },
       {
         path: 'logs',
@@ -176,8 +225,8 @@ router.beforeEach((to, _from, next) => {
         detail: { redirectTo: to.fullPath }
       }))
       
-      // 不进行路由跳转，让登录模态框处理
-      return
+      // 重定向回首页，避免进入空白页；登录成功后会跳转 redirectTo
+      return next('/')
     }
   }
   

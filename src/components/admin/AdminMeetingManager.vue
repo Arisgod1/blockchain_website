@@ -117,6 +117,34 @@
                 <ListIcon size="16" />
               </button>
             </div>
+            <div
+              class="search-actions"
+              style="margin-left:1rem; display:flex; gap:0.5rem; align-items:center;"
+            >
+              <input
+                v-model="searchQuery"
+                class="search-input"
+                placeholder="搜索标题或关键字"
+              >
+              <BaseButton
+                variant="primary"
+                @click="applySearch"
+              >
+                搜索
+              </BaseButton>
+              <BaseButton
+                variant="secondary"
+                @click="resetSearch"
+              >
+                重置
+              </BaseButton>
+              <BaseButton
+                variant="primary"
+                @click="goCreateMeeting"
+              >
+                新建
+              </BaseButton>
+            </div>
           </div>
         </template>
 
@@ -129,7 +157,7 @@
         </div>
 
         <div
-          v-else-if="meetings.length === 0"
+          v-else-if="filteredMeetings.length === 0"
           class="empty-state"
         >
           <div class="empty-icon">
@@ -152,7 +180,7 @@
             class="meetings-grid"
           >
             <div 
-              v-for="meeting in meetings" 
+              v-for="meeting in paginatedMeetings" 
               :key="meeting.id"
               class="meeting-grid-item"
             >
@@ -173,7 +201,7 @@
             class="meetings-list"
           >
             <div 
-              v-for="meeting in meetings" 
+              v-for="meeting in paginatedMeetings" 
               :key="meeting.id"
               class="meeting-list-item"
             >
@@ -182,10 +210,10 @@
                   <h4>{{ meeting.title }}</h4>
                   <div class="meeting-meta">
                     <span class="meta-item">
-                      📅 {{ formatDate(meeting.date) }}
+                      📅 {{ formatDate(resolveMeetingDate(meeting)) }}
                     </span>
                     <span class="meta-item">
-                      🕐 {{ meeting.time }}
+                      🕐 {{ resolveMeetingTime(meeting) }}
                     </span>
                     <span class="meta-item">
                       👥 {{ meeting.attendees.length }} 人参与
@@ -229,10 +257,11 @@
           <!-- 分页 -->
           <div class="pagination-section">
             <BasePagination 
-              :current="pagination.current"
+              v-model:current="pagination.current"
               :page-size="pagination.pageSize"
-              :total="pagination.total"
-              @change="handlePageChange"
+              :total="filteredMeetings.length"
+              @page-change="handlePageChange"
+              @update:page-size="handlePageSizeChange"
             />
           </div>
         </div>
@@ -248,54 +277,19 @@
       @view-recording="handleViewRecording"
     />
 
-    <!-- 编辑/创建弹窗 -->
-    <MeetingEditModal 
-      v-model:show="editModal.show"
-      :meeting="editModal.meeting"
-      :is-create="editModal.isCreate"
-      @save="handleSave"
-      @close="editModal.show = false"
-    />
-
-    <!-- 删除确认弹窗 -->
-    <BaseModal 
-      v-model:show="deleteModal.show"
-      title="确认删除"
-      size="sm"
-    >
-      <p>确定要删除例会「{{ deleteModal.meeting?.title }}」吗？</p>
-      <p class="warning-text">
-        此操作不可撤销。
-      </p>
-
-      <template #footer>
-        <BaseButton 
-          variant="secondary" 
-          @click="deleteModal.show = false"
-        >
-          取消
-        </BaseButton>
-        <BaseButton 
-          variant="danger"
-          :loading="deleteModal.loading"
-          @click="confirmDelete"
-        >
-          删除
-        </BaseButton>
-      </template>
-    </BaseModal>
+    <!-- 删除通过确认框处理（与项目管理一致） -->
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { useHead } from '@vueuse/head'
-import { getMeetings, createMeeting, updateMeeting, deleteMeeting } from '@/api/meeting'
+import { getMeetings, createMeeting, deleteMeeting } from '@/api/meeting'
 import { 
   BaseButton, 
   BaseCard, 
   BasePagination, 
-  BaseModal,
   LoadingSpinner 
 } from '@/components/common'
 import { GridIcon, ListIcon } from '@/components/icons'
@@ -351,76 +345,142 @@ const viewMode = ref<'grid' | 'list'>('grid')
 
 const filters = ref<MeetingFilterState>(normalizeMeetingFilters())
 
+const searchQuery = ref('')
+
+const applySearch = () => {
+  filters.value.searchQuery = searchQuery.value
+  pagination.value.current = 1
+}
+
+const router = useRouter()
+
+const resetSearch = () => {
+  searchQuery.value = ''
+  filters.value.searchQuery = ''
+  pagination.value.current = 1
+}
+
+const goCreateMeeting = () => {
+  router.push({ name: 'AdminMeetingCreate' })
+}
+
 const pagination = ref({
   current: 1,
-  pageSize: 12,
-  total: 0
+  pageSize: 12
 })
 
 const buildMeetingQueryParams = () => {
   const params: Record<string, unknown> = {
-    page: pagination.value.current - 1,
-    size: pagination.value.pageSize
-  }
-
-  const keyword = filters.value.searchQuery?.trim()
-  if (keyword) {
-    params.keyword = keyword
-  }
-
-  if (filters.value.statuses?.length) {
-    params.statuses = filters.value.statuses
-  }
-
-  if (filters.value.types?.length) {
-    params.types = filters.value.types
-  }
-
-  if (filters.value.attendeeSizes?.length) {
-    params.attendeeSizes = filters.value.attendeeSizes
-  }
-
-  if (filters.value.tags?.length) {
-    params.tags = filters.value.tags
-  }
-
-  if (filters.value.dateRange?.start) {
-    params.startDate = filters.value.dateRange.start
-  }
-
-  if (filters.value.dateRange?.end) {
-    params.endDate = filters.value.dateRange.end
-  }
-
-  if (filters.value.sortBy) {
-    params.sortBy = filters.value.sortBy
-  }
-
-  if (filters.value.sortDirection) {
-    params.sortOrder = filters.value.sortDirection
+    page: 0,
+    size: 500
   }
 
   return params
 }
 
-const detailModal = ref({
+const detailModal = reactive({
   show: false,
   meeting: null as Meeting | null
-})
+}) as { show: boolean; meeting: Meeting | null }
 
-const editModal = ref({
-  show: false,
-  meeting: null as Meeting | null,
-  isCreate: false
-})
-
-const deleteModal = ref({
-  show: false,
-  meeting: null as Meeting | null,
-  loading: false
-})
+// 删除改为使用 `confirm()`，不再需要 deleteModal
 
 // 计算属性
+
+const resolveMeetingDate = (meeting: Meeting) => meeting.meetingTime || meeting.meeting_time || ''
+const resolveMeetingTime = (meeting: Meeting) => meeting.meeting_time || (meeting.meetingTime?.split('T')[1]?.slice(0, 5) ?? '未设置')
+
+const classifyAttendeeSize = (count: number) => {
+  if (count <= 10) return 'small'
+  if (count <= 30) return 'medium'
+  return 'large'
+}
+
+const filteredMeetings = computed(() => {
+  const keyword = filters.value.searchQuery?.trim().toLowerCase()
+  const next = [...meetings.value]
+
+  const matchesKeyword = (meeting: Meeting) => {
+    if (!keyword) return true
+    return [
+      meeting.title,
+      meeting.summary,
+      meeting.location,
+      meeting.content,
+      meeting.agenda?.join(' '),
+      meeting.decisions?.join(' ')
+    ].some((field) => field && field.toLowerCase().includes(keyword))
+  }
+
+  const matchesStatuses = (meeting: Meeting) => {
+    if (!filters.value.statuses?.length) return true
+    return filters.value.statuses.includes(meeting.status || '')
+  }
+
+  const matchesTypes = (meeting: Meeting) => {
+    if (!filters.value.types?.length) return true
+    return (meeting.types || []).some((t) => filters.value.types?.includes(t))
+  }
+
+  const matchesAttendeeSize = (meeting: Meeting) => {
+    if (!filters.value.attendeeSizes?.length) return true
+    const sizeLabel = classifyAttendeeSize(meeting.attendees?.length || 0)
+    return filters.value.attendeeSizes.includes(sizeLabel)
+  }
+
+  const matchesTags = (meeting: Meeting) => {
+    if (!filters.value.tags?.length) return true
+    return (meeting.tags || []).some((tag) => filters.value.tags?.includes(tag))
+  }
+
+  const matchesDateRange = (meeting: Meeting) => {
+    const dateStr = resolveMeetingDate(meeting)
+    if (!filters.value.dateRange || (!filters.value.dateRange.start && !filters.value.dateRange.end)) return true
+    if (!dateStr) return false
+    const date = new Date(dateStr)
+    if (Number.isNaN(date.getTime())) return false
+    const { start, end } = filters.value.dateRange
+    if (start && date < new Date(start)) return false
+    if (end && date > new Date(end)) return false
+    return true
+  }
+
+  const filtered = next.filter((meeting) =>
+    matchesKeyword(meeting) &&
+    matchesStatuses(meeting) &&
+    matchesTypes(meeting) &&
+    matchesAttendeeSize(meeting) &&
+    matchesTags(meeting) &&
+    matchesDateRange(meeting)
+  )
+
+  const sortBy = filters.value.sortBy || 'date'
+  const sortDirection = filters.value.sortDirection || 'desc'
+
+  const compare = (a: Meeting, b: Meeting) => {
+    const multiplier = sortDirection === 'asc' ? 1 : -1
+    if (sortBy === 'title') {
+      return multiplier * (a.title || '').localeCompare(b.title || '')
+    }
+    if (sortBy === 'attendee_count') {
+      return multiplier * ((a.attendees?.length || 0) - (b.attendees?.length || 0))
+    }
+    if (sortBy === 'duration') {
+      return multiplier * ((a.duration || 0) - (b.duration || 0))
+    }
+    // default: date
+    const aDate = new Date(resolveMeetingDate(a)).getTime()
+    const bDate = new Date(resolveMeetingDate(b)).getTime()
+    return multiplier * ((aDate || 0) - (bDate || 0))
+  }
+
+  return filtered.sort(compare)
+})
+
+const paginatedMeetings = computed(() => {
+  const start = (pagination.value.current - 1) * pagination.value.pageSize
+  return filteredMeetings.value.slice(start, start + pagination.value.pageSize)
+})
 
 type MeetingLogAction = 'create' | 'update' | 'delete' | 'refresh' | 'duplicate'
 
@@ -438,23 +498,17 @@ const logMeetingAction = (action: MeetingLogAction, message: string, result: 'su
   })
 }
 
-watch(() => pagination.value.current, () => {
-  loadMeetings()
-})
-
-watch(filters, () => {
-  pagination.value.current = 1
-  loadMeetings()
-}, { deep: true })
-
-const totalMeetings = computed(() => pagination.value.total)
+const totalMeetings = computed(() => meetings.value.length)
 
 const recentMeetings = computed(() => {
   const thisWeek = new Date()
   thisWeek.setDate(thisWeek.getDate() - 7)
-  return meetings.value.filter(meeting => 
-    new Date(meeting.date) >= thisWeek
-  ).length
+  return meetings.value.filter((meeting) => {
+    const dateStr = resolveMeetingDate(meeting)
+    if (!dateStr) return false
+    const meetingDate = new Date(dateStr)
+    return !Number.isNaN(meetingDate.getTime()) && meetingDate >= thisWeek
+  }).length
 })
 
 const totalParticipants = computed(() => {
@@ -465,25 +519,34 @@ const totalParticipants = computed(() => {
 
 const completedActions = computed(() => {
   return meetings.value.reduce((total, meeting) => {
-    const actionItems = meeting.actionItems ?? []
+    const actionItems = Array.isArray(meeting.actionItems) ? meeting.actionItems : []
     return total + actionItems.filter(item => item.status === 'completed').length
   }, 0)
 })
 
 // 方法
 const formatDate = (dateStr: string) => {
-  return new Date(dateStr).toLocaleDateString('zh-CN')
+  if (!dateStr) return '未设置'
+  const dt = new Date(dateStr)
+  return Number.isNaN(dt.getTime()) ? dateStr : dt.toLocaleDateString('zh-CN')
 }
+
+watch(filteredMeetings, (list) => {
+  const maxPage = Math.max(1, Math.ceil(list.length / pagination.value.pageSize) || 1)
+  if (pagination.value.current > maxPage) {
+    pagination.value.current = maxPage
+  }
+})
+
+watch(() => pagination.value.pageSize, () => {
+  pagination.value.current = 1
+})
 
 const loadMeetings = async () => {
   loading.value = true
   try {
     const response = await getMeetings(buildMeetingQueryParams())
-    
-    meetings.value = response.content
-    pagination.value.total = response.totalElements
-    pagination.value.pageSize = response.size
-    pagination.value.current = response.number + 1
+    meetings.value = response.content || []
   } catch (error) {
     console.error('加载例会数据失败:', error)
   } finally {
@@ -493,25 +556,27 @@ const loadMeetings = async () => {
 
 const handleFilterChange = (nextFilters: MeetingFilterState) => {
   filters.value = normalizeMeetingFilters(nextFilters)
+  pagination.value.current = 1
 }
 
 const handlePageChange = (page: number) => {
   pagination.value.current = page
 }
 
+const handlePageSizeChange = (size: number) => {
+  pagination.value.pageSize = size
+  pagination.value.current = 1
+}
+
 const handleCreate = () => {
-  editModal.value = {
-    show: true,
-    meeting: null,
-    isCreate: true
-  }
+  console.debug('[AdminMeetingManager] handleCreate called - navigate to editor')
+  router.push({ name: 'AdminMeetingCreate' })
 }
 
 const handleView = (meeting: Meeting) => {
-  detailModal.value = {
-    show: true,
-    meeting
-  }
+  console.debug('[AdminMeetingManager] handleView', meeting && meeting.id)
+  detailModal.show = true
+  detailModal.meeting = meeting
 }
 
 const handleViewFiles = (meeting: Meeting) => {
@@ -528,28 +593,32 @@ const handleViewRecording = (meeting: Meeting) => {
 }
 
 const handleEdit = (meeting: Meeting) => {
-  editModal.value = {
-    show: true,
-    meeting: { ...meeting },
-    isCreate: false
-  }
+  console.debug('[AdminMeetingManager] handleEdit - navigate to editor', meeting && meeting.id)
+  if (!meeting || !meeting.id) return
+  router.push({ name: 'AdminMeetingEdit', params: { id: meeting.id } })
 }
 
-const handleDelete = (meeting: Meeting) => {
-  deleteModal.value = {
-    show: true,
-    meeting,
-    loading: false
+const handleDelete = async (meeting: Meeting) => {
+  console.debug('[AdminMeetingManager] handleDelete', meeting && meeting.id)
+  if (!confirm(`确定要删除例会 "${meeting.title}" 吗？`)) return
+  try {
+    await deleteMeeting(meeting.id)
+    await loadMeetings()
+    logMeetingAction('delete', `删除例会「${meeting.title}」`, 'success', meeting.id)
+  } catch (error) {
+    console.error('删除例会失败:', error)
+    logMeetingAction('delete', `删除例会「${meeting.title}」失败`, 'failure', meeting.id)
   }
 }
 
 const handleDuplicate = async (meeting: Meeting) => {
+  console.debug('[AdminMeetingManager] handleDuplicate', meeting && meeting.id)
   try {
     const payload: Partial<Meeting> = {
       ...meeting,
       id: undefined,
       title: `${meeting.title} (副本)`,
-      date: new Date().toISOString().split('T')[0]
+      meetingTime: new Date().toISOString().split('T')[0]
     }
     const duplicated = await createMeeting(payload)
     await loadMeetings()
@@ -560,42 +629,7 @@ const handleDuplicate = async (meeting: Meeting) => {
   }
 }
 
-const handleSave = async (meeting: Meeting) => {
-  try {
-    if (editModal.value.isCreate) {
-      const created = await createMeeting(meeting)
-      logMeetingAction('create', `创建例会「${created.title}」`, 'success', created.id)
-    } else {
-      const updated = await updateMeeting(meeting.id, meeting)
-      logMeetingAction('update', `更新例会「${updated.title}」`, 'success', updated.id)
-    }
-    await loadMeetings()
-    editModal.value.show = false
-  } catch (error) {
-    console.error('保存例会失败:', error)
-    const action: MeetingLogAction = editModal.value.isCreate ? 'create' : 'update'
-    logMeetingAction(action, `保存例会「${meeting.title}」失败`, 'failure', meeting.id)
-  }
-}
-
-const confirmDelete = async () => {
-  const target = deleteModal.value.meeting
-  if (!target) return
-  
-  deleteModal.value.loading = true
-  
-  try {
-    await deleteMeeting(target.id)
-    await loadMeetings()
-    deleteModal.value.show = false
-    logMeetingAction('delete', `删除例会「${target.title}」`, 'success', target.id)
-  } catch (error) {
-    console.error('删除例会失败:', error)
-    logMeetingAction('delete', `删除例会「${target.title}」失败`, 'failure', target.id)
-  } finally {
-    deleteModal.value.loading = false
-  }
-}
+// 删除使用 confirm()，无需额外的 confirmDelete 函数
 
 const handleRefresh = () => {
   loadMeetings()

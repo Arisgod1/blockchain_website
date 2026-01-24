@@ -317,7 +317,7 @@ const handleOverlayClick = () => {
 
 const handleImageError = (event: Event) => {
   const target = event.target as HTMLImageElement
-  target.src = '/images/default-article.jpg'
+  target.src = '/images/default-article.svg'
 }
 
 const handleBookmark = () => {

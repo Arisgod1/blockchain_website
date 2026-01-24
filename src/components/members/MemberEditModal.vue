@@ -155,6 +155,44 @@
           </div>
 
           <div class="form-group">
+            <label>上传头像</label>
+            <div class="avatar-upload-row">
+              <div class="avatar-preview" v-if="previewAvatar">
+                <img
+                  :src="previewAvatar"
+                  :key="previewAvatar"
+                  :alt="form.name || '头像预览'"
+                  @error="handleAvatarError"
+                >
+              </div>
+              <div class="avatar-actions">
+                <input
+                  ref="avatarFileInput"
+                  type="file"
+                  accept="image/*"
+                  class="hidden-file"
+                  @change="handleAvatarFileChange"
+                >
+                <BaseButton
+                  type="button"
+                  variant="secondary"
+                  :loading="uploadingAvatar"
+                  @click="triggerAvatarUpload"
+                >
+                  选择图片上传
+                </BaseButton>
+                <p class="helper-text">
+                  支持 png/jpg，上传成功后自动填充头像链接
+                </p>
+              </div>
+            </div>
+            <span
+              v-if="errors.avatarUpload"
+              class="error-message"
+            >{{ errors.avatarUpload }}</span>
+          </div>
+
+          <div class="form-group">
             <label for="bio">个人简介</label>
             <textarea
               id="bio"
@@ -279,6 +317,8 @@
 import { ref, watch, computed } from 'vue'
 import { BaseModal, BaseButton } from '@/components/common'
 import type { Member } from '@/types/entities'
+import { uploadFile } from '@/api/file'
+import defaultAvatar from '@/assets/zhaoshuyang.png'
 
 interface Props {
   show: boolean
@@ -295,8 +335,7 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-// 表单数据
-const form = ref<Partial<Member>>({
+const baseMemberDefaults: Partial<Member> = {
   id: '',
   name: '',
   role: '',
@@ -309,19 +348,41 @@ const form = ref<Partial<Member>>({
   linkedin: '',
   joinDate: '',
   isActive: true
-})
+}
+
+// 表单数据
+const form = ref<Partial<Member>>({ ...baseMemberDefaults })
 
 const newSkill = ref('')
 const saving = ref(false)
 const errors = ref<Record<string, string>>({})
+const uploadingAvatar = ref(false)
+const avatarFileInput = ref<HTMLInputElement | null>(null)
+const previewAvatar = computed(() => normalizeAvatarUrl(form.value.avatar))
+
+const normalizeMember = (member?: Member | null): Partial<Member> => ({
+  ...baseMemberDefaults,
+  ...(member ?? {}),
+  // 确保可选字段始终有安全的默认值，避免 watcher/模板中出现 undefined
+  skills: [...(member?.skills ?? [])],
+  isActive: member?.isActive ?? true,
+  joinDate: member?.joinDate ?? ''
+})
+
+const normalizeAvatarUrl = (value?: string) => {
+  const trimmed = (value || '').trim()
+  if (!trimmed) return ''
+  const cleaned = trimmed.replace(/\\/g, '/').replace(/^\/+/, '')
+  if (/^https?:\/\//i.test(cleaned)) return cleaned
+  const base = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8082').replace(/\/+$/, '')
+  return base ? `${base}/${cleaned}` : `/${cleaned}`
+}
 
 // 监听成员数据变化，初始化表单
 watch(() => props.member, (newMember) => {
-  if (newMember) {
-    form.value = { ...newMember }
-  } else {
-    resetForm()
-  }
+  form.value = normalizeMember(newMember)
+  newSkill.value = ''
+  errors.value = {}
 }, { immediate: true })
 
 // 双向绑定
@@ -331,24 +392,6 @@ const show = computed({
 })
 
 // 方法
-const resetForm = () => {
-  form.value = {
-    id: '',
-    name: '',
-    role: '',
-    avatar: '',
-    bio: '',
-    skills: [],
-    grade: '',
-    email: '',
-    github: '',
-    linkedin: '',
-    joinDate: '',
-    isActive: true
-  }
-  newSkill.value = ''
-  errors.value = {}
-}
 
 const addSkill = () => {
   if (!newSkill.value.trim()) return
@@ -390,8 +433,8 @@ const validateForm = (): boolean => {
     errors.value.skills = '请至少添加一个技能'
   }
   
-  if (form.value.avatar && !/^https?:\/\/.+/.test(form.value.avatar)) {
-    errors.value.avatar = '请输入有效的图片链接'
+  if (form.value.avatar && !/^https?:\/\/.+/.test(form.value.avatar) && !form.value.avatar.startsWith('/')) {
+    errors.value.avatar = '请输入有效的图片链接或上传生成的路径'
   }
   
   if (form.value.github && !/^https?:\/\/.+/.test(form.value.github)) {
@@ -418,7 +461,7 @@ const handleSubmit = async () => {
       id: form.value.id || `member_${Date.now()}`,
       name: form.value.name!.trim(),
       role: form.value.role!.trim(),
-      avatar: form.value.avatar?.trim() || '',
+      avatar: normalizeAvatarUrl(form.value.avatar),
       bio: form.value.bio?.trim() || '',
       skills: form.value.skills!,
       grade: form.value.grade || '',
@@ -434,6 +477,39 @@ const handleSubmit = async () => {
     console.error('保存成员信息失败:', error)
   } finally {
     saving.value = false
+  }
+}
+
+const triggerAvatarUpload = () => {
+  avatarFileInput.value?.click()
+}
+
+const handleAvatarError = (event: Event) => {
+  const img = event.target as HTMLImageElement
+  img.src = defaultAvatar
+}
+
+const handleAvatarFileChange = async (event: Event) => {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+  if (!file.type.startsWith('image/')) {
+    errors.value.avatarUpload = '请上传图片格式的文件'
+    input.value = ''
+    return
+  }
+
+  uploadingAvatar.value = true
+  errors.value.avatarUpload = ''
+  try {
+    const uploaded = await uploadFile(file)
+    form.value.avatar = normalizeAvatarUrl(uploaded.filePath)
+  } catch (error) {
+    console.error('上传头像失败:', error)
+    errors.value.avatarUpload = '上传失败，请稍后重试'
+  } finally {
+    uploadingAvatar.value = false
+    input.value = ''
   }
 }
 </script>
@@ -504,6 +580,43 @@ const handleSubmit = async () => {
   outline: none;
   border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.avatar-upload-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.avatar-preview {
+  width: 96px;
+  height: 96px;
+  border-radius: 9999px;
+  overflow: hidden;
+  border: 3px solid #e5e7eb;
+}
+
+.avatar-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.helper-text {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.hidden-file {
+  display: none;
 }
 
 .form-textarea {

@@ -689,7 +689,7 @@ onUnmounted(() => {
 const blogFilterRef = ref()
 </script>
 
-<style scoped>
+<style scoped lang="postcss">
 .blog-page {
   @apply min-h-screen bg-gray-50;
 }

@@ -18,6 +18,47 @@
       </div>
     </div>
 
+    <!-- 搜索与筛选 -->
+    <div
+      class="filter-bar"
+      style="display:flex;gap:1rem;align-items:center;margin-bottom:1rem"
+    >
+      <input
+        v-model="searchQuery"
+        class="form-input"
+        style="max-width:220px"
+        placeholder="搜索标题/作者/分类"
+        @keyup.enter="applySearch"
+      >
+      <select
+        v-model="selectedCategory"
+        class="form-select"
+        style="max-width:140px"
+      >
+        <option value="">
+          全部分类
+        </option>
+        <option
+          v-for="cat in categoryOptions"
+          :key="cat"
+          :value="cat"
+        >
+          {{ cat }}
+        </option>
+      </select>
+      <BaseButton
+        variant="primary"
+        @click="applySearch"
+      >
+        搜索
+      </BaseButton>
+      <BaseButton
+        variant="secondary"
+        @click="resetFilters"
+      >
+        重置
+      </BaseButton>
+    </div>
     <div class="articles-section">
       <BaseCard class="content-card">
         <div
@@ -26,14 +67,12 @@
         >
           <LoadingSpinner />
         </div>
-        
         <div
-          v-else-if="articles.length === 0"
+          v-else-if="filteredArticles.length === 0"
           class="empty-state"
         >
           <p>暂无文章数据</p>
         </div>
-
         <div
           v-else
           class="articles-table-container"
@@ -52,7 +91,7 @@
             </thead>
             <tbody>
               <tr
-                v-for="article in articles"
+                v-for="article in paginatedArticles"
                 :key="article.id"
               >
                 <td>{{ article.id }}</td>
@@ -83,99 +122,30 @@
             </tbody>
           </table>
         </div>
-        
         <div
-          v-if="totalPages > 1"
+          v-if="sortedArticles.length > pageSize"
           class="pagination-container"
         >
-          <BasePagination 
-            :current="currentPage" 
-            :total="totalElements"
+          <BasePagination
+            :current="currentPage"
             :page-size="pageSize"
-            @change="handlePageChange" 
+            :total="sortedArticles.length"
+            @page-change="handlePageChange"
+            @update:page-size="handlePageSizeChange"
           />
         </div>
       </BaseCard>
     </div>
-
-    <BaseModal
-      v-model:show="showEditModal"
-      :title="editingArticle ? '编辑文章' : '新建文章'"
-    >
-      <form
-        class="edit-form"
-        @submit.prevent="saveArticle"
-      >
-        <div class="form-group">
-          <label>标题</label>
-          <input
-            v-model="formData.title"
-            type="text"
-            required
-            class="form-input"
-          >
-        </div>
-        <div class="form-group">
-          <label>摘要</label>
-          <textarea
-            v-model="formData.summary"
-            class="form-textarea"
-          />
-        </div>
-        <div class="form-group">
-          <label>内容</label>
-          <textarea
-            v-model="formData.content"
-            class="form-textarea content-editor"
-          />
-        </div>
-        <div class="form-group">
-          <label>分类</label>
-          <input
-            v-model="formData.category"
-            type="text"
-            class="form-input"
-          >
-        </div>
-        <div class="form-group">
-          <label>状态</label>
-          <div class="checkbox-group">
-            <input
-              id="isPublished"
-              v-model="formData.isPublished"
-              type="checkbox"
-            >
-            <label for="isPublished">发布</label>
-          </div>
-        </div>
-        <div class="form-actions">
-          <BaseButton
-            type="button"
-            variant="secondary"
-            @click="showEditModal = false"
-          >
-            取消
-          </BaseButton>
-          <BaseButton
-            type="submit"
-            variant="primary"
-            :loading="saving"
-          >
-            保存
-          </BaseButton>
-        </div>
-      </form>
-    </BaseModal>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, reactive } from 'vue'
-import { getArticles, createArticle, updateArticle, deleteArticle } from '@/api/article'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { getArticles, deleteArticle } from '@/api/article'
 import type { Article } from '@/types/entities'
 import BaseButton from '@/components/common/BaseButton.vue'
 import BaseCard from '@/components/common/BaseCard.vue'
-import BaseModal from '@/components/common/BaseModal.vue'
 import BasePagination from '@/components/common/BasePagination.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import { onAdminRefresh } from '@/utils/adminEvents'
@@ -183,17 +153,50 @@ import { recordAdminOperation } from '@/composables/useAdminLogs'
 
 const articles = ref<Article[]>([])
 const loading = ref(false)
-const saving = ref(false)
 const currentPage = ref(1)
 const pageSize = ref(10)
-const totalPages = ref(1)
-const totalElements = ref(0)
-const showEditModal = ref(false)
-const editingArticle = ref<Article | null>(null)
+const searchQuery = ref('')
+const selectedCategory = ref('')
 const cleanupFns: Array<() => void> = []
+const router = useRouter()
+
+const categoryOptions = computed(() => {
+  const set = new Set<string>()
+  articles.value.forEach(a => { if (a.category) set.add(a.category) })
+  return Array.from(set)
+})
+
+const filteredArticles = computed(() => {
+  let result = [...articles.value]
+  if (searchQuery.value) {
+    const q = searchQuery.value.toLowerCase()
+    result = result.filter(a =>
+      (a.title && a.title.toLowerCase().includes(q)) ||
+      ((typeof a.author === 'string' ? a.author : a.author?.name || '').toLowerCase().includes(q)) ||
+      (a.category && a.category.toLowerCase().includes(q))
+    )
+  }
+  if (selectedCategory.value) {
+    result = result.filter(a => a.category === selectedCategory.value)
+  }
+  return result
+})
+
+const sortedArticles = computed(() => {
+  return [...filteredArticles.value].sort((a, b) => {
+    const aNum = Number(a.id)
+    const bNum = Number(b.id)
+    if (!Number.isNaN(aNum) && !Number.isNaN(bNum)) return aNum - bNum
+    return String(a.id ?? '').localeCompare(String(b.id ?? ''))
+  })
+})
+
+const paginatedArticles = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value
+  return sortedArticles.value.slice(start, start + pageSize.value)
+})
 
 type ArticleLogAction = 'create' | 'update' | 'delete' | 'refresh'
-
 const logArticleAction = (action: ArticleLogAction, message: string, result: 'success' | 'failure' = 'success', targetId?: string | number) => {
   recordAdminOperation({
     entity: 'articles',
@@ -206,23 +209,11 @@ const logArticleAction = (action: ArticleLogAction, message: string, result: 'su
   })
 }
 
-const formData = reactive<Partial<Article>>({
-  title: '',
-  summary: '',
-  content: '',
-  category: '',
-  isPublished: false
-})
-
 const fetchArticles = async () => {
   loading.value = true
   try {
-    const res = await getArticles({ page: currentPage.value - 1, size: pageSize.value })
-    articles.value = res.content
-    totalPages.value = res.totalPages
-    totalElements.value = res.totalElements
-    pageSize.value = res.size
-    currentPage.value = res.number + 1
+    const res = await getArticles({ page: 0, size: 100 }) // 拉取全部，前端分页
+    articles.value = res.content || []
   } catch (error) {
     console.error('Failed to fetch articles:', error)
   } finally {
@@ -237,25 +228,21 @@ const handleRefresh = () => {
 
 const handlePageChange = (page: number) => {
   currentPage.value = page
-  fetchArticles()
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+const handlePageSizeChange = (size: number) => {
+  pageSize.value = size
+  currentPage.value = 1
 }
 
 const handleCreate = () => {
-  editingArticle.value = null
-  Object.assign(formData, {
-    title: '',
-    summary: '',
-    content: '',
-    category: '',
-    isPublished: false
-  })
-  showEditModal.value = true
+  router.push({ name: 'AdminArticleCreate' })
 }
 
 const handleEdit = (article: Article) => {
-  editingArticle.value = article
-  Object.assign(formData, article)
-  showEditModal.value = true
+  if (!article?.id) return
+  router.push({ name: 'AdminArticleEdit', params: { id: article.id } })
 }
 
 const handleDelete = async (article: Article) => {
@@ -270,25 +257,13 @@ const handleDelete = async (article: Article) => {
   }
 }
 
-const saveArticle = async () => {
-  saving.value = true
-  try {
-    if (editingArticle.value) {
-      const updated = await updateArticle(editingArticle.value.id, formData)
-      logArticleAction('update', `更新文章「${updated.title ?? editingArticle.value.title}」`, 'success', editingArticle.value.id)
-    } else {
-      const created = await createArticle(formData)
-      logArticleAction('create', `创建文章「${created.title ?? formData.title}」`, 'success', created.id)
-    }
-    showEditModal.value = false
-    fetchArticles()
-  } catch (error) {
-    alert('保存失败')
-    const action: ArticleLogAction = editingArticle.value ? 'update' : 'create'
-    logArticleAction(action, `保存文章「${formData.title || '未命名文章'}」失败`, 'failure', editingArticle.value?.id)
-  } finally {
-    saving.value = false
-  }
+const applySearch = () => {
+  currentPage.value = 1
+}
+const resetFilters = () => {
+  searchQuery.value = ''
+  selectedCategory.value = ''
+  currentPage.value = 1
 }
 
 onMounted(() => {

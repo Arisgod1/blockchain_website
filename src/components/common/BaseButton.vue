@@ -248,6 +248,9 @@ function handleClick(event: MouseEvent) {
     event.preventDefault()
     return
   }
+  // 调试日志：跟踪按钮点击是否被触发
+  // eslint-disable-next-line no-console
+  console.debug('[BaseButton] click emitted', { text: props.text, event })
   emit('click', event)
 }
 </script>

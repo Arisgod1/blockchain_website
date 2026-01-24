@@ -78,18 +78,7 @@
     </div>
 
     <!-- 筛选结果统计 -->
-    <div class="filter-stats">
-      <div class="stats-item">
-        <span class="stats-label">共找到</span>
-        <span class="stats-value">{{ totalCount }}</span>
-        <span class="stats-label">个项目</span>
-      </div>
-      <div class="stats-item">
-        <span class="stats-label">显示</span>
-        <span class="stats-value">{{ filteredCount }}</span>
-        <span class="stats-label">个项目</span>
-      </div>
-    </div>
+   
 
     <!-- 快速操作 -->
     <div class="filter-actions">

@@ -73,7 +73,7 @@
           <button
             v-else
             :class="getPageButtonClasses(page.value === displayedCurrent)"
-            :disabled="page.value === displayedCurrent"
+            
             @click="goToPage(page.value as number)"
           >
             {{ page.value }}
@@ -319,12 +319,6 @@ function getPageButtonClasses(active = false, isNavButton = false) {
       'hover:bg-neutral-50',
       'focus:ring-primary-500'
     )
-  }
-  
-  if (displayedCurrent.value <= 1 && !isNavButton) {
-    baseClasses.push('cursor-not-allowed', 'opacity-50')
-  } else if (displayedCurrent.value >= totalPages.value && !isNavButton) {
-    baseClasses.push('cursor-not-allowed', 'opacity-50')
   }
   
   return baseClasses

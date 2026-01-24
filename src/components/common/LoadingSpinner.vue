@@ -1,6 +1,6 @@
 <template>
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm">
-    <div class="flex flex-col items-center space-y-4">
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm pointer-events-none">
+    <div class="flex flex-col items-center space-y-4 pointer-events-auto">
       <!-- 主加载动画 -->
       <div class="relative">
         <!-- 外圈旋转动画 -->

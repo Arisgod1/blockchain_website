@@ -443,12 +443,12 @@ const filteredMeetings = computed(() => {
 
   if (filters.dateRange?.start) {
     const startDate = new Date(filters.dateRange.start).getTime()
-    result = result.filter(meeting => new Date(meeting.date).getTime() >= startDate)
+    result = result.filter(meeting => new Date(meeting.meetingTime).getTime() >= startDate)
   }
 
   if (filters.dateRange?.end) {
     const endDate = new Date(filters.dateRange.end).getTime()
-    result = result.filter(meeting => new Date(meeting.date).getTime() <= endDate)
+    result = result.filter(meeting => new Date(meeting.meetingTime).getTime() <= endDate)
   }
 
   const sortBy = filters.sortBy ?? 'date'
@@ -468,7 +468,7 @@ const filteredMeetings = computed(() => {
         return direction * ((a.duration ?? 0) - (b.duration ?? 0))
       case 'date':
       default:
-        return direction * (new Date(a.date).getTime() - new Date(b.date).getTime())
+        return direction * (new Date(a.meetingTime).getTime() - new Date(b.meetingTime).getTime())
     }
   })
 

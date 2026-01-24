@@ -40,7 +40,7 @@
       </h3>
       
       <!-- 会议状态 -->
-      <div class="filter-group">
+      <!-- <div class="filter-group">
         <label class="filter-label">会议状态</label>
         <div class="filter-options">
           <label 
@@ -59,7 +59,7 @@
             <span class="filter-count">({{ getStatusCount(status.value) }})</span>
           </label>
         </div>
-      </div>
+      </div>-->
 
       <!-- 会议类型 -->
       
@@ -73,16 +73,20 @@
           <input
             v-model="dateRange.start"
             type="date"
-            class="date-input"
+            placeholder=""  
+            :class="['date-input', { 'is-filled': !!dateRange.start }]"
             @change="handleFilterChange"
+              
           >
           <span class="date-separator">至</span>
           
           <input
             v-model="dateRange.end"
             type="date"
-            class="date-input"
+            placeholder=""  
+            :class="['date-input', { 'is-filled': !!dateRange.end }]"
             @change="handleFilterChange"
+              
           >
         </div>
       </div>
@@ -295,11 +299,6 @@ const filteredCount = computed(() => {
   return props.meetings?.length || 0
 })
 
-// 筛选计数方法
-const getStatusCount = (status: string): number => {
-  return props.meetings?.filter(m => m.status === status).length || 0
-}
-
 // 文本转换方法
 const getStatusText = (status: string): string => {
   const option = statusOptions.find(o => o.value === status)
@@ -408,6 +407,7 @@ watch(() => props.initialFilters, initializeFilters, { immediate: true })
 </script>
 
 <style scoped lang="postcss">
+  
 /* 基础样式 */
 .meeting-filter {
   @apply bg-white rounded-xl shadow-md border border-gray-100 p-6;
@@ -487,6 +487,15 @@ watch(() => props.initialFilters, initializeFilters, { immediate: true })
 .date-input {
   @apply flex-1 px-3 py-2 border border-gray-200 rounded-lg
          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+}
+
+.date-input::-webkit-datetime-edit {
+  color: transparent;
+}
+
+.date-input.is-filled::-webkit-datetime-edit,
+.date-input:focus::-webkit-datetime-edit {
+  color: #111827;
 }
 
 .date-separator {
@@ -618,6 +627,11 @@ watch(() => props.initialFilters, initializeFilters, { immediate: true })
   .search-input,
   .date-input {
     @apply bg-gray-700 border-gray-600 text-white;
+  }
+
+  .date-input.is-filled::-webkit-datetime-edit,
+  .date-input:focus::-webkit-datetime-edit {
+    color: #ffffff;
   }
   
   .filter-checkbox {

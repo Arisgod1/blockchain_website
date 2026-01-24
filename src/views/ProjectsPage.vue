@@ -80,13 +80,7 @@
         <!-- 工具栏 -->
         <div class="projects-toolbar">
           <div class="toolbar-left">
-            <button 
-              class="mobile-filter-btn md:hidden"
-              @click="toggleMobileFilters"
-            >
-              <FilterIcon />
-              筛选
-            </button>
+            
             <div class="view-mode-selector">
               <button 
                 :class="['view-mode-btn', { active: viewMode === 'grid' }]"
@@ -122,12 +116,7 @@
               </select>
             </div>
             <div>
-              <button
-                class="px-3 py-2 bg-green-500 text-white rounded-lg"
-                @click="openCreateModal"
-              >
-                + 新建项目
-              </button>
+             
             </div>
           </div>
         </div>

@@ -4,17 +4,17 @@
     class="min-h-screen bg-gradient-to-br from-neutral-50 to-neutral-100 relative"
   >
     <!-- 全局加载动画 -->
-    <LoadingSpinner 
+    <LoadingSpinner
       v-if="isPageLoading"
       title="页面跳转中"
       message="正在加载新页面内容..."
       class="fixed inset-0 z-[9999]"
     />
-    
+
     <!-- 应用主内容 -->
     <router-view v-slot="{ Component, route }">
-      <transition 
-        name="page-transition" 
+      <transition
+        name="page-transition"
         mode="out-in"
         @enter="onPageEnter"
         @leave="onPageLeave"
@@ -26,10 +26,10 @@
         />
       </transition>
     </router-view>
-    
+
     <!-- 全局管理员登录弹窗 -->
-    <AdminLogin 
-      :show="showAdminLogin" 
+    <AdminLogin
+      :show="showAdminLogin"
       @update:show="showAdminLogin = $event"
       @login="handleAdminLoginSuccess"
     />
@@ -64,6 +64,7 @@ const pendingRedirect = ref<string>('')
 // 页面加载动画状态
 const isPageLoading = ref(false)
 const pageTransitionTimeout = ref<number | null>(null)
+const pageLoadingFailSafe = ref<number | null>(null)
 let removeBeforeEach: (() => void) | null = null
 let removeAfterEach: (() => void) | null = null
 
@@ -75,100 +76,89 @@ const closeAdminLogin = () => {
 
 // 页面过渡动画处理函数
 const onPageEnter = () => {
-  console.log('🎬 页面进入动画开始')
-  // 延迟显示加载动画，给路由过渡留出时间
   pageTransitionTimeout.value = window.setTimeout(() => {
     isPageLoading.value = true
-    console.log('⏳ 显示页面加载动画')
   }, 100)
 }
 
 const onPageLeave = () => {
-  console.log('🎬 页面离开动画开始')
   isPageLoading.value = false
   if (pageTransitionTimeout.value) {
     clearTimeout(pageTransitionTimeout.value)
     pageTransitionTimeout.value = null
   }
+  if (pageLoadingFailSafe.value) {
+    clearTimeout(pageLoadingFailSafe.value)
+    pageLoadingFailSafe.value = null
+  }
 }
 
 const onPageAfterEnter = () => {
-  console.log('✅ 页面进入动画完成')
   isPageLoading.value = false
   if (pageTransitionTimeout.value) {
     clearTimeout(pageTransitionTimeout.value)
     pageTransitionTimeout.value = null
+  }
+  if (pageLoadingFailSafe.value) {
+    clearTimeout(pageLoadingFailSafe.value)
+    pageLoadingFailSafe.value = null
   }
 }
 
 // 监听路由变化，启动页面加载动画
 const startPageLoading = () => {
-  console.log('🚀 启动页面加载动画')
   isPageLoading.value = true
+  if (pageLoadingFailSafe.value) {
+    clearTimeout(pageLoadingFailSafe.value)
+  }
+  pageLoadingFailSafe.value = window.setTimeout(() => {
+    isPageLoading.value = false
+  }, 8000)
 }
 
 // 停止页面加载动画
 const stopPageLoading = () => {
-  console.log('🛑 停止页面加载动画')
   isPageLoading.value = false
+  if (pageLoadingFailSafe.value) {
+    clearTimeout(pageLoadingFailSafe.value)
+    pageLoadingFailSafe.value = null
+  }
 }
 
 // 处理管理员登录成功
 const handleAdminLoginSuccess = async (adminUser: AdminUser) => {
-  console.log('✅ 管理员登录成功', adminUser)
-  
-  // 统一使用 'adminToken' 作为存储键名
   localStorage.setItem('adminToken', 'admin_logged_in')
   localStorage.setItem('admin-user', JSON.stringify(adminUser))
-  
+
   const redirectTo = pendingRedirect.value || '/admin'
   pendingRedirect.value = ''
-  
-  // 关闭登录弹窗
+
   closeAdminLogin()
-  
-  // 显示登录成功提示
   alert('✅ 登录成功！即将跳转到管理员后台...')
-  
-  // 跳转到目标页面或默认的管理员后台
   await router.push(redirectTo)
 }
 
 // 监听管理员快捷键事件
 const handleAdminHotkey = (event: CustomEvent<ShowAdminLoginEventDetail>) => {
-  console.log('🚀 管理员快捷键触发')
   showAdminLogin.value = true
   pendingRedirect.value = event.detail?.redirectTo || ''
 }
 
 // 监听全局showAdminLogin事件
 const handleShowAdminLoginEvent = (event: CustomEvent<ShowAdminLoginEventDetail>) => {
-  console.log('📢 收到showAdminLogin事件:', event.detail)
   showAdminLogin.value = true
   pendingRedirect.value = event.detail?.redirectTo || ''
 }
 
 // 监听管理员退出事件
 const handleAdminExitEvent = async () => {
-  console.log('🚪 handleAdminExitEvent 被调用 - 管理员退出事件处理开始')
-  
-  // 清除管理员状态
-  console.log('🧹 清除管理员状态...')
   localStorage.removeItem('adminToken')
   localStorage.removeItem('admin-user')
-  console.log('🧹 管理员状态已清除')
-  
-  // 显示退出提示
-  console.log('💬 显示退出提示...')
   alert('✅ 已成功退出管理员模式')
-  
-  // 跳转到首页
-  console.log('🏠 开始跳转到首页...')
   try {
     await router.push('/')
-    console.log('✅ 成功跳转到首页')
   } catch (error) {
-    console.error('❌ 跳转到首页失败:', error)
+    console.error('跳转首页失败:', error)
   }
 }
 
@@ -176,59 +166,55 @@ const handleAdminExitEvent = async () => {
 const startAdminHotkeyListening = () => {
   adminHotkeyService.startListening((event) => {
     if (event.type === 'trigger') {
-      console.log('🎯 快捷键触发管理员模式')
       showAdminLogin.value = true
     }
   })
 }
 
 onMounted(() => {
-  // 添加事件监听器
   window.addEventListener('admin-hotkey-trigger', handleAdminHotkey as EventListener)
   window.addEventListener('showAdminLogin', handleShowAdminLoginEvent as EventListener)
   window.addEventListener('admin-exit', handleAdminExitEvent)
-  
-  // 监听路由变化
+
   removeBeforeEach = router.beforeEach((to, from) => {
     console.log(`🔄 路由变化: ${from.path} -> ${to.path}`)
     startPageLoading()
   })
-  
+
   removeAfterEach = router.afterEach(() => {
-    console.log('✅ 路由跳转完成')
     stopPageLoading()
   })
-  
-  // 保存钩子函数引用以便清理
+
+  router.onError(() => {
+    stopPageLoading()
+  })
+
   globalWindow.__routerHooks = {
     removeBeforeEach,
     removeAfterEach
   }
-  
-  // 启动管理员快捷键监听
+
   startAdminHotkeyListening()
-  
-  console.log('✅ App 组件已初始化，管理员快捷键监听和路由监听已启动')
 })
 
 onUnmounted(() => {
-  // 清理事件监听器
   window.removeEventListener('admin-hotkey-trigger', handleAdminHotkey as EventListener)
   window.removeEventListener('showAdminLogin', handleShowAdminLoginEvent as EventListener)
   window.removeEventListener('admin-exit', handleAdminExitEvent)
-  
-  // 清理路由监听
+
   removeBeforeEach?.()
   removeAfterEach?.()
   globalWindow.__routerHooks = undefined
-  
-  // 停止快捷键监听
+
   adminHotkeyService.stopListening()
-  
-  // 清理定时器
+
   if (pageTransitionTimeout.value) {
     clearTimeout(pageTransitionTimeout.value)
     pageTransitionTimeout.value = null
+  }
+  if (pageLoadingFailSafe.value) {
+    clearTimeout(pageLoadingFailSafe.value)
+    pageLoadingFailSafe.value = null
   }
 })
 </script>

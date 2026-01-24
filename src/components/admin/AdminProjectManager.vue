@@ -18,7 +18,48 @@
       </div>
     </div>
 
-    <!-- 项目列表 -->
+    <!-- 搜索与筛选 -->
+    <div
+      class="filter-bar"
+      style="display:flex;gap:1rem;align-items:center;margin-bottom:1rem"
+    >
+      <input
+        v-model="filters.search"
+        class="form-input"
+        style="max-width:220px"
+        placeholder="搜索项目名称/分类"
+        @keyup.enter="handleFilterChange"
+      >
+      <select
+        v-model="filters.category"
+        class="form-select"
+        style="max-width:140px"
+        @change="handleFilterChange"
+      >
+        <option value="">
+          全部分类
+        </option>
+        <option
+          v-for="cat in categoryOptions"
+          :key="cat"
+          :value="cat"
+        >
+          {{ cat }}
+        </option>
+      </select>
+      <BaseButton
+        variant="primary"
+        @click="handleFilterChange"
+      >
+        搜索
+      </BaseButton>
+      <BaseButton
+        variant="secondary"
+        @click="resetFilters"
+      >
+        重置
+      </BaseButton>
+    </div>
     <div class="projects-section">
       <BaseCard class="content-card">
         <div
@@ -27,14 +68,12 @@
         >
           <LoadingSpinner />
         </div>
-        
         <div
-          v-else-if="projects.length === 0"
+          v-else-if="filteredProjects.length === 0"
           class="empty-state"
         >
           <p>暂无项目数据</p>
         </div>
-
         <div
           v-else
           class="projects-table-container"
@@ -45,6 +84,7 @@
                 <th>ID</th>
                 <th>项目名称</th>
                 <th>分类</th>
+                <th>开始时间</th>
                 <th>状态</th>
                 <th>进度</th>
                 <th>操作</th>
@@ -52,12 +92,13 @@
             </thead>
             <tbody>
               <tr
-                v-for="project in projects"
+                v-for="project in paginatedProjects"
                 :key="project.id"
               >
                 <td>{{ project.id }}</td>
                 <td>{{ project.name }}</td>
                 <td>{{ project.category }}</td>
+                <td>{{ formatDate(project.startDate) }}</td>
                 <td>
                   <span :class="['status-badge', String(project.status ?? 'planning').toLowerCase()]">
                     {{ project.status || '未设置' }}
@@ -82,119 +123,31 @@
             </tbody>
           </table>
         </div>
-        
         <!-- 分页 -->
         <div
-          v-if="totalPages > 1"
+          v-if="filteredProjects.length > pageSize"
           class="pagination-container"
         >
-          <BasePagination 
-            :current="currentPage" 
+          <BasePagination
+            :current="currentPage"
             :page-size="pageSize"
-            :total="totalItems" 
-            @change="handlePageChange" 
+            :total="filteredProjects.length"
+            @page-change="handlePageChange"
+            @update:page-size="handlePageSizeChange"
           />
         </div>
       </BaseCard>
     </div>
-
-    <!-- 编辑/新建弹窗 -->
-    <BaseModal
-      v-model:show="showEditModal"
-      :title="editingProject ? '编辑项目' : '新建项目'"
-    >
-      <form
-        class="edit-form"
-        @submit.prevent="saveProject"
-      >
-        <div class="form-group">
-          <label>项目名称</label>
-          <input
-            v-model="formData.name"
-            type="text"
-            required
-            class="form-input"
-          >
-        </div>
-        <div class="form-group">
-          <label>描述</label>
-          <textarea
-            v-model="formData.description"
-            class="form-textarea"
-          />
-        </div>
-        <div class="form-group">
-          <label>分类</label>
-          <select
-            v-model="formData.category"
-            class="form-select"
-          >
-            <option value="DEVELOPMENT">
-              开发
-            </option>
-            <option value="RESEARCH">
-              研究
-            </option>
-            <option value="COMPETITION">
-              竞赛
-            </option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>状态</label>
-          <select
-            v-model="formData.status"
-            class="form-select"
-          >
-            <option value="PLANNING">
-              规划中
-            </option>
-            <option value="ONGOING">
-              进行中
-            </option>
-            <option value="COMPLETED">
-              已完成
-            </option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>进度 (%)</label>
-          <input
-            v-model.number="formData.progress"
-            type="number"
-            min="0"
-            max="100"
-            class="form-input"
-          >
-        </div>
-        <div class="form-actions">
-          <BaseButton
-            type="button"
-            variant="secondary"
-            @click="showEditModal = false"
-          >
-            取消
-          </BaseButton>
-          <BaseButton
-            type="submit"
-            variant="primary"
-            :loading="saving"
-          >
-            保存
-          </BaseButton>
-        </div>
-      </form>
-    </BaseModal>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, reactive } from 'vue'
-import { getProjects, createProject, updateProject, deleteProject } from '@/api/project'
-import { Category, Status, type Project } from '@/types/entities'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { getProjects, deleteProject } from '@/api/project'
+import { type Project } from '@/types/entities'
 import BaseButton from '@/components/common/BaseButton.vue'
 import BaseCard from '@/components/common/BaseCard.vue'
-import BaseModal from '@/components/common/BaseModal.vue'
 import BasePagination from '@/components/common/BasePagination.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import { onAdminRefresh } from '@/utils/adminEvents'
@@ -202,17 +155,62 @@ import { recordAdminOperation } from '@/composables/useAdminLogs'
 
 const projects = ref<Project[]>([])
 const loading = ref(false)
-const saving = ref(false)
 const currentPage = ref(1)
-const totalPages = ref(1)
-const totalItems = ref(0)
 const pageSize = ref(10)
-const showEditModal = ref(false)
-const editingProject = ref<Project | null>(null)
+const filters = ref({ search: '', category: '' })
 const cleanupFns: Array<() => void> = []
+const router = useRouter()
+
+const categoryOptions = computed(() => {
+  const set = new Set<string>()
+  projects.value.forEach(p => { if (p.category) set.add(p.category) })
+  return Array.from(set)
+})
+
+const filteredProjects = computed(() => {
+  const keyword = filters.value.search.trim().toLowerCase()
+  let list = [...projects.value]
+
+  if (keyword) {
+    list = list.filter(p =>
+      (p.name && p.name.toLowerCase().includes(keyword)) ||
+      (p.category && p.category.toLowerCase().includes(keyword))
+    )
+  }
+
+  if (filters.value.category) {
+    list = list.filter(p => p.category === filters.value.category)
+  }
+
+  return list
+})
+
+const paginatedProjects = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value
+  return filteredProjects.value.slice(start, start + pageSize.value)
+})
+
+const formatDate = (dateInput?: string | Date) => {
+  if (!dateInput) return '未设置'
+  try {
+    const date = dateInput instanceof Date ? dateInput : new Date(dateInput)
+    return date.toISOString().slice(0, 10)
+  } catch {
+    return typeof dateInput === 'string' ? dateInput : '未设置'
+  }
+}
+
+watch(
+  () => filteredProjects.value.length,
+  (length) => {
+    const maxPage = Math.max(1, Math.ceil(length / pageSize.value) || 1)
+    if (currentPage.value > maxPage) {
+      currentPage.value = maxPage
+    }
+  }
+)
 
 type ProjectLogAction = 'create' | 'update' | 'delete' | 'refresh'
-
 const logProjectAction = (action: ProjectLogAction, message: string, result: 'success' | 'failure' = 'success', targetId?: string | number) => {
   recordAdminOperation({
     entity: 'projects',
@@ -225,30 +223,24 @@ const logProjectAction = (action: ProjectLogAction, message: string, result: 'su
   })
 }
 
-const formData = reactive<Partial<Project>>({
-  name: '',
-  description: '',
-  category: Category.Development,
-  status: Status.Planning,
-  progress: 0
-})
+const buildQueryParams = () => {
+  const params: Record<string, unknown> = {
+    page: 0,
+    size: 500
+  }
+  if (filters.value.search) params.keyword = filters.value.search
+  if (filters.value.category) params.category = filters.value.category
+  return params
+}
 
 const fetchProjects = async () => {
   loading.value = true
   try {
-  const res = await getProjects({ page: currentPage.value - 1, size: pageSize.value })
-    // 适配 Mock 数据结构（如果是数组直接返回，如果是分页对象取 content）
-    if (Array.isArray(res)) {
-      projects.value = res
-      totalPages.value = 1
-      totalItems.value = res.length
-    } else {
-      projects.value = res.content || []
-      totalPages.value = res.totalPages || 1
-      totalItems.value = res.totalElements || projects.value.length
-    }
+    const res = await getProjects(buildQueryParams())
+    projects.value = res.content || []
   } catch (error) {
     console.error('Failed to fetch projects:', error)
+    projects.value = []
   } finally {
     loading.value = false
   }
@@ -261,25 +253,32 @@ const handleRefresh = () => {
 
 const handlePageChange = (page: number) => {
   currentPage.value = page
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+const handlePageSizeChange = (size: number) => {
+  pageSize.value = size
+  currentPage.value = 1
+}
+
+const handleFilterChange = () => {
+  currentPage.value = 1
+  fetchProjects()
+}
+
+const resetFilters = () => {
+  filters.value = { search: '', category: '' }
+  currentPage.value = 1
   fetchProjects()
 }
 
 const handleCreate = () => {
-  editingProject.value = null
-  Object.assign(formData, {
-    name: '',
-    description: '',
-    category: Category.Development,
-    status: Status.Planning,
-    progress: 0
-  })
-  showEditModal.value = true
+  router.push({ name: 'AdminProjectCreate' })
 }
 
 const handleEdit = (project: Project) => {
-  editingProject.value = project
-  Object.assign(formData, project)
-  showEditModal.value = true
+  if (!project?.id) return
+  router.push({ name: 'AdminProjectEdit', params: { id: project.id } })
 }
 
 const handleDelete = async (project: Project) => {
@@ -291,27 +290,6 @@ const handleDelete = async (project: Project) => {
   } catch (error) {
     alert('删除失败')
     logProjectAction('delete', `删除项目「${project.name}」失败`, 'failure', project.id)
-  }
-}
-
-const saveProject = async () => {
-  saving.value = true
-  try {
-    if (editingProject.value) {
-      const updated = await updateProject(editingProject.value.id!, formData)
-      logProjectAction('update', `更新项目「${updated.name ?? editingProject.value.name}」`, 'success', editingProject.value.id)
-    } else {
-      const created = await createProject(formData)
-      logProjectAction('create', `创建项目「${created.name ?? formData.name}」`, 'success', created.id)
-    }
-    showEditModal.value = false
-    fetchProjects()
-  } catch (error) {
-    alert('保存失败')
-    const action: ProjectLogAction = editingProject.value ? 'update' : 'create'
-    logProjectAction(action, `保存项目「${formData.name || '未命名项目'}」失败`, 'failure', editingProject.value?.id)
-  } finally {
-    saving.value = false
   }
 }
 

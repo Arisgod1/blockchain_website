@@ -24,6 +24,47 @@
       </div>
     </div>
 
+    <!-- 搜索与筛选 -->
+    <div
+      class="filter-bar"
+      style="display:flex;gap:1rem;align-items:center;margin-bottom:1rem"
+    >
+      <input
+        v-model="searchQuery"
+        class="form-input"
+        style="max-width:220px"
+        placeholder="搜索文件名/类型"
+        @keyup.enter="applySearch"
+      >
+      <select
+        v-model="selectedType"
+        class="form-select"
+        style="max-width:140px"
+      >
+        <option value="">
+          全部类型
+        </option>
+        <option
+          v-for="type in typeOptions"
+          :key="type"
+          :value="type"
+        >
+          {{ type }}
+        </option>
+      </select>
+      <BaseButton
+        variant="primary"
+        @click="applySearch"
+      >
+        搜索
+      </BaseButton>
+      <BaseButton
+        variant="secondary"
+        @click="resetFilters"
+      >
+        重置
+      </BaseButton>
+    </div>
     <div class="files-section">
       <BaseCard class="content-card">
         <div
@@ -32,14 +73,12 @@
         >
           <LoadingSpinner />
         </div>
-        
         <div
-          v-else-if="files.length === 0"
+          v-else-if="filteredFiles.length === 0"
           class="empty-state"
         >
           <p>暂无文件数据</p>
         </div>
-
         <div
           v-else
           class="files-table-container"
@@ -58,7 +97,7 @@
             </thead>
             <tbody>
               <tr
-                v-for="file in files"
+                v-for="file in paginatedFiles"
                 :key="file.id"
               >
                 <td>{{ file.id }}</td>
@@ -85,16 +124,16 @@
             </tbody>
           </table>
         </div>
-        
         <div
-          v-if="totalPages > 1"
+          v-if="filteredFiles.length > pageSize"
           class="pagination-container"
         >
-          <BasePagination 
-            :current="currentPage" 
-            :total="totalElements"
+          <BasePagination
+            v-model:current="currentPage"
             :page-size="pageSize"
-            @change="handlePageChange" 
+            :total="filteredFiles.length"
+            @page-change="handlePageChange"
+            @update:page-size="handlePageSizeChange"
           />
         </div>
       </BaseCard>
@@ -103,8 +142,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { getFiles, uploadFile, deleteFile, downloadFile, type FileInfo } from '@/api/file'
+import { MOCK_FILES } from '@/common_value/files'
 import BaseButton from '@/components/common/BaseButton.vue'
 import BaseCard from '@/components/common/BaseCard.vue'
 import BasePagination from '@/components/common/BasePagination.vue'
@@ -116,13 +156,47 @@ const files = ref<FileInfo[]>([])
 const loading = ref(false)
 const currentPage = ref(1)
 const pageSize = ref(10)
-const totalPages = ref(1)
-const totalElements = ref(0)
+const searchQuery = ref('')
+const selectedType = ref('')
 const fileInput = ref<HTMLInputElement | null>(null)
 const cleanupFns: Array<() => void> = []
 
-type FileLogAction = 'create' | 'delete' | 'refresh' | 'export'
+const typeOptions = computed(() => {
+  const set = new Set<string>()
+  files.value.forEach(f => { if (f.fileType) set.add(f.fileType) })
+  return Array.from(set)
+})
 
+const filteredFiles = computed(() => {
+  let result = [...files.value]
+  if (searchQuery.value) {
+    const q = searchQuery.value.toLowerCase()
+    result = result.filter(f =>
+      (f.originalName && f.originalName.toLowerCase().includes(q)) ||
+      (f.fileType && f.fileType.toLowerCase().includes(q))
+    )
+  }
+  if (selectedType.value) {
+    result = result.filter(f => f.fileType === selectedType.value)
+  }
+  return result
+})
+
+const paginatedFiles = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value
+  return filteredFiles.value.slice(start, start + pageSize.value)
+})
+
+watch(filteredFiles, (list) => {
+  const maxPage = Math.max(1, Math.ceil(list.length / pageSize.value) || 1)
+  if (currentPage.value > maxPage) currentPage.value = maxPage
+})
+
+watch(pageSize, () => {
+  currentPage.value = 1
+})
+
+type FileLogAction = 'create' | 'delete' | 'refresh' | 'export'
 const logFileAction = (action: FileLogAction, message: string, result: 'success' | 'failure' = 'success', targetId?: string | number) => {
   recordAdminOperation({
     entity: 'files',
@@ -137,15 +211,24 @@ const logFileAction = (action: FileLogAction, message: string, result: 'success'
 
 const fetchFiles = async () => {
   loading.value = true
+  let finished = false
+  const timeoutId = window.setTimeout(() => {
+    if (!finished) {
+      files.value = [...MOCK_FILES]
+      loading.value = false
+    }
+  }, 8000)
+
   try {
-    const res = await getFiles({ page: currentPage.value - 1, size: pageSize.value })
-    files.value = res.content
-    totalPages.value = res.totalPages
-    totalElements.value = res.totalElements
-    pageSize.value = res.size
-    currentPage.value = res.number + 1
+    const res = await getFiles({ page: 0, size: 500 }) // 拉取较大页，前端分页
+    finished = true
+    window.clearTimeout(timeoutId)
+    files.value = res.content || []
   } catch (error) {
+    finished = true
+    window.clearTimeout(timeoutId)
     console.error('Failed to fetch files:', error)
+    files.value = [...MOCK_FILES]
   } finally {
     loading.value = false
   }
@@ -158,7 +241,12 @@ const handleRefresh = () => {
 
 const handlePageChange = (page: number) => {
   currentPage.value = page
-  fetchFiles()
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+const handlePageSizeChange = (size: number) => {
+  pageSize.value = size
+  currentPage.value = 1
 }
 
 const triggerUpload = () => {
@@ -203,6 +291,15 @@ const handleDelete = async (file: FileInfo) => {
     alert('删除失败')
     logFileAction('delete', `删除文件「${file.originalName}」失败`, 'failure', file.id)
   }
+}
+
+const applySearch = () => {
+  currentPage.value = 1
+}
+const resetFilters = () => {
+  searchQuery.value = ''
+  selectedType.value = ''
+  currentPage.value = 1
 }
 
 const formatSize = (bytes: number) => {

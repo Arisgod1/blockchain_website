@@ -13,10 +13,10 @@
     <div class="meeting-card-header">
       <div class="meeting-date-info">
         <div class="date-main">
-          {{ formatDate(meeting.date) }}
+          {{ formatDate(meeting.meetingTime) }}
         </div>
         <div class="date-sub">
-          {{ getRelativeTime(meeting.date) }}
+          {{ getRelativeTime(meeting.meetingTime) }}
         </div>
       </div>
       <div class="meeting-status">
@@ -60,10 +60,10 @@
           <img
             v-for="attendee in normalizedAttendees.slice(0, 5)"
             :key="attendee.id"
-            :src="attendee.avatar || '/images/default-avatar.png'"
+            :src="attendee.avatar || '/images/default-avatar.svg'"
             :alt="attendee.name"
             class="attendee-avatar"
-            :title="attendee.name"
+            :title="attendee.role ? `${attendee.name} · ${attendee.role}` : attendee.name"
           >
           <div 
             v-if="normalizedAttendees.length > 5"
@@ -130,7 +130,7 @@
 
     <!-- 操作按钮 -->
     <div
-      v-show="isHovered"
+      v-show="isHovered || props.showActions"
       class="meeting-actions"
     >
       <button 
@@ -160,6 +160,27 @@
         </svg>
         相关文件
       </button>
+      <button 
+        v-if="props.showActions"
+        class="action-btn action-edit"
+        @click.stop="emit('edit', meeting)"
+      >
+        编辑
+      </button>
+      <button 
+        v-if="props.showActions"
+        class="action-btn action-duplicate"
+        @click.stop="emit('duplicate', meeting)"
+      >
+        复制
+      </button>
+      <button 
+        v-if="props.showActions"
+        class="action-btn action-delete"
+        @click.stop="emit('delete', meeting)"
+      >
+        删除
+      </button>
     </div>
   </div>
 </template>
@@ -167,37 +188,33 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import type { Meeting, MeetingAttendee } from '@/types/entities'
+import { mergeAttendeesWithMembers } from '@/utils/attendeeMapper'
 
 interface Props {
   meeting: Meeting
   viewMode?: 'grid' | 'list'
+  showActions?: boolean
 }
 
 interface Emits {
   (e: 'view-detail', meeting: Meeting): void
   (e: 'view-files', meeting: Meeting): void
   (e: 'view-recording', meeting: Meeting): void
+  (e: 'edit', meeting: Meeting): void
+  (e: 'delete', meeting: Meeting): void
+  (e: 'duplicate', meeting: Meeting): void
+  (e: 'view', meeting: Meeting): void
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  viewMode: 'grid'
+  viewMode: 'grid',
+  showActions: false
 })
 
 const emit = defineEmits<Emits>()
 
 const isHovered = ref(false)
-const normalizedAttendees = computed<MeetingAttendee[]>(() => {
-  return (props.meeting.attendees ?? []).map(attendee => {
-    if (typeof attendee === 'string') {
-      return {
-        id: attendee,
-        name: attendee,
-        avatar: '/images/default-avatar.png'
-      }
-    }
-    return attendee
-  })
-})
+const normalizedAttendees = computed<MeetingAttendee[]>(() => mergeAttendeesWithMembers(props.meeting.attendees ?? []))
 
 // 格式化日期
 const formatDate = (dateString: string): string => {
@@ -287,10 +304,12 @@ const getTagColor = (tag: string): string => {
 // 事件处理
 const handleCardClick = () => {
   emit('view-detail', props.meeting)
+  emit('view', props.meeting)
 }
 
 const handleViewDetail = () => {
   emit('view-detail', props.meeting)
+  emit('view', props.meeting)
 }
 
 const handleViewFiles = () => {
@@ -298,7 +317,7 @@ const handleViewFiles = () => {
 }
 </script>
 
-<style scoped>
+<style scoped lang="postcss">
 /* 基础样式 */
 .meeting-card {
   @apply relative bg-white rounded-xl shadow-md hover:shadow-xl 

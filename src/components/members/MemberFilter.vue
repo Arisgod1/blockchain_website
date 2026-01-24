@@ -35,10 +35,6 @@
           @click="selectRole(role.id)"
         >
           {{ role.name }}
-          <span
-            v-if="role.count !== undefined"
-            class="count"
-          >({{ role.count }})</span>
         </button>
       </div>
     </div>
@@ -56,6 +52,9 @@
         class="sort-select"
         @change="handleSortChange"
       >
+        <option value="id">
+          按 ID
+        </option>
         <option value="role">
           按角色
         </option>
@@ -151,7 +150,7 @@ const defaultFilters: FilterOptions = {
   search: '',
   role: 'all',
   skills: [],
-  sortBy: 'name',
+  sortBy: 'id',
   isActive: undefined
 }
 
@@ -197,7 +196,7 @@ const clearAllFilters = () => {
     search: '',
     role: 'all',
     skills: [],
-    sortBy: 'name',
+    sortBy: 'id',
     isActive: undefined
   }
   updateFilters()
