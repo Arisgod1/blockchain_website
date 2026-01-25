@@ -22,6 +22,7 @@
     <div class="filter-section">
       <MemberFilter 
         v-model:filters="filters"
+        :roles="roleOptions"
         @change="handleFilterChange"
       />
     </div>
@@ -438,6 +439,19 @@ const avgSkillsPerMember = computed(() => {
     total + member.skills.length, 0
   )
   return Math.round((totalSkills / members.value.length) * 10) / 10
+})
+
+const roleOptions = computed(() => {
+  const counts = members.value.reduce<Record<string, number>>((acc, member) => {
+    const role = member.role || '未分类'
+    acc[role] = (acc[role] ?? 0) + 1
+    return acc
+  }, {})
+
+  return [
+    { id: 'all', name: '全部成员', count: members.value.length },
+    ...Object.entries(counts).map(([role, count]) => ({ id: role, name: role, count }))
+  ]
 })
 
 const filteredMembers = computed(() => {

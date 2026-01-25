@@ -291,6 +291,13 @@
           </div>
         </div>
       </div>
+
+      <p
+        v-if="errors.submit"
+        class="error-message submit-error"
+      >
+        {{ errors.submit }}
+      </p>
     </form>
 
     <template #footer>
@@ -475,6 +482,8 @@ const handleSubmit = async () => {
     emit('save', memberData)
   } catch (error) {
     console.error('保存成员信息失败:', error)
+    errors.value.submit = '保存失败，请稍后重试'
+    alert('保存成员失败，请稍后重试')
   } finally {
     saving.value = false
   }
@@ -711,6 +720,10 @@ const handleAvatarFileChange = async (event: Event) => {
   color: #dc2626;
   font-size: 0.75rem;
   margin-top: 0.25rem;
+}
+
+.submit-error {
+  text-align: right;
 }
 
 /* 滚动条样式 */

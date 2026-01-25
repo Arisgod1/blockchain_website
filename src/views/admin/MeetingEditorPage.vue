@@ -255,12 +255,12 @@ const handleSubmit = async () => {
       const created = await createMeeting(payload)
       logMeetingAction('create', `创建例会「${created.title ?? form.title}」`, 'success', created.id)
       dispatchAdminRefresh({ entity: 'meetings', action: 'refresh' })
-      router.push({ name: 'AdminMeetings' })
+      router.push({ name: 'AdminDashboard' })
     } else if (id) {
       const updated = await updateMeeting(id, payload)
       logMeetingAction('update', `更新例会「${updated.title ?? form.title}」`, 'success', id)
       dispatchAdminRefresh({ entity: 'meetings', action: 'refresh' })
-      router.push({ name: 'AdminMeetings' })
+      router.push({ name: 'AdminDashboard' })
     }
   } catch (error) {
     logMeetingAction(isCreate ? 'create' : 'update', `保存例会「${form.title || '未命名例会'}」失败`, 'failure', id)

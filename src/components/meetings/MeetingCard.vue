@@ -18,6 +18,9 @@
         <div class="date-sub">
           {{ getRelativeTime(meeting.meetingTime) }}
         </div>
+        <div class="date-time">
+          {{ formatTime(meeting) }} 开始
+        </div>
       </div>
       <div class="meeting-status">
         <span 
@@ -264,6 +267,14 @@ const getStatusText = (status?: string): string => {
   return statusMap[String(status ?? 'upcoming') as keyof typeof statusMap] || status || '未知'
 }
 
+// 格式化开始时间
+const formatTime = (meeting: Meeting): string => {
+  const raw = meeting.meeting_time || meeting.meetingTime?.split('T')[1] || ''
+  const cleaned = raw.replace('Z', '')
+  if (!cleaned) return '未设置'
+  return cleaned.slice(0, 5)
+}
+
 // 获取类型文本
 const getTypeText = (type: string): string => {
   const typeMap = {
@@ -356,6 +367,10 @@ const handleViewFiles = () => {
 
 .meeting-date-info .date-sub {
   @apply text-sm text-gray-500 mt-1;
+}
+
+.meeting-date-info .date-time {
+  @apply text-xs text-gray-500 mt-1;
 }
 
 .meeting-status .status-badge {

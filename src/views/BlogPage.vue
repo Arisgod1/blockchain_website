@@ -589,6 +589,9 @@ const applyFilters = (filtersOverride?: BlogFilterOptions | null) => {
   const filters = filtersOverride ?? activeFilters.value
   let filtered = [...articles.value]
 
+  // 默认只展示已发布文章
+  filtered = filtered.filter(article => article.isPublished !== false)
+
   const mappedFilterCategory = filters?.category && filters.category !== 'all'
     ? (categoryValueMap[filters.category] || filters.category)
     : ''

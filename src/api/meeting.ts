@@ -77,18 +77,30 @@ export const createMeeting = async (payload: Partial<Meeting>): Promise<Meeting>
       console.warn('远程创建例会失败（网络），回退到本地：', error)
     }
     const items = readLocal()
+    const time = (payload.meeting_time || '00:00').replace('Z', '')
+    const meetingTime = payload.meetingTime || `${new Date().toISOString().slice(0, 10)}T${time}`
     const created: Meeting = {
       id: payload.id ?? nextId(),
       title: payload.title ?? '未命名例会',
       summary: payload.summary ?? '',
-      meetingTime: payload.meetingTime ?? new Date().toISOString().slice(0, 10),
-      meeting_time: payload.meeting_time ?? '00:00',
+      meetingTime,
+      meeting_time: time,
       duration: payload.duration ?? 60,
       attendees: payload.attendees ?? [],
       status: payload.status ?? 'upcoming',
-     
+      agenda: payload.agenda ?? [],
+      content: payload.content ?? '',
+      decisions: payload.decisions ?? [],
+      actionItems: payload.actionItems ?? [],
+      issues: payload.issues ?? [],
+      files: payload.files ?? [],
+      attachments: payload.attachments ?? [],
+      tags: payload.tags ?? [],
+      recording: payload.recording ?? '',
+      minutes: payload.minutes ?? '',
+      recorder: payload.recorder ?? '',
+      isPublic: payload.isPublic ?? true,
       notes: payload.notes ?? '',
-      
       location: payload.location ?? ''
     }
     items.unshift(created)

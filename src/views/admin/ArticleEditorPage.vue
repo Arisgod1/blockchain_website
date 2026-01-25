@@ -106,6 +106,15 @@
           >
         </label>
 
+        <label class="form-field">
+          <span>封面图片 URL</span>
+          <input
+            v-model="form.coverImage"
+            class="text-input"
+            placeholder="https://example.com/cover.jpg"
+          >
+        </label>
+
         <label class="form-field checkbox-row">
           <input
             id="isPublished"
@@ -142,7 +151,7 @@ import { useRoute, useRouter } from 'vue-router'
 import BaseButton from '@/components/common/BaseButton.vue'
 import BaseCard from '@/components/common/BaseCard.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
-import { getPost as getArticle, createPost as createArticle, updatePost as updateArticle } from '@/api/post'
+import { getArticle, createArticle, updateArticle } from '@/api/article'
 import type { Article, AdminAction } from '@/types/entities'
 import { recordAdminOperation } from '@/composables/useAdminLogs'
 
@@ -165,7 +174,8 @@ const form = reactive({
   isPublished: false,
   tagsText: '',
   readTime: 3,
-  author: ''
+  author: '',
+  coverImage: ''
 })
 
 const logArticleAction = (action: AdminAction, message: string, result: 'success' | 'failure' = 'success', targetId?: string | number) => {
@@ -188,6 +198,7 @@ const normalizeArticle = (article: Article) => {
   form.tagsText = Array.isArray(article.tags) ? article.tags.join(', ') : ''
   form.readTime = article.readTime ?? 3
   form.author = typeof article.author === 'string' ? article.author : (article.author?.name ?? '')
+  form.coverImage = article.coverImage || article.image || ''
 }
 
 onMounted(async () => {
@@ -228,13 +239,15 @@ const handleSubmit = async () => {
     tags,
     views: 0,
     likes: 0,
-    author: (typeof form.author === 'string' && form.author.trim()) ? form.author.trim() : '匿名'
-  } as Partial<Article> & { author: string };
+    author: { name: (form.author && form.author.trim()) ? form.author.trim() : '匿名' },
+    coverImage: form.coverImage || undefined,
+    image: form.coverImage || undefined
+  } as Partial<Article>
 
   // 更新时附带 id，保证请求体完整
-  /*if (!isCreate && id) {
+  if (!isCreate && id) {
     payload.id = id
-  }*/
+  }
 
   try {
     if (isCreate) {
