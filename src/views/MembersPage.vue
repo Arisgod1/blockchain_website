@@ -254,8 +254,6 @@ import type { Member } from '@/types/entities'
 import { getMembers } from '@/api/member'
 import {
   UsersIcon,
-  GridIcon,
-  ListIcon,
   GithubIcon,
   EmailIcon,
   CalendarIcon,
@@ -288,7 +286,6 @@ const filters = ref<MemberFiltersState>({
   isActive: undefined
 })
 
-const viewMode = ref<'grid' | 'list'>('grid')
 const currentPage = ref(1)
 const pageSize = ref(12)
 const showMemberModal = ref(false)

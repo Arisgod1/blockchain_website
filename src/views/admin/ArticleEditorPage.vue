@@ -225,6 +225,7 @@ const handleSubmit = async () => {
     updateDate: new Date().toISOString(),
     isPublished: form.isPublished,
     readTime: form.readTime ?? 3,
+    tags,
     views: 0,
     likes: 0,
     author: (typeof form.author === 'string' && form.author.trim()) ? form.author.trim() : '匿名'

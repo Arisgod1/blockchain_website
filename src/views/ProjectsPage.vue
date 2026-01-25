@@ -246,7 +246,6 @@ import ProjectCreateModal from '@/components/projects/ProjectCreateModal.vue'
 import { getProjects } from '@/api/project'
 import { Status } from '@/types/entities'
 import {
-  FilterIcon,
   GridIcon,
   ListIcon,
   XIcon,
@@ -454,8 +453,6 @@ onMounted(() => {
   loadProjects()
 })
 
-// 打开新建模态
-const openCreateModal = () => { isCreateModalVisible.value = true }
 const closeCreateModal = () => { isCreateModalVisible.value = false }
 
 const handleProjectCreated = () => {

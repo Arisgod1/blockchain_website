@@ -148,10 +148,6 @@ const selectedTeamSizes = ref<string[]>([])
 const showActiveOnly = ref(false)
 const techToAdd = ref('')
 
-// 计算属性
-const totalCount = ref(45) // 总项目数
-const filteredCount = ref(45) // 筛选后项目数
-
 // 事件处理
 const handleSearch = () => {
   emitFilterChange()

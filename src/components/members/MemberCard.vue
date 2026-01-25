@@ -137,7 +137,7 @@
 import { ref } from 'vue'
 import defaultAvatar from '@/assets/zhaoshuyang.png'
 import type { Member } from '@/types/entities'
-import { GithubIcon, EmailIcon, LinkedInIcon, CalendarIcon, ProjectIcon } from '@/components/icons'
+import { GithubIcon, EmailIcon, LinkedInIcon, CalendarIcon } from '@/components/icons'
 
 interface Props {
   member: Member
