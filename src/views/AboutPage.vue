@@ -1,53 +1,36 @@
 <template>
   <div class="about-page">
     <!-- 页面头部 -->
-    <header class="gradient-hero flowing-gradient-sunrise text-white overflow-hidden">
-      <div class="hero-stars">
-        <span style="top:12%;left:8%;animation-duration:18s" />
-        <span style="top:28%;left:78%;animation-duration:22s;animation-delay:1s" />
-        <span style="top:58%;left:32%;animation-duration:16s;animation-delay:2.5s" />
-        <span style="top:75%;left:68%;animation-duration:24s;animation-delay:3.2s" />
-      </div>
-      <!-- 背景装饰 -->
-      <div class="absolute inset-0">
-        <div class="absolute top-10 left-10 w-20 h-20 bg-blue-500/10 rounded-full blur-xl animate-pulse" />
-        <div class="absolute bottom-10 right-10 w-32 h-32 bg-orange-500/10 rounded-full blur-xl animate-pulse delay-1000" />
-        <div class="absolute top-1/2 left-1/3 w-16 h-16 bg-purple-500/10 rounded-full blur-xl animate-pulse delay-500" />
-      </div>
-      
-      <div class="relative z-10 container mx-auto px-4 py-20">
-        <div class="max-w-4xl mx-auto text-center">
-          <h1 class="text-5xl font-bold mb-6 bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
-            关于我们
-          </h1>
-          <p class="text-xl text-blue-100 mb-8 leading-relaxed">
-            大连理工大学区块链组致力于区块链技术的研究与创新应用，
-            探索分布式系统的无限可能，为数字未来贡献智慧与力量。
-          </p>
-          <div class="flex justify-center gap-8">
-            <div class="text-center">
-              <div class="text-3xl font-bold text-orange-300">
-                2015
-              </div>
-              <div class="text-sm text-blue-200">
-                成立年份
-              </div>
+    <header class="gradient-hero flowing-gradient-sunrise hero-header">
+      <div class="hero-inner">
+        <span class="hero-eyebrow">ABOUT · 关于我们</span>
+        <h1 class="hero-title">
+          链上探索者，
+          <span class="hero-title-accent">链下实干家</span>
+        </h1>
+        <p class="hero-subtitle">
+          大连理工大学区块链组致力于区块链技术的研究与创新应用。
+        </p>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="hero-stat-icon">📅</div>
+            <div class="hero-stat-body">
+              <div class="hero-stat-value">2015</div>
+              <div class="hero-stat-label">成立年份</div>
             </div>
-            <div class="text-center">
-              <div class="text-3xl font-bold text-green-300">
-                5+
-              </div>
-              <div class="text-sm text-blue-200">
-                研究领域
-              </div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-icon">🔬</div>
+            <div class="hero-stat-body">
+              <div class="hero-stat-value">5+</div>
+              <div class="hero-stat-label">研究领域</div>
             </div>
-            <div class="text-center">
-              <div class="text-3xl font-bold text-purple-300">
-                15
-              </div>
-              <div class="text-sm text-blue-200">
-                团队成员
-              </div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-icon">👥</div>
+            <div class="hero-stat-body">
+              <div class="hero-stat-value">15</div>
+              <div class="hero-stat-label">团队成员</div>
             </div>
           </div>
         </div>
@@ -55,15 +38,15 @@
     </header>
 
     <!-- 主要内容 -->
-    <main class="container mx-auto px-4 py-16">
+    <main class="container mx-auto px-4 py-10 md:py-16">
       <!-- 团队介绍 -->
-      <section class="mb-20">
+      <section class="mb-12 md:mb-20">
         <div class="max-w-6xl mx-auto">
-          <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">
+          <h2 class="text-2xl md:text-3xl font-bold text-center mb-8 md:mb-12 text-gray-800">
             团队介绍
           </h2>
-          <div class="grid md:grid-cols-2 gap-12 items-center">
-            <div class="space-y-6">
+          <div class="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+            <div class="space-y-5 md:space-y-6">
               <div class="prose prose-lg text-gray-600">
                 <p>
                   大连理工大学区块链组成立于2015年，是一个专注于区块链技术研究与应用创新的学术研究团队。
@@ -82,7 +65,7 @@
             </div>
             <div class="relative">
               <!-- 团队展示卡片 -->
-              <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+              <div class="bg-white rounded-2xl shadow-xl p-5 sm:p-8 border border-gray-100">
                 <div class="text-center mb-6">
                   <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold">
                     DUTS
@@ -120,14 +103,14 @@
       </section>
 
       <!-- 使命与愿景 -->
-      <section class="mb-20">
+      <section class="mb-12 md:mb-20">
         <div class="max-w-6xl mx-auto">
-          <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">
+          <h2 class="text-2xl md:text-3xl font-bold text-center mb-8 md:mb-12 text-gray-800">
             使命与愿景
           </h2>
-          <div class="grid md:grid-cols-3 gap-8">
+          <div class="grid md:grid-cols-3 gap-5 md:gap-8">
             <!-- 使命 -->
-            <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-8 text-center">
+            <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 sm:p-8 text-center">
               <div class="w-16 h-16 bg-blue-500 rounded-full mx-auto mb-6 flex items-center justify-center">
                 <svg
                   class="w-8 h-8 text-white"
@@ -153,7 +136,7 @@
             </div>
 
             <!-- 愿景 -->
-            <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl p-8 text-center">
+            <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl p-6 sm:p-8 text-center">
               <div class="w-16 h-16 bg-orange-500 rounded-full mx-auto mb-6 flex items-center justify-center">
                 <svg
                   class="w-8 h-8 text-white"
@@ -185,7 +168,7 @@
             </div>
 
             <!-- 价值观 -->
-            <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-8 text-center">
+            <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-6 sm:p-8 text-center">
               <div class="w-16 h-16 bg-green-500 rounded-full mx-auto mb-6 flex items-center justify-center">
                 <svg
                   class="w-8 h-8 text-white"
@@ -214,12 +197,12 @@
       </section>
 
       <!-- 研究方向 -->
-      <section class="mb-20">
+      <section class="mb-12 md:mb-20">
         <div class="max-w-6xl mx-auto">
-          <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">
+          <h2 class="text-2xl md:text-3xl font-bold text-center mb-8 md:mb-12 text-gray-800">
             研究方向
           </h2>
-          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-8">
             <div 
               v-for="field in researchFields" 
               :key="field.id"
@@ -245,33 +228,33 @@
       </section>
 
       <!-- 发展历程 -->
-      <section class="mb-20">
+      <section class="mb-12 md:mb-20">
         <div class="max-w-4xl mx-auto">
-          <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">
+          <h2 class="text-2xl md:text-3xl font-bold text-center mb-8 md:mb-12 text-gray-800">
             发展历程
           </h2>
           <div class="relative">
             <!-- 时间线 -->
             <div class="absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-500 to-orange-500" />
-            
-            <div class="space-y-8">
-              <div 
-                v-for="milestone in timeline" 
+
+            <div class="space-y-6 md:space-y-8">
+              <div
+                v-for="milestone in timeline"
                 :key="milestone.year"
                 class="relative flex items-start"
               >
                 <!-- 时间点 -->
                 <div
-                  class="relative z-10 w-8 h-8 rounded-full flex items-center justify-center border-4 border-white shadow-lg"
+                  class="relative z-10 w-8 h-8 flex-shrink-0 rounded-full flex items-center justify-center border-4 border-white shadow-lg"
                   :class="milestone.colorClass"
                 >
                   <div class="w-3 h-3 bg-white rounded-full" />
                 </div>
-                
+
                 <!-- 内容 -->
-                <div class="ml-8 bg-white rounded-lg shadow-md border border-gray-100 p-6 flex-1">
-                  <div class="flex items-center justify-between mb-2">
-                    <h3 class="text-xl font-semibold text-gray-800">
+                <div class="ml-4 sm:ml-8 bg-white rounded-lg shadow-md border border-gray-100 p-4 sm:p-6 flex-1 min-w-0">
+                  <div class="flex flex-wrap items-center gap-2 justify-between mb-2">
+                    <h3 class="text-lg sm:text-xl font-semibold text-gray-800">
                       {{ milestone.year }}
                     </h3>
                     <span
@@ -279,7 +262,7 @@
                       :class="milestone.badgeClass"
                     >{{ milestone.event }}</span>
                   </div>
-                  <p class="text-gray-600">
+                  <p class="text-sm sm:text-base text-gray-600 leading-relaxed">
                     {{ milestone.description }}
                   </p>
                 </div>

@@ -1,58 +1,36 @@
 <template>
   <div class="events-page">
     <!-- 页面头部 -->
-    <header class="gradient-hero flowing-gradient-solstice text-white overflow-hidden">
-      <div class="hero-stars">
-        <span style="top:10%;left:20%;animation-duration:17s" />
-        <span style="top:30%;left:76%;animation-duration:22s;animation-delay:1.3s" />
-        <span style="top:62%;left:28%;animation-duration:16s;animation-delay:2.1s" />
-        <span style="top:78%;left:60%;animation-duration:23s;animation-delay:3s" />
-      </div>
-      <!-- 背景装饰 -->
-      <div class="absolute inset-0">
-        <div class="absolute top-20 left-20 w-32 h-32 bg-blue-500/10 rounded-full blur-xl animate-pulse" />
-        <div class="absolute bottom-20 right-20 w-40 h-40 bg-purple-500/10 rounded-full blur-xl animate-pulse delay-1000" />
-        <div class="absolute top-1/2 left-1/4 w-24 h-24 bg-orange-500/10 rounded-full blur-xl animate-pulse delay-500" />
-      </div>
-      <div class="absolute inset-0 shimmer-trails">
-        <span class="shimmer-band band-a" />
-        <span class="shimmer-band band-b" />
-        <span class="shimmer-band band-c" />
-      </div>
-      
-      <div class="relative z-10 container mx-auto px-4 py-24">
-        <div class="max-w-4xl mx-auto text-center">
-          <h1 class="text-5xl font-bold mb-6 bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
-            会议活动
-          </h1>
-          <p class="text-xl text-blue-100 mb-8 leading-relaxed">
-            汇聚全球区块链领域的前沿智慧，探讨技术革新与行业趋势。
-            参与我们的专业会议、学术研讨和行业峰会，与业界专家共同塑造区块链未来。
-          </p>
-          <div class="flex justify-center gap-8">
-            <div class="text-center">
-              <div class="text-3xl font-bold text-orange-300">
-                {{ stats.totalEvents }}
-              </div>
-              <div class="text-sm text-blue-200">
-                年度活动
-              </div>
+    <header class="gradient-hero flowing-gradient-solstice hero-header">
+      <div class="hero-inner">
+        <span class="hero-eyebrow">EVENTS · 会议活动</span>
+        <h1 class="hero-title">
+          会议活动，
+          <span class="hero-title-accent">链接前沿智慧</span>
+        </h1>
+        <p class="hero-subtitle">
+          汇聚区块链领域的前沿洞察与行业力量，共同参与专业会议、学术研讨与行业峰会，塑造区块链的未来。
+        </p>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="hero-stat-icon">🗓️</div>
+            <div class="hero-stat-body">
+              <div class="hero-stat-value">{{ stats.totalEvents }}</div>
+              <div class="hero-stat-label">年度活动</div>
             </div>
-            <div class="text-center">
-              <div class="text-3xl font-bold text-green-300">
-                {{ stats.totalParticipants }}+
-              </div>
-              <div class="text-sm text-blue-200">
-                参与人次
-              </div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-icon">👥</div>
+            <div class="hero-stat-body">
+              <div class="hero-stat-value">{{ stats.totalParticipants }}+</div>
+              <div class="hero-stat-label">参与人次</div>
             </div>
-            <div class="text-center">
-              <div class="text-3xl font-bold text-yellow-300">
-                {{ stats.upcomingEvents }}
-              </div>
-              <div class="text-sm text-blue-200">
-                即将举行
-              </div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-icon">🚀</div>
+            <div class="hero-stat-body">
+              <div class="hero-stat-value">{{ stats.upcomingEvents }}</div>
+              <div class="hero-stat-label">即将举行</div>
             </div>
           </div>
         </div>
@@ -60,16 +38,16 @@
     </header>
 
     <!-- 导航标签 -->
-    <nav class="bg-white shadow-sm border-b">
-      <div class="container mx-auto px-4">
-        <div class="flex space-x-8">
+    <nav class="bg-white shadow-sm border-b sticky top-0 z-30">
+      <div class="container mx-auto px-3 sm:px-4">
+        <div class="flex space-x-6 sm:space-x-8 overflow-x-auto scrollbar-hide">
           <button
             v-for="tab in tabs"
             :key="tab.id"
-            class="py-4 px-2 border-b-2 font-medium text-sm transition-colors"
+            class="py-3 sm:py-4 px-1 sm:px-2 border-b-2 font-medium text-sm transition-colors whitespace-nowrap flex-shrink-0"
             :class="[
-              activeTab === tab.id 
-                ? 'border-blue-500 text-blue-600' 
+              activeTab === tab.id
+                ? 'border-blue-500 text-blue-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             ]"
             @click="activeTab = tab.id"
@@ -81,11 +59,11 @@
     </nav>
 
     <!-- 主要内容 -->
-    <main class="container mx-auto px-4 py-12">
+    <main class="container mx-auto px-4 py-8 md:py-12">
       <!-- 筛选和搜索 -->
-      <section class="mb-8">
-        <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
-          <div class="flex-1 max-w-md">
+      <section class="mb-6 md:mb-8">
+        <div class="flex flex-col md:flex-row gap-3 md:gap-4 items-stretch md:items-center justify-between">
+          <div class="w-full md:flex-1 md:max-w-md">
             <div class="relative">
               <svg
                 class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
@@ -104,15 +82,15 @@
                 v-model="searchQuery"
                 type="text"
                 placeholder="搜索活动..."
-                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                class="w-full pl-10 pr-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
             </div>
           </div>
-          
-          <div class="flex gap-4">
-            <select 
+
+          <div class="grid grid-cols-2 md:flex gap-2 md:gap-4">
+            <select
               v-model="selectedCategory"
-              class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="w-full px-3 md:px-4 py-2.5 md:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm md:text-base"
             >
               <option value="">
                 全部分类
@@ -131,9 +109,9 @@
               </option>
             </select>
             
-            <select 
+            <select
               v-model="selectedStatus"
-              class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="w-full px-3 md:px-4 py-2.5 md:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm md:text-base"
             >
               <option value="">
                 全部状态
@@ -153,17 +131,17 @@
       </section>
 
       <!-- 活动统计 -->
-      <section class="mb-8">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div 
+      <section class="mb-6 md:mb-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+          <div
             v-for="stat in eventTypeStats"
             :key="stat.type"
-            class="bg-white rounded-lg p-6 shadow-sm border text-center"
+            class="bg-white rounded-lg p-4 md:p-6 shadow-sm border text-center"
           >
-            <div class="text-2xl font-bold text-gray-800 mb-2">
+            <div class="text-xl md:text-2xl font-bold text-gray-800 mb-1 md:mb-2">
               {{ stat.count }}
             </div>
-            <div class="text-sm text-gray-600">
+            <div class="text-xs md:text-sm text-gray-600">
               {{ stat.label }}
             </div>
           </div>
@@ -199,7 +177,7 @@
         <!-- 活动网格 -->
         <div
           v-else
-          class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
+          class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
         >
           <div
             v-for="event in paginatedEvents"
@@ -207,7 +185,7 @@
             class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group"
           >
             <!-- 活动图片 -->
-            <div class="relative h-48 overflow-hidden">
+            <div class="relative h-40 sm:h-48 overflow-hidden">
               <img 
                 :src="event.image" 
                 :alt="event.title"
@@ -229,8 +207,8 @@
             </div>
 
             <!-- 活动信息 -->
-            <div class="p-6">
-              <div class="flex items-center text-sm text-gray-500 mb-2">
+            <div class="p-4 sm:p-6">
+              <div class="flex items-center text-xs sm:text-sm text-gray-500 mb-2">
                 <svg
                   class="w-4 h-4 mr-1"
                   fill="none"
@@ -247,16 +225,16 @@
                 {{ formatDate(event.date) }}
               </div>
               
-              <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-blue-600 transition-colors">
+              <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
                 {{ event.title }}
               </h3>
-              
+
               <p class="text-gray-600 text-sm mb-4 line-clamp-2">
                 {{ event.description }}
               </p>
-              
-              <div class="flex items-center justify-between">
-                <div class="flex items-center text-sm text-gray-500">
+
+              <div class="flex flex-wrap items-center gap-y-1 gap-x-3 justify-between">
+                <div class="flex items-center text-xs sm:text-sm text-gray-500 min-w-0">
                   <svg
                     class="w-4 h-4 mr-1"
                     fill="none"
@@ -276,9 +254,9 @@
                       d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                     />
                   </svg>
-                  {{ event.location }}
+                  <span class="truncate">{{ event.location }}</span>
                 </div>
-                <div class="flex items-center text-sm text-gray-500">
+                <div class="flex items-center text-xs sm:text-sm text-gray-500 flex-shrink-0">
                   <svg
                     class="w-4 h-4 mr-1"
                     fill="none"
@@ -320,30 +298,30 @@
         <!-- 分页 -->
         <div
           v-if="totalPages > 1"
-          class="flex justify-center mt-12"
+          class="flex justify-center mt-8 md:mt-12"
         >
-          <nav class="flex space-x-2">
+          <nav class="flex flex-wrap justify-center gap-2">
             <button
               :disabled="currentPage === 1"
-              class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               @click="currentPage--"
             >
               上一页
             </button>
-            
+
             <button
               v-for="page in visiblePages"
               :key="page"
-              class="px-4 py-2 border rounded-lg"
+              class="w-10 h-10 flex items-center justify-center text-sm border rounded-lg"
               :class="page === currentPage ? 'bg-blue-600 text-white border-blue-600' : 'border-gray-300 hover:bg-gray-50'"
               @click="currentPage = page"
             >
               {{ page }}
             </button>
-            
+
             <button
               :disabled="currentPage === totalPages"
-              class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               @click="currentPage++"
             >
               下一页
@@ -364,10 +342,10 @@
         @click.stop
       >
         <div class="relative">
-          <img 
-            :src="selectedEvent?.image" 
+          <img
+            :src="selectedEvent?.image"
             :alt="selectedEvent?.title"
-            class="w-full h-64 object-cover rounded-t-2xl"
+            class="w-full h-48 sm:h-64 object-cover rounded-t-2xl"
           >
           <button 
             class="absolute top-4 right-4 w-8 h-8 bg-black/50 text-white rounded-full flex items-center justify-center hover:bg-black/70"
@@ -389,18 +367,18 @@
           </button>
         </div>
         
-        <div class="p-6">
-          <div class="flex items-center justify-between mb-4">
-            <span 
-              class="px-3 py-1 rounded-full text-sm font-medium"
+        <div class="p-4 sm:p-6">
+          <div class="flex items-center justify-between mb-3 sm:mb-4 gap-2">
+            <span
+              class="px-3 py-1 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap"
               :class="getStatusClass(selectedEvent?.status)"
             >
               {{ getStatusText(selectedEvent?.status) }}
             </span>
-            <span class="text-sm text-gray-500">{{ selectedEvent?.category }}</span>
+            <span class="text-xs sm:text-sm text-gray-500 truncate">{{ selectedEvent?.category }}</span>
           </div>
-          
-          <h2 class="text-2xl font-bold text-gray-800 mb-4">
+
+          <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-3 sm:mb-4">
             {{ selectedEvent?.title }}
           </h2>
           
@@ -904,59 +882,6 @@ onMounted(() => {
 <style scoped>
 .events-page {
   min-height: 100vh;
-}
-
-.shimmer-trails {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  overflow: hidden;
-  mix-blend-mode: screen;
-}
-
-.shimmer-band {
-  position: absolute;
-  top: -20%;
-  width: 40%;
-  height: 160%;
-  border-radius: 9999px;
-  background: linear-gradient(120deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0));
-  filter: blur(4px);
-  opacity: 0.35;
-  animation: shimmerMove 10s linear infinite;
-  --band-rotation: 0deg;
-  transform: rotate(var(--band-rotation));
-}
-
-.band-a {
-  left: -15%;
-  --band-rotation: -12deg;
-}
-
-.band-b {
-  left: 25%;
-  --band-rotation: 6deg;
-  animation-delay: 1.5s;
-}
-
-.band-c {
-  right: -10%;
-  --band-rotation: 18deg;
-  animation-delay: 3s;
-}
-
-@keyframes shimmerMove {
-  0% {
-    transform: rotate(var(--band-rotation)) translateX(-140%);
-    opacity: 0;
-  }
-  50% {
-    opacity: 0.7;
-  }
-  100% {
-    transform: rotate(var(--band-rotation)) translateX(140%);
-    opacity: 0;
-  }
 }
 
 /* 文本截断 */

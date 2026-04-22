@@ -9,7 +9,7 @@ import './style.css'
 // 创建Vue应用实例
 const app = createApp(App)
 
-// 安装插件
+// 安装插件		
 app.use(createPinia())
 app.use(router)
 app.use(createHead())

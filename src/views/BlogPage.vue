@@ -1,70 +1,83 @@
 <template>
   <div class="blog-page">
     <!-- 页面头部 -->
-    <header class="gradient-hero flowing-gradient-aurora overflow-hidden page-header">
-      <div class="hero-stars">
-        <span style="top:18%;left:5%;animation-duration:17s" />
-        <span style="top:25%;left:82%;animation-duration:21s;animation-delay:1.5s" />
-        <span style="top:64%;left:28%;animation-duration:15s;animation-delay:2.2s" />
-        <span style="top:78%;left:70%;animation-duration:23s;animation-delay:3s" />
-      </div>
-      <div class="header-content">
-        <div class="header-text">
-          <h1 class="page-title">
-            学术博客
-          </h1>
-          <p class="page-subtitle">
-            深入探讨区块链技术，分享开发经验与研究心得
-          </p>
+    <header class="gradient-hero flowing-gradient-aurora hero-header">
+      <div class="hero-inner">
+        <span class="hero-eyebrow">BLOG · 知识星图</span>
+        <h1 class="hero-title">
+          学术博客，
+          <span class="hero-title-accent">深入链上技术</span>
+        </h1>
+        <p class="hero-subtitle">
+          深入探讨前沿科技，分享团队的开发经验、研究心得与工程实践。
+        </p>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="hero-stat-icon">📚</div>
+            <div class="hero-stat-body">
+              <div class="hero-stat-value">{{ totalArticles }}</div>
+              <div class="hero-stat-label">技术文章</div>
+            </div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-icon">✍️</div>
+            <div class="hero-stat-body">
+              <div class="hero-stat-value">{{ totalAuthors }}</div>
+              <div class="hero-stat-label">专业作者</div>
+            </div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-icon">👁️</div>
+            <div class="hero-stat-body">
+              <div class="hero-stat-value">{{ totalViews }}</div>
+              <div class="hero-stat-label">总浏览量</div>
+            </div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-icon">💎</div>
+            <div class="hero-stat-body">
+              <div class="hero-stat-value">{{ totalLikes }}</div>
+              <div class="hero-stat-label">总点赞数</div>
+            </div>
+          </div>
         </div>
-        <div class="header-stats">
-          <div class="stat-item">
-            <span class="stat-number">{{ totalArticles }}</span>
-            <span class="stat-label">技术文章</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-number">{{ totalAuthors }}</span>
-            <span class="stat-label">专业作者</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-number">{{ totalViews }}</span>
-            <span class="stat-label">总浏览量</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-number">{{ totalLikes }}</span>
-            <span class="stat-label">总点赞数</span>
-          </div>
+
+        <!-- 快速操作栏 -->
+        <div class="hero-quick-actions">
+          <button
+            class="hero-action-btn"
+            :class="{ active: showFilter }"
+            @click="toggleFilter"
+          >
+            <FilterIcon />
+            筛选
+          </button>
+          <button
+            class="hero-action-btn"
+            :class="{ active: viewMode === 'list' }"
+            @click="toggleView"
+          >
+            <ListIcon />
+            列表
+          </button>
+          <button
+            class="hero-action-btn"
+            :class="{ active: viewMode === 'grid' }"
+            @click="toggleView"
+          >
+            <GridIcon />
+            网格
+          </button>
         </div>
-      </div>
-      
-      <!-- 快速操作栏 -->
-      <div class="quick-actions">
-        <button
-          class="action-btn"
-          :class="{ active: showFilter }"
-          @click="toggleFilter"
-        >
-          <FilterIcon />
-          筛选
-        </button>
-        <button
-          class="action-btn"
-          :class="{ active: viewMode === 'list' }"
-          @click="toggleView"
-        >
-          <ListIcon />
-          列表
-        </button>
-        <button
-          class="action-btn"
-          :class="{ active: viewMode === 'grid' }"
-          @click="toggleView"
-        >
-          <GridIcon />
-          网格
-        </button>
       </div>
     </header>
+
+    <!-- 筛选抽屉遮罩 -->
+    <div
+      v-if="showFilter"
+      class="filter-overlay md:hidden"
+      @click="closeFilter"
+    />
 
     <!-- 筛选侧边栏 -->
     <div
@@ -628,58 +641,45 @@ const blogFilterRef = ref()
   @apply min-h-screen bg-gray-50;
 }
 
-.page-header {
-  @apply relative pb-6;
-  border-bottom: none;
+.hero-quick-actions {
+  @apply mt-8 flex flex-wrap gap-2;
 }
 
-.header-content {
-  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-white;
+.hero-action-btn {
+  @apply inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200;
+  color: rgba(226, 232, 240, 0.9);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(10px);
 }
 
-.header-text {
-  @apply text-center mb-6;
+.hero-action-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.28);
+  color: #fff;
 }
 
-.page-title {
-  @apply text-4xl font-bold text-white mb-2;
+.hero-action-btn.active {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: transparent;
+  color: #0f172a;
+  box-shadow: 0 10px 30px -14px rgba(15, 23, 42, 0.6);
 }
 
-.page-subtitle {
-  @apply text-lg text-blue-100;
-}
-
-.header-stats {
-  @apply grid grid-cols-2 md:grid-cols-4 gap-6 max-w-2xl mx-auto;
-}
-
-.stat-item {
-  @apply text-center bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20;
-}
-
-.stat-number {
-  @apply block text-3xl font-bold text-white;
-}
-
-.stat-label {
-  @apply text-sm text-blue-100;
-}
-
-.quick-actions {
-  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-6;
-  @apply flex justify-center gap-2;
-}
-
-.action-btn {
-  @apply flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 transition-colors;
-}
-
-.action-btn.active {
-  @apply bg-blue-50 border-blue-500 text-blue-600;
+.hero-action-btn :deep(svg) {
+  width: 1rem;
+  height: 1rem;
 }
 
 .filter-sidebar {
   @apply fixed top-0 right-0 h-full w-96 bg-white shadow-xl border-l border-gray-200 z-50 overflow-y-auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.filter-overlay {
+  @apply fixed inset-0 bg-black/50 z-40;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
 }
 
 .filter-header {
@@ -695,11 +695,13 @@ const blogFilterRef = ref()
 }
 
 .main-content {
-  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8;
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8;
 }
 
-.main-content.with-sidebar {
-  @apply mr-96;
+@media (min-width: 1024px) {
+  .main-content.with-sidebar {
+    margin-right: 24rem;
+  }
 }
 
 .category-cloud {
@@ -771,11 +773,11 @@ const blogFilterRef = ref()
 }
 
 .article-grid {
-  @apply grid gap-6;
+  @apply grid gap-4 md:gap-6;
 }
 
 .article-grid.view-grid {
-  @apply md:grid-cols-2 lg:grid-cols-3;
+  @apply sm:grid-cols-2 lg:grid-cols-3;
 }
 
 .article-grid.view-list {
@@ -783,7 +785,7 @@ const blogFilterRef = ref()
 }
 
 .pagination {
-  @apply flex items-center justify-center gap-4 pt-8;
+  @apply flex flex-wrap items-center justify-center gap-2 sm:gap-4 pt-8;
 }
 
 .pagination-btn {
@@ -803,7 +805,8 @@ const blogFilterRef = ref()
 }
 
 .fixed-actions {
-  @apply fixed bottom-6 right-6 flex flex-col gap-3 z-40;
+  @apply fixed bottom-6 right-6 flex flex-col gap-3 z-30;
+  padding-bottom: env(safe-area-inset-bottom, 0);
 }
 
 .fixed-btn {
@@ -820,52 +823,48 @@ const blogFilterRef = ref()
 
 /* 移动端适配 */
 @media (max-width: 768px) {
-  .header-stats {
-    @apply grid-cols-2 gap-4;
-  }
-  
-  .stat-number {
-    @apply text-2xl;
-  }
-  
-  .quick-actions {
-    @apply flex-wrap gap-2;
-  }
-  
-  .action-btn {
-    @apply px-3 py-2 text-sm;
-  }
-  
   .filter-sidebar {
-    @apply w-full;
+    width: min(88vw, 360px);
   }
-  
-  .main-content.with-sidebar {
-    @apply mr-0;
+
+  .filter-header {
+    @apply p-4;
   }
-  
+
   .article-grid.view-grid {
     @apply grid-cols-1;
   }
-  
+
   .pagination {
     @apply gap-2;
   }
-  
+
   .pagination-numbers {
-    @apply gap-1;
+    @apply gap-1 flex-wrap justify-center;
   }
-  
+
   .pagination-number {
-    @apply w-8 h-8 text-sm;
+    @apply w-9 h-9 text-sm;
   }
-  
+
+  .pagination-btn {
+    @apply px-3 py-2 text-sm;
+  }
+
   .fixed-actions {
     @apply bottom-4 right-4;
   }
-  
+
   .fixed-btn {
-    @apply w-10 h-10;
+    @apply w-11 h-11;
+  }
+
+  .hero-quick-actions {
+    @apply mt-6 gap-2;
+  }
+
+  .hero-action-btn {
+    @apply px-3 py-2 text-xs;
   }
 }
 </style>
