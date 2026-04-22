@@ -12,6 +12,15 @@ export interface AuthResponse {
   user: AdminUser
 }
 
+interface BackendAuthResponse {
+  accessToken?: string
+  refreshToken?: string
+  tokenType?: string
+  expiresIn?: number
+  username?: string
+  role?: string
+}
+
 const MOCK_ADMINS: Array<AdminUser & { password: string }> = [
   {
     id: 'mock-1',
@@ -36,6 +45,20 @@ const buildAuthResponse = (user: AdminUser): AuthResponse => ({
   user
 })
 
+const mapBackendAuthResponse = (payload: BackendAuthResponse): AuthResponse => {
+  const normalizedRole = String(payload.role || 'ADMIN').toUpperCase()
+  return {
+    token: payload.accessToken || `token-${Date.now()}`,
+    user: {
+      id: `admin-${String(payload.username || 'admin')}`,
+      username: String(payload.username || 'admin'),
+      role: normalizedRole === 'ADMIN' ? 'super-admin' : 'admin',
+      permissions: ['meetings', 'members', 'projects', 'articles', 'files', 'logs'],
+      loginTime: new Date()
+    }
+  }
+}
+
 const fallbackLogin = (payload: LoginPayload): AuthResponse => {
   const matched = MOCK_ADMINS.find(
     (admin) => admin.username === payload.username && admin.password === payload.password
@@ -49,8 +72,9 @@ const fallbackLogin = (payload: LoginPayload): AuthResponse => {
 // 管理员登录
 export const login = async (data: LoginPayload): Promise<AuthResponse> => {
   try {
-    const res = await apiService.post<AuthResponse>('/api/auth/login', data)
-    return requireApiResponseData(res, '登录失败')
+    const res = await apiService.post<BackendAuthResponse>('/api/auth/login', data)
+    const backendPayload = requireApiResponseData(res, '登录失败')
+    return mapBackendAuthResponse(backendPayload)
   } catch (error) {
     console.warn('调用后端登录失败，改用 Mock 验证:', error)
     return fallbackLogin(data)
@@ -70,8 +94,29 @@ export const logout = async (): Promise<void> => {
 // 检查登录状态
 export const checkAuth = async (): Promise<AdminUser> => {
   try {
-    const res = await apiService.get<AdminUser>('/api/auth/check')
-    return requireApiResponseData(res, '未登录')
+    const res = await apiService.get<boolean>('/api/auth/validate')
+    assertApiResponseSuccess(res, '校验登录状态失败')
+
+    if (!res.data) {
+      throw new Error('未登录')
+    }
+
+    const cached = localStorage.getItem('admin-user') || sessionStorage.getItem('admin-user')
+    if (cached) {
+      try {
+        return JSON.parse(cached) as AdminUser
+      } catch {
+        console.warn('本地管理员缓存解析失败')
+      }
+    }
+
+    return {
+      id: 'admin-unknown',
+      username: 'admin',
+      role: 'admin',
+      permissions: ['meetings', 'members', 'projects', 'articles', 'files', 'logs'],
+      loginTime: new Date()
+    }
   } catch (error) {
     console.warn('检查登录状态失败，尝试读取本地缓存:', error)
     const cached = localStorage.getItem('admin-user') || sessionStorage.getItem('admin-user')

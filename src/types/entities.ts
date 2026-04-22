@@ -2,6 +2,7 @@
 export interface Member {
   id: string
   name: string
+  studentId?: string
   role: string
   avatar?: string
   avatarUrl?: string
@@ -303,6 +304,22 @@ export interface ContactRequest {
 export interface ContactResponse {
   ticketId: string
   estimatedReplyHours?: number
+}
+
+export interface ResumeApplicationPayload {
+  name: string
+  studentId: string
+  contact: string
+  email: string
+  techStack: string
+  projectExperience: string
+  campusExperience: string
+  extraNote?: string
+}
+
+export interface ResumeApplicationResponse {
+  applicationId: string
+  status: 'received' | 'processing'
 }
 
 export interface PublicEvent {

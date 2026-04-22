@@ -93,12 +93,8 @@ class ApiService {
     // 请求拦截器
     this.instance.interceptors.request.use(
       (config) => {
-        // 添加请求时间戳
-            
-       
-        
         // 添加认证令牌（如果有）
-        const token = localStorage.getItem('adminToken')
+        const token = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken')
         if (token) {
           config.headers.Authorization = `Bearer ${token}`
         }
@@ -212,7 +208,6 @@ class ApiService {
   // POST 请求
   async post<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
     const response = await this.instance.post(url, data, config)
-    true
     return this.normalizeResponsePayload<T>(response.data)
   }
 

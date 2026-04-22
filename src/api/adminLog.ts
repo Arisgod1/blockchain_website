@@ -4,6 +4,7 @@ import type { AdminLogPayload, AdminOperationLog } from '@/types/entities'
 import { assertApiResponseSuccess } from '@/api/utils'
 
 const STORAGE_KEY = 'admin-operation-logs'
+const ENABLE_REMOTE_ADMIN_LOG_API = String(import.meta.env.VITE_ENABLE_ADMIN_LOG_API || '').toLowerCase() === 'true'
 
 type PersistStrategy = (logs: AdminOperationLog[]) => void
 
@@ -50,6 +51,12 @@ const buildLog = (payload: AdminLogPayload): AdminOperationLog => {
 }
 
 export const getAdminLogs = async (): Promise<AdminOperationLog[]> => {
+  if (!ENABLE_REMOTE_ADMIN_LOG_API) {
+    const localLogs = readLocalLogs()
+    writeLocalLogs(localLogs)
+    return localLogs
+  }
+
   try {
     const res = await apiService.get<AdminOperationLog[]>('/api/admin/logs')
     assertApiResponseSuccess(res, '获取管理员日志失败')
@@ -69,6 +76,12 @@ export const getAdminLogs = async (): Promise<AdminOperationLog[]> => {
 export const createAdminLog = async (payload: AdminLogPayload): Promise<AdminOperationLog> => {
   const log = buildLog(payload)
 
+  if (!ENABLE_REMOTE_ADMIN_LOG_API) {
+    const current = [log, ...readLocalLogs()]
+    writeLocalLogs(current)
+    return log
+  }
+
   try {
     const res = await apiService.post<AdminOperationLog>('/api/admin/logs', log)
     assertApiResponseSuccess(res, '记录管理员日志失败')
@@ -85,6 +98,11 @@ export const createAdminLog = async (payload: AdminLogPayload): Promise<AdminOpe
 }
 
 export const clearAdminLogs = async (): Promise<void> => {
+  if (!ENABLE_REMOTE_ADMIN_LOG_API) {
+    writeLocalLogs([])
+    return
+  }
+
   try {
     await apiService.delete('/api/admin/logs')
   } catch (error) {

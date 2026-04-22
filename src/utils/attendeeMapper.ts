@@ -4,6 +4,16 @@ import { MOCK_MEMBERS } from '@/common_value/members'
 const LOCAL_MEMBER_KEY = 'admin-members-local'
 const DEFAULT_AVATAR = '/images/default-avatar.svg'
 
+type MemberLike = Member & { avatarUrl?: string }
+
+const normalizeNameKey = (value?: string): string => {
+  return String(value ?? '')
+    .trim()
+    .toLowerCase()
+    .replace(/[（(].*?[)）]$/g, '')
+    .replace(/[\s·•・\-—_]/g, '')
+}
+
 const normalizeAvatar = (value?: string): string => {
   if (!value) return DEFAULT_AVATAR
   const cleaned = value.replace(/\\/g, '/').replace(/^\/+/, '')
@@ -13,14 +23,17 @@ const normalizeAvatar = (value?: string): string => {
   return base ? `${base}/${cleaned}` : `/${cleaned}`
 }
 
-const readLocalMembers = (): Member[] => {
+const readLocalMembers = (): MemberLike[] => {
   if (typeof window === 'undefined') return [...MOCK_MEMBERS]
   try {
     const raw = localStorage.getItem(LOCAL_MEMBER_KEY)
     if (!raw) return [...MOCK_MEMBERS]
     const parsed = JSON.parse(raw)
     if (Array.isArray(parsed)) {
-      return (parsed as Member[]).map((m) => ({ ...m, avatar: normalizeAvatar(m.avatar) }))
+      return (parsed as MemberLike[]).map((m) => ({
+        ...m,
+        avatar: normalizeAvatar(m.avatar ?? m.avatarUrl)
+      }))
     }
   } catch (error) {
     console.warn('无法读取本地成员缓存，使用默认成员数据', error)
@@ -31,10 +44,12 @@ const readLocalMembers = (): Member[] => {
 const buildMemberIndex = (): Map<string, Member> => {
   const map = new Map<string, Member>()
   const localMembers = readLocalMembers()
-  const all = localMembers.length ? localMembers : [...MOCK_MEMBERS]
+  const all = [...MOCK_MEMBERS, ...localMembers]
   all.forEach((member) => {
-    if (member.id) map.set(String(member.id).toLowerCase(), member)
-    if (member.name) map.set(member.name.toLowerCase().trim(), member)
+    const idKey = normalizeNameKey(String(member.id ?? ''))
+    const nameKey = normalizeNameKey(member.name)
+    if (idKey) map.set(idKey, member)
+    if (nameKey) map.set(nameKey, member)
   })
   return map
 }
@@ -49,13 +64,19 @@ export const mergeAttendeesWithMembers = (attendees: Array<MeetingAttendee | str
       : attendee
 
     const normalizedName = (asObject.name || '').trim()
-    const lookupKey = (normalizedName || asObject.id || '').toString().toLowerCase()
-    const matchedMember = memberIndex.get(lookupKey)
+    const lookupKeys = [
+      normalizeNameKey(normalizedName),
+      normalizeNameKey(String(asObject.id ?? ''))
+    ]
+    const matchedMember = lookupKeys
+      .map((key) => memberIndex.get(key))
+      .find((member): member is Member => Boolean(member))
+    const resolvedName = normalizedName || matchedMember?.name || String(asObject.id ?? '')
 
     return {
       ...asObject,
-      id: asObject.id || matchedMember?.id || normalizedName,
-      name: normalizedName,
+      id: asObject.id || matchedMember?.id || resolvedName,
+      name: resolvedName,
       role: asObject.role || matchedMember?.role,
       avatar: normalizeAvatar(asObject.avatar || matchedMember?.avatar)
     }

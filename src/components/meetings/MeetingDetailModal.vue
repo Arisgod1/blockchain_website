@@ -759,61 +759,6 @@ watch(() => props.isOpen, (isOpen) => {
   }
 }
 
-/* 暗色主题 */
-@media (prefers-color-scheme: dark) {
-  .meeting-detail-modal {
-    @apply bg-black bg-opacity-70;
-  }
-  
-  .modal-content {
-    @apply bg-gray-800;
-  }
-  
-  .modal-header,
-  .modal-footer {
-    @apply border-gray-700;
-  }
-  
-  .modal-title,
-  .section-title,
-  .attendee-name,
-  .issue-title,
-  .file-name {
-    @apply text-white;
-  }
-  
-  .meta-item,
-  .attendee-role,
-  .issue-status-text,
-  .file-meta {
-    @apply text-gray-300;
-  }
-  
-  .summary-text {
-    @apply text-gray-300;
-  }
-  
-  .issue-item {
-    @apply bg-gray-700;
-  }
-  
-  .file-item {
-    @apply border-gray-600 hover:bg-gray-700;
-  }
-  
-  .file-type {
-    @apply bg-gray-600 text-gray-300;
-  }
-  
-  .avatar-placeholder {
-    @apply bg-blue-600;
-  }
-  
-  .action-secondary {
-    @apply border-gray-600 text-gray-300 hover:bg-gray-700;
-  }
-}
-
 /* 高对比度模式 */
 @media (prefers-contrast: high) {
   .modal-content {

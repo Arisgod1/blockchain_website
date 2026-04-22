@@ -39,6 +39,16 @@
           >
         </label>
 
+        <label class="form-field">
+          <span>学号</span>
+          <input
+            v-model="form.studentId"
+            required
+            class="text-input"
+            placeholder="请输入学号"
+          >
+        </label>
+
         <div class="two-col">
           <label class="form-field">
             <span>角色</span>
@@ -192,6 +202,7 @@ const saving = ref(false)
 
 type MemberForm = {
   name: string
+  studentId: string
   role: string
   skillsText: string
   bio: string
@@ -206,6 +217,7 @@ const today = () => new Date().toISOString().slice(0, 10)
 
 const form = reactive<MemberForm>({
   name: '',
+  studentId: '',
   role: '',
   skillsText: '',
   bio: '',
@@ -234,6 +246,7 @@ const normalizeAvatarUrl = (value?: string) => {
 
 const normalizeMember = (member: Member) => {
   form.name = member.name ?? ''
+  form.studentId = member.studentId ?? ''
   form.role = member.role ?? ''
   form.skillsText = (member.skills ?? []).join(', ')
   form.bio = member.bio ?? ''
@@ -268,6 +281,7 @@ const handleSubmit = async () => {
 
   const payload: Partial<Member> = {
     name: form.name,
+    studentId: form.studentId,
     role: form.role,
     skills,
     bio: form.bio,
@@ -296,7 +310,8 @@ const handleSubmit = async () => {
     goBack()
   } catch (error) {
     logMemberAction(isCreate ? 'create' : 'update', `保存成员「${form.name || '未命名成员'}」失败`, 'failure', id)
-    alert('保存失败，请稍后重试')
+    const message = error instanceof Error ? error.message : '保存失败，请稍后重试'
+    alert(message || '保存失败，请稍后重试')
   } finally {
     saving.value = false
   }

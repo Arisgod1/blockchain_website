@@ -523,35 +523,6 @@ const handleViewFiles = () => {
   }
 }
 
-/* 暗色主题支持 */
-@media (prefers-color-scheme: dark) {
-  .meeting-card {
-    @apply bg-gray-800 border-gray-700;
-  }
-  
-  .meeting-title {
-    @apply text-white;
-  }
-  
-  .meeting-summary,
-  .stat-text,
-  .attendees-count {
-    @apply text-gray-300;
-  }
-  
-  .date-sub {
-    @apply text-gray-400;
-  }
-  
-  .attendee-more {
-    @apply bg-gray-600 text-gray-300;
-  }
-  
-  .meeting-actions {
-    @apply border-gray-700;
-  }
-}
-
 /* 高对比度模式 */
 @media (prefers-contrast: high) {
   .meeting-card {

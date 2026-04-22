@@ -1,5 +1,12 @@
 import apiService from '@/api/client'
-import type { SiteStats, HeroBanner, ContactRequest, ContactResponse, PublicEvent } from '@/types/entities'
+import type {
+	SiteStats,
+	HeroBanner,
+	ContactRequest,
+	ContactResponse,
+	PublicEvent,
+	ResumeApplicationResponse
+} from '@/types/entities'
 import { MOCK_SITE_STATS, MOCK_HERO_BANNERS, MOCK_CONTACT_RESPONSE, MOCK_PUBLIC_EVENTS } from '@/common_value/public'
 import { assertApiResponseSuccess } from '@/api/utils'
 
@@ -9,9 +16,12 @@ const withFallback = <T>(data: T | undefined, fallback: T): T => {
 
 export const getSiteStats = async (): Promise<SiteStats> => {
 	try {
-		const res = await apiService.get<SiteStats>('/api/public/stats')
+		const res = await apiService.get<Partial<SiteStats>>('/api/stats/overview')
 		assertApiResponseSuccess(res, '获取站点统计失败')
-		return withFallback(res.data, MOCK_SITE_STATS)
+		return {
+			...MOCK_SITE_STATS,
+			...(res.data || {})
+		}
 	} catch (error) {
 		console.warn('获取站点统计失败，使用本地 Mock 数据', error)
 		return MOCK_SITE_STATS
@@ -57,8 +67,26 @@ export const getPublicEvents = async (params?: Record<string, unknown>): Promise
 	}
 }
 
+export const submitResumeApplication = async (formData: FormData): Promise<ResumeApplicationResponse> => {
+	try {
+		const res = await apiService.upload<ResumeApplicationResponse>('/api/public/resume/apply', formData)
+		assertApiResponseSuccess(res, '简历投递失败')
+		return withFallback(res.data, {
+			applicationId: `RESUME-${Date.now()}`,
+			status: 'received'
+		})
+	} catch (error) {
+		console.warn('简历投递失败，降级为 Mock 响应', error)
+		return {
+			applicationId: `RESUME-${Date.now()}`,
+			status: 'received'
+		}
+	}
+}
+
 export default {
 	getSiteStats,
 	getHeroBanners,
-	submitContactMessage
+	submitContactMessage,
+	submitResumeApplication
 }

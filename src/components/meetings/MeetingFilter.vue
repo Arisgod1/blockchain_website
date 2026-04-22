@@ -608,57 +608,6 @@ watch(() => props.initialFilters, initializeFilters, { immediate: true })
   }
 }
 
-/* 暗色主题支持 */
-@media (prefers-color-scheme: dark) {
-  .meeting-filter {
-    @apply bg-gray-800 border-gray-700;
-  }
-  
-  .filter-title,
-  .filter-text,
-  .sort-text {
-    @apply text-white;
-  }
-  
-  .filter-label {
-    @apply text-gray-300;
-  }
-  
-  .search-input,
-  .date-input {
-    @apply bg-gray-700 border-gray-600 text-white;
-  }
-
-  .date-input.is-filled::-webkit-datetime-edit,
-  .date-input:focus::-webkit-datetime-edit {
-    color: #ffffff;
-  }
-  
-  .filter-checkbox {
-    @apply bg-gray-700 border-gray-600;
-  }
-  
-  .filter-option,
-  .sort-option,
-  .tag-button {
-    @apply border-gray-600 text-gray-300;
-  }
-  
-  .tag-button:hover,
-  .sort-option:hover,
-  .filter-option:hover {
-    @apply border-blue-400 text-blue-400;
-  }
-  
-  .active-filter-tag {
-    @apply bg-blue-900 border-blue-700;
-  }
-  
-  .clear-all-filters {
-    @apply border-red-700 text-red-400 hover:bg-red-900;
-  }
-}
-
 /* 高对比度模式 */
 @media (prefers-contrast: high) {
   .meeting-filter {

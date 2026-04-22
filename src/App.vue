@@ -126,9 +126,9 @@ const stopPageLoading = () => {
 }
 
 // 处理管理员登录成功
-const handleAdminLoginSuccess = async (adminUser: AdminUser) => {
-  localStorage.setItem('adminToken', 'admin_logged_in')
-  localStorage.setItem('admin-user', JSON.stringify(adminUser))
+const handleAdminLoginSuccess = async (payload: { user: AdminUser; token: string }) => {
+  localStorage.setItem('adminToken', payload.token)
+  localStorage.setItem('admin-user', JSON.stringify(payload.user))
 
   const redirectTo = pendingRedirect.value || '/admin'
   pendingRedirect.value = ''

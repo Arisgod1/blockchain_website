@@ -868,42 +868,6 @@ onUnmounted(() => {
   }
 }
 
-/* 暗色主题支持 */
-@media (prefers-color-scheme: dark) {
-  .meetings-page {
-    @apply bg-gray-900;
-  }
-  
-  .view-controls,
-  .empty-state,
-  .loading-state {
-    @apply bg-gray-800;
-  }
-  
-  .view-btn,
-  .pagination-btn,
-  .pagination-page,
-  .load-more-btn {
-    @apply border-gray-600 text-gray-300;
-  }
-  
-  .view-btn:hover,
-  .pagination-btn:hover,
-  .pagination-page:hover,
-  .load-more-btn:hover {
-    @apply bg-gray-700;
-  }
-  
-  .view-btn.is-active,
-  .pagination-page.is-active {
-    @apply bg-blue-600 text-white;
-  }
-  
-  .empty-title {
-    @apply text-white;
-  }
-}
-
 /* 高对比度模式 */
 @media (prefers-contrast: high) {
   .view-btn,

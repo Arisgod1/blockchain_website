@@ -92,7 +92,7 @@ interface FormData {
 
 interface Emits {
   (e: 'update:show', value: boolean): void
-  (e: 'login', user: AdminUser): void
+  (e: 'login', payload: { user: AdminUser; token: string }): void
 }
 
 const props = defineProps<Props>()
@@ -142,17 +142,17 @@ const handleLogin = async () => {
       password: formData.value.password
     })
 
-    if (formData.value.rememberMe) {
-      localStorage.setItem('adminToken', token)
-      localStorage.setItem('admin-user', JSON.stringify(user))
-    } else {
-      sessionStorage.setItem('adminToken', token)
-      sessionStorage.setItem('admin-user', JSON.stringify(user))
-    }
+    localStorage.setItem('adminToken', token)
+    localStorage.setItem('admin-user', JSON.stringify(user))
+    sessionStorage.removeItem('adminToken')
+    sessionStorage.removeItem('admin-user')
 
     emit('login', {
-      ...user,
-      rememberMe: formData.value.rememberMe
+      user: {
+        ...user,
+        rememberMe: formData.value.rememberMe
+      },
+      token
     })
     emit('update:show', false)
     resetForm()

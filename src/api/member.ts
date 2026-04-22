@@ -15,7 +15,55 @@ const hasResponse = (error: unknown): boolean => typeof error === 'object' && er
 
 const LOCAL_KEY = 'admin-members-local'
 
+type MemberStatus = 'ACTIVE' | 'INACTIVE' | 'GRADUATED'
+type MemberRole = 'LEADER' | 'VICE_LEADER' | 'SECRETARY' | 'MEMBER'
+
+interface MemberDto {
+  id?: number | string
+  name?: string
+  studentId?: string
+  role?: MemberRole | string
+  gender?: 'MALE' | 'FEMALE' | 'OTHER' | string
+  grade?: string
+  email?: string
+  phone?: string
+  avatarUrl?: string
+  bio?: string
+  status?: MemberStatus | string
+  displayOrder?: number
+  createdAt?: string
+  updatedAt?: string
+}
+
 type RawMember = Member & { avatarUrl?: string }
+
+const ROLE_LABEL_TO_DTO: Record<string, MemberRole> = {
+  LEADER: 'LEADER',
+  VICE_LEADER: 'VICE_LEADER',
+  SECRETARY: 'SECRETARY',
+  MEMBER: 'MEMBER',
+  负责人: 'LEADER',
+  副负责人: 'VICE_LEADER',
+  秘书: 'SECRETARY',
+  成员: 'MEMBER'
+}
+
+const DTO_ROLE_TO_LABEL: Record<string, string> = {
+  LEADER: '负责人',
+  VICE_LEADER: '副负责人',
+  SECRETARY: '秘书',
+  MEMBER: '成员'
+}
+
+const normalizeRoleToDto = (role?: string): MemberRole => {
+  const key = String(role || 'MEMBER').trim().toUpperCase()
+  return ROLE_LABEL_TO_DTO[key] || 'MEMBER'
+}
+
+const normalizeRoleFromDto = (role?: string): string => {
+  const key = String(role || 'MEMBER').trim().toUpperCase()
+  return DTO_ROLE_TO_LABEL[key] || role || '成员'
+}
 
 const toAbsoluteAvatar = (value?: string): string => {
   if (!value) return ''
@@ -25,12 +73,54 @@ const toAbsoluteAvatar = (value?: string): string => {
   return base ? `${base}/${normalized}` : normalized
 }
 
+const mapDtoToMember = (dto: MemberDto): Member => {
+  const avatar = toAbsoluteAvatar(dto.avatarUrl)
+  return {
+    id: String(dto.id ?? ''),
+    name: dto.name || '未命名成员',
+    studentId: dto.studentId || '',
+    role: normalizeRoleFromDto(dto.role),
+    avatar,
+    avatarUrl: avatar,
+    bio: dto.bio || '',
+    skills: [],
+    grade: dto.grade || '',
+    major: '',
+    projectCount: 0,
+    email: dto.email || '',
+    github: '',
+    linkedin: '',
+    joinDate: (dto.createdAt || '').slice(0, 10) || new Date().toISOString().slice(0, 10),
+    isActive: String(dto.status || 'ACTIVE').toUpperCase() === 'ACTIVE'
+  }
+}
+
+const mapMemberToDto = (member: Partial<Member>): Partial<MemberDto> => ({
+  id: member.id,
+  name: member.name,
+  studentId: member.studentId,
+  role: normalizeRoleToDto(member.role),
+  grade: member.grade,
+  email: member.email,
+  avatarUrl: member.avatar || member.avatarUrl,
+  bio: member.bio,
+  status: member.isActive === false ? 'INACTIVE' : 'ACTIVE',
+  createdAt: member.joinDate ? `${member.joinDate}T00:00:00` : undefined
+})
+
 const normalizeAvatar = (member: RawMember): Member => ({
   ...member,
   avatar: toAbsoluteAvatar(member.avatar ?? member.avatarUrl ?? '')
 })
 
 const mapAvatars = (members: RawMember[]): Member[] => members.map(normalizeAvatar)
+
+const normalizeIncomingMember = (member: RawMember | MemberDto): Member => {
+  if ('joinDate' in member || 'skills' in member) {
+    return normalizeAvatar(member as RawMember)
+  }
+  return mapDtoToMember(member as MemberDto)
+}
 
 const readLocalMembers = (): Member[] => {
   const stored = localStorage.getItem(LOCAL_KEY)
@@ -48,19 +138,35 @@ const writeLocalMembers = (members: Member[]) => {
   localStorage.setItem(LOCAL_KEY, JSON.stringify(members))
 }
 
-const nextId = () => Date.now().toString()
+const hasMemberId = (members: Member[], id?: string | number): boolean => {
+  if (id === undefined || id === null) return false
+  const target = String(id)
+  return members.some(member => String(member.id) === target)
+}
+
+const resolveNextMemberId = (members: Member[]): number => {
+  const numericIds = members
+    .map((member) => Number.parseInt(String(member.id), 10))
+    .filter((value) => Number.isFinite(value))
+
+  if (numericIds.length === 0) {
+    return 1
+  }
+
+  return Math.max(...numericIds) + 1
+}
 
 export type PageMember = PageResult<Member>
 
 // 获取分页成员列表
 export const getMembers = async (params?: PaginationParams & Record<string, unknown>): Promise<PageMember> => {
   try {
-    const res = await apiService.get<PageMember | RawMember[]>('/api/members', { params })
+    const res = await apiService.get<PageResult<MemberDto | RawMember> | Array<MemberDto | RawMember>>('/api/members', { params })
     assertApiResponseSuccess(res, '获取成员列表失败')
-    const page = ensurePagedData<Member>(res.data, params, mapAvatars(readLocalMembers() as RawMember[]))
+    const page = ensurePagedData<MemberDto | RawMember>(res.data, params, readLocalMembers() as RawMember[])
     return {
       ...page,
-      content: mapAvatars(page.content ?? [])
+      content: (page.content ?? []).map((item) => normalizeIncomingMember(item))
     }
   } catch (error) {
     // 网络错误才使用本地数据，后端错误直接抛出便于排查
@@ -79,9 +185,9 @@ export const getMembers = async (params?: PaginationParams & Record<string, unkn
 // 根据 ID 获取单个成员
 export const getMember = async (id: string | number): Promise<Member | null> => {
   try {
-    const res = await apiService.get<RawMember>(`/api/members/${id}`)
+    const res = await apiService.get<MemberDto | RawMember>(`/api/members/${id}`)
     assertApiResponseSuccess(res, '获取成员失败')
-    return res.data ? normalizeAvatar(res.data) : null
+    return res.data ? normalizeIncomingMember(res.data) : null
   } catch (error) {
     if (hasResponse(error)) throw error
     console.warn('远程获取成员失败（网络），尝试本地：', error)
@@ -91,9 +197,17 @@ export const getMember = async (id: string | number): Promise<Member | null> => 
 
 // 创建新成员
 export const createMember = async (payload: Partial<Member>): Promise<Member> => {
+  const localMembersSnapshot = readLocalMembers()
+  const resolvedId = String(payload.id ?? resolveNextMemberId(localMembersSnapshot))
+
+  if (hasMemberId(localMembersSnapshot, resolvedId)) {
+    throw new Error(`成员ID已存在：${resolvedId}`)
+  }
+
   try {
-    const res = await apiService.post<Member>('/api/members', payload)
-    return normalizeAvatar(requireApiResponseData(res, '创建成员失败'))
+    const requestBody = mapMemberToDto({ ...payload, id: resolvedId })
+    const res = await apiService.post<MemberDto | RawMember>('/api/members', requestBody)
+    return normalizeIncomingMember(requireApiResponseData(res, '创建成员失败'))
   } catch (error) {
     const respStatus = getStatus(error)
     if (respStatus) {
@@ -102,8 +216,11 @@ export const createMember = async (payload: Partial<Member>): Promise<Member> =>
       console.warn('远程创建成员失败（网络），回退到本地：', error)
     }
     const members = readLocalMembers()
+    if (hasMemberId(members, resolvedId)) {
+      throw new Error(`成员ID已存在：${resolvedId}`)
+    }
     const newMember: Member = {
-      id: payload.id ?? nextId(),
+      id: String(resolvedId),
       name: payload.name ?? '未命名成员',
       role: payload.role ?? '成员',
       avatar: payload.avatar ?? '',
@@ -127,8 +244,9 @@ export const createMember = async (payload: Partial<Member>): Promise<Member> =>
 // 更新成员
 export const updateMember = async (id: string | number, payload: Partial<Member>): Promise<Member> => {
   try {
-    const res = await apiService.put<Member>(`/api/members/${id}`, payload)
-    return normalizeAvatar(requireApiResponseData(res, '更新成员失败'))
+    const requestBody = mapMemberToDto(payload)
+    const res = await apiService.put<MemberDto | RawMember>(`/api/members/${id}`, requestBody)
+    return normalizeIncomingMember(requireApiResponseData(res, '更新成员失败'))
   } catch (error) {
     const respStatus = getStatus(error)
     if (respStatus) {

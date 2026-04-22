@@ -125,6 +125,17 @@ const navigationItems: OrbitNavItem[] = [
     themeColor: '#c084fc',
     orbit: 1,
     angle: 280
+  },
+  {
+    id: 'resumeApply',
+    title: '简历投递',
+    subtitle: 'APPLY',
+    description: '在线提交简历与资料',
+    icon: '📄',
+    route: '/resume-apply',
+    themeColor: '#38bdf8',
+    orbit: 0,
+    angle: 325
   }
 ]
 

@@ -208,6 +208,25 @@
               <div class="meeting-list-content">
                 <div class="meeting-main-info">
                   <h4>{{ meeting.title }}</h4>
+                  <div
+                    v-if="resolveMeetingAttendees(meeting).length"
+                    class="meeting-attendees-preview"
+                  >
+                    <img
+                      v-for="attendee in resolveMeetingAttendees(meeting).slice(0, 3)"
+                      :key="`${meeting.id}-${attendee.id}`"
+                      :src="attendee.avatar || '/images/default-avatar.svg'"
+                      :alt="attendee.name"
+                      class="attendee-avatar"
+                      :title="attendee.name"
+                    >
+                    <span
+                      v-if="resolveMeetingAttendees(meeting).length > 3"
+                      class="attendee-more"
+                    >
+                      +{{ resolveMeetingAttendees(meeting).length - 3 }}
+                    </span>
+                  </div>
                   <div class="meeting-meta">
                     <span class="meta-item">
                       📅 {{ formatDate(resolveMeetingDate(meeting)) }}
@@ -296,9 +315,10 @@ import { GridIcon, ListIcon } from '@/components/icons'
 import MeetingFilter from '@/components/meetings/MeetingFilter.vue'
 import MeetingCard from '@/components/meetings/MeetingCard.vue'
 import MeetingDetailModal from '@/components/meetings/MeetingDetailModal.vue'
-import type { Meeting } from '@/types/entities'
+import type { Meeting, MeetingAttendee } from '@/types/entities'
 import { onAdminRefresh } from '@/utils/adminEvents'
 import { recordAdminOperation } from '@/composables/useAdminLogs'
+import { mergeAttendeesWithMembers } from '@/utils/attendeeMapper'
 
 interface MeetingFilterState {
   searchQuery?: string
@@ -389,6 +409,7 @@ const detailModal = reactive({
 
 const resolveMeetingDate = (meeting: Meeting) => meeting.meetingTime || meeting.meeting_time || ''
 const resolveMeetingTime = (meeting: Meeting) => meeting.meeting_time || (meeting.meetingTime?.split('T')[1]?.slice(0, 5) ?? '未设置')
+const resolveMeetingAttendees = (meeting: Meeting): MeetingAttendee[] => mergeAttendeesWithMembers(meeting.attendees ?? [])
 
 const classifyAttendeeSize = (count: number) => {
   if (count <= 10) return 'small'
@@ -546,7 +567,10 @@ const loadMeetings = async () => {
   loading.value = true
   try {
     const response = await getMeetings(buildMeetingQueryParams())
-    meetings.value = response.content || []
+    meetings.value = (response.content || []).map((meeting) => ({
+      ...meeting,
+      attendees: resolveMeetingAttendees(meeting)
+    }))
   } catch (error) {
     console.error('加载例会数据失败:', error)
   } finally {
@@ -837,6 +861,27 @@ onUnmounted(() => {
 
 .meeting-main-info {
   flex: 1;
+}
+
+.meeting-attendees-preview {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 0.25rem 0 0.5rem;
+}
+
+.attendee-avatar {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 9999px;
+  object-fit: cover;
+  border: 1px solid #e5e7eb;
+}
+
+.attendee-more {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-left: 0.25rem;
 }
 
 .meeting-main-info h4 {

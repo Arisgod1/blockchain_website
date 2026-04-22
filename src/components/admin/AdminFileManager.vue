@@ -273,7 +273,7 @@ const handleFileChange = async (event: Event) => {
 
 const handleDownload = async (file: FileInfo) => {
   try {
-    await downloadFile(file.id, file.originalName)
+    await downloadFile(file.fileName)
     logFileAction('export', `下载文件「${file.originalName}」`, 'success', file.id)
   } catch (error) {
     alert('下载失败')

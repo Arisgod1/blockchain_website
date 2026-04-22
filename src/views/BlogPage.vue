@@ -94,43 +94,7 @@
       :class="{ 'with-sidebar': showFilter }"
     >
       <!-- 分类标签云 -->
-      <div
-        v-if="showCategoryCloud"
-        class="category-cloud"
-      >
-        <div class="cloud-header">
-          <h3 class="cloud-title">
-            热门分类
-          </h3>
-          <button
-            class="toggle-cloud"
-            @click="toggleCategoryCloud"
-          >
-            <ChevronUpIcon v-if="showCategoryCloud" />
-            <ChevronDownIcon v-else />
-          </button>
-        </div>
-        <div
-          v-show="showCategoryCloud"
-          class="cloud-tags"
-        >
-          <button
-            v-for="category in popularCategories"
-            :key="category.name"
-            :class="['cloud-tag', { active: selectedCategory === category.name }]"
-            :style="{ fontSize: `${Math.max(0.9, Math.min(1.6, category.weight))}rem` }"
-            @click="selectCategory(category.name)"
-          >
-            <component
-              :is="category.icon"
-              v-if="category.icon"
-              class="tag-icon"
-            />
-            {{ category.name }}
-            <span class="tag-count">{{ category.count }}</span>
-          </button>
-        </div>
-      </div>
+   
 
       <!-- 文章列表 -->
       <div class="article-container">
@@ -260,21 +224,11 @@ import {
   ListIcon,
   GridIcon,
   XIcon,
-  ChevronUpIcon,
-  ChevronDownIcon,
   RotateCcwIcon,
   EmptyIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  ArrowUpIcon,
-  CodeIcon,
-  CoinsIcon,
-  FileTextIcon,
-  ToolIcon,
-  TrendingUpIcon,
-  LayersIcon,
-  GitBranchIcon,
-  FolderIcon
+  ArrowUpIcon
 } from '@/components/icons'
 
 // 页面元数据设置
@@ -383,7 +337,6 @@ const activeFilters = ref<BlogFilterOptions | null>(null)
 
 // 响应式数据
 const showFilter = ref(false)
-const showCategoryCloud = ref(true)
 const viewMode = ref<'grid' | 'list'>('grid')
 const showBookmarkedOnly = ref(false)
 const showScrollTop = ref(false)
@@ -443,18 +396,6 @@ const visiblePages = computed(() => {
   return pages
 })
 
-// 模拟数据
-const popularCategories = ref([
-  { name: '技术深度', count: 35, weight: 1.4, icon: CodeIcon },
-  { name: 'DeFi协议', count: 28, weight: 1.3, icon: CoinsIcon },
-  { name: '智能合约', count: 32, weight: 1.35, icon: FileTextIcon },
-  { name: '开发实践', count: 25, weight: 1.2, icon: ToolIcon },
-  { name: '行业分析', count: 20, weight: 1.1, icon: TrendingUpIcon },
-  { name: '区块链基础', count: 18, weight: 1.0, icon: LayersIcon },
-  { name: '共识算法', count: 15, weight: 0.9, icon: GitBranchIcon },
-  { name: '项目分享', count: 22, weight: 1.15, icon: FolderIcon }
-])
-
 const selectedCategory = ref('')
 
 // 事件处理
@@ -470,16 +411,6 @@ const toggleView = () => {
   viewMode.value = viewMode.value === 'grid' ? 'list' : 'grid'
 }
 
-
-const toggleCategoryCloud = () => {
-  showCategoryCloud.value = !showCategoryCloud.value
-}
-
-const selectCategory = (category: string) => {
-  selectedCategory.value = selectedCategory.value === category ? '' : category
-  currentPage.value = 1
-  void loadArticles()
-}
 
 const handleFilterChange = (filters: BlogFilterOptions) => {
   activeFilters.value = filters
