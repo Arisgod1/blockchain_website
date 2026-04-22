@@ -55,9 +55,20 @@
         <h3 class="member-name">
           {{ member.name }}
         </h3>
-        <p class="member-bio">
+        <p
+          class="member-bio"
+          :title="member.bio || '暂无个人简介'"
+        >
           {{ member.bio || '暂无个人简介' }}
         </p>
+        <button
+          v-if="isBioTruncated"
+          type="button"
+          class="bio-more-hint"
+          @click.stop="emit('view', member)"
+        >
+          点击查看完整介绍 →
+        </button>
         <div class="member-links">
           <a 
             v-if="member.github" 
@@ -134,7 +145,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import defaultAvatar from '@/assets/BLOCKCHAINNexus.png'
 import type { Member } from '@/types/entities'
 import { GithubIcon, EmailIcon, LinkedInIcon, CalendarIcon } from '@/components/icons'
@@ -144,8 +155,15 @@ interface Props {
   showActions?: boolean
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   showActions: false
+})
+
+// 粗略判断 bio 是否会被截断（5 行 * ~18 字/行 ≈ 90 字符）
+// 用字符数估算避免依赖 DOM measurement，轻量且足够准确
+const isBioTruncated = computed(() => {
+  const bio = props.member.bio
+  return typeof bio === 'string' && bio.length > 90
 })
 
 const emit = defineEmits<{
@@ -198,11 +216,12 @@ defineExpose({
 
 <style scoped lang="postcss">
 .member-card-container {
-  @apply relative w-72 mx-auto cursor-pointer perspective-1000 flex flex-col items-center gap-3;
+  @apply relative w-full max-w-xs mx-auto cursor-pointer perspective-1000 flex flex-col items-stretch gap-3;
 }
 
 .card-inner {
-  @apply relative w-full min-h-[22rem] transition-transform duration-700 transform-style-preserve-3d;
+  @apply relative w-full transition-transform duration-700 transform-style-preserve-3d;
+  height: 22rem;
 }
 
 .card-actions {
@@ -229,6 +248,15 @@ defineExpose({
 
 .card-back {
   @apply rotate-y-180;
+}
+
+/* 关键：翻转状态下切换两面的 pointer-events，防止背对的一面拦截点击 */
+.card-inner:not(.is-flipped) .card-back {
+  pointer-events: none;
+}
+
+.card-inner.is-flipped .card-front {
+  pointer-events: none;
 }
 
 .member-avatar {
@@ -303,16 +331,36 @@ defineExpose({
   @apply w-4 h-4;
 }
 
+.card-back {
+  justify-content: flex-start;
+  gap: 0.5rem;
+}
+
 .card-back .member-name {
-  @apply mb-3;
+  @apply mb-1;
+  flex-shrink: 0;
 }
 
 .member-bio {
-  @apply text-sm text-gray-600 text-center mb-4 leading-relaxed;
+  @apply text-sm text-gray-600 text-center leading-relaxed w-full;
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0;
+}
+
+.bio-more-hint {
+  @apply text-xs text-blue-500 text-center bg-transparent border-0 cursor-pointer px-2 py-1 rounded hover:text-blue-700 hover:bg-blue-50 transition-colors;
+  flex-shrink: 0;
 }
 
 .member-links {
-  @apply flex gap-3 mb-4;
+  @apply flex gap-3 mt-1;
+  flex-shrink: 0;
 }
 
 .link-btn {
@@ -320,7 +368,20 @@ defineExpose({
 }
 
 .member-skills-full {
-  @apply flex flex-wrap gap-1 justify-center;
+  @apply flex flex-wrap gap-1 justify-center w-full;
+  flex-shrink: 0;
+  max-height: 4.5rem;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.member-skills-full::-webkit-scrollbar {
+  width: 4px;
+}
+
+.member-skills-full::-webkit-scrollbar-thumb {
+  background-color: rgba(148, 163, 184, 0.5);
+  border-radius: 2px;
 }
 
 .perspective-1000 {
@@ -342,15 +403,42 @@ defineExpose({
 /* 移动端适配 */
 @media (max-width: 768px) {
   .member-card-container {
-    @apply w-80 h-80;
+    @apply w-full max-w-sm;
   }
-  
+
+  .card-inner {
+    height: 20rem;
+  }
+
+  .card-front,
+  .card-back {
+    @apply p-5;
+  }
+
   .member-avatar img {
     @apply w-16 h-16;
   }
-  
+
   .member-name {
     @apply text-lg;
+  }
+
+  .member-bio {
+    -webkit-line-clamp: 4;
+  }
+
+  .member-skills-full {
+    max-height: 3.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .card-inner {
+    height: 19rem;
+  }
+
+  .member-bio {
+    -webkit-line-clamp: 3;
   }
 }
 </style>

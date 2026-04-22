@@ -556,8 +556,21 @@ watch([scaledDiameters, activeOrbitIndex], () => {
 
 @media (max-width: 768px) {
   .orbital-field {
-    min-height: clamp(420px, 90vw, 520px);
-    padding: 1.5rem 0;
+    min-height: clamp(380px, 90vw, 520px);
+    padding: 1rem 0;
+  }
+  .orbit-item__desc {
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+  }
+}
+
+@media (max-width: 480px) {
+  .orbital-field {
+    min-height: clamp(340px, 95vw, 460px);
+  }
+  .orbit-item__desc {
+    display: none;
   }
 }
 </style>

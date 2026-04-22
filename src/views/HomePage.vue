@@ -170,7 +170,7 @@ useHead({
 
 .home-grid {
   display: grid;
-  grid-template-columns: minmax(320px, 38.2%) minmax(0, 61.8%);
+  grid-template-columns: minmax(0, 38.2%) minmax(0, 61.8%);
   min-height: 100vh;
 }
 
@@ -288,29 +288,99 @@ useHead({
     grid-template-columns: 1fr;
   }
   .info-pane {
+    padding: 2rem 1.25rem 1.5rem;
     border-right: none;
     border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+    gap: 1.1rem;
+    /* 为右上角浮动汉堡菜单按钮让出空间 */
+    padding-right: clamp(3.75rem, 14vw, 5.5rem);
+  }
+  .info-pane h1 {
+    font-size: clamp(1.75rem, 7vw, 2.75rem);
+  }
+  .info-pane__lede {
+    font-size: 0.95rem;
+    line-height: 1.7;
   }
   .info-pane__stats {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.65rem;
+  }
+  .stat-card {
+    padding: 0.85rem 0.75rem;
+    border-radius: 0.9rem;
+  }
+  .stat-card strong {
+    font-size: 1.35rem;
+  }
+  .stat-card span {
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
   }
   .interactive-pane {
-    min-height: 520px;
+    min-height: 420px;
     padding: 0;
   }
 }
 
 @media (max-width: 640px) {
+  .home-shell {
+    min-height: auto;
+  }
+  .info-pane {
+    padding: 1.5rem 1rem 1.25rem;
+    padding-right: clamp(3.75rem, 15vw, 5rem);
+    gap: 1rem;
+    min-height: auto;
+  }
+  .info-pane__eyebrow {
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+  }
   .info-pane__stats {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+  .stat-card {
+    padding: 0.7rem 0.55rem;
+    text-align: center;
+  }
+  .stat-card strong {
+    font-size: 1.15rem;
+    text-align: center;
+  }
+  .stat-card span {
+    display: block;
+    text-align: center;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
   }
   .info-pane__actions {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+    gap: 0.85rem;
+  }
+  .ghost-action {
+    justify-content: center;
+    padding: 0.75rem 1rem;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    border-radius: 0.75rem;
   }
   .interactive-pane {
-    min-height: unset;
+    min-height: 360px;
     padding: 0;
+  }
+}
+
+@media (max-width: 380px) {
+  .info-pane__stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .stat-card strong {
+    font-size: 1rem;
+  }
+  .interactive-pane {
+    min-height: 320px;
   }
 }
 </style>

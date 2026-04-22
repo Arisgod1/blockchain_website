@@ -108,7 +108,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  modelValue: false,
+  modelValue: undefined,
   show: undefined,
   title: '',
   size: 'md',

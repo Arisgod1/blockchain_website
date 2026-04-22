@@ -27,6 +27,9 @@
       </transition>
     </router-view>
 
+    <!-- 全局移动端导航（仅 <=1024px 可见） -->
+    <MobileNav v-if="showMobileNav" />
+
     <!-- 全局管理员登录弹窗 -->
     <AdminLogin
       :show="showAdminLogin"
@@ -37,11 +40,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { adminHotkeyService } from './utils/adminHotkey'
 import { AdminLogin } from './components/admin'
 import LoadingSpinner from './components/common/LoadingSpinner.vue'
+import MobileNav from './components/common/MobileNav.vue'
 import type { AdminUser } from '@/types/entities'
 
 interface ShowAdminLoginEventDetail {
@@ -56,6 +60,10 @@ type RouterHookHandles = {
 const globalWindow = window as Window & { __routerHooks?: RouterHookHandles }
 
 const router = useRouter()
+const route = useRoute()
+
+// 管理员页面不显示移动端导航（避免与后台自身导航冲突）
+const showMobileNav = computed(() => !route.path.startsWith('/admin'))
 
 // 管理员登录状态
 const showAdminLogin = ref(false)
@@ -264,5 +272,13 @@ onUnmounted(() => {
     animation: none !important;
     transition: none !important;
   }
+}
+</style>
+
+<style>
+/* 全局：移动端抽屉打开时锁定 body 滚动 */
+body.mobile-nav-lock {
+  overflow: hidden;
+  touch-action: none;
 }
 </style>

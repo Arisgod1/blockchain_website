@@ -1,79 +1,66 @@
 <template>
   <div class="contact-page">
     <!-- 页面头部 -->
-    <header class="gradient-hero flowing-gradient-horizon text-white overflow-hidden">
-      <div class="hero-stars">
-        <span style="top:14%;left:16%;animation-duration:18s" />
-        <span style="top:32%;left:82%;animation-duration:21s;animation-delay:1.1s" />
-        <span style="top:60%;left:30%;animation-duration:16s;animation-delay:2.6s" />
-        <span style="top:78%;left:64%;animation-duration:24s;animation-delay:3.4s" />
-      </div>
-      <!-- 背景装饰 -->
-      <div class="absolute inset-0">
-        <div class="absolute top-10 left-10 w-20 h-20 bg-purple-500/10 rounded-full blur-xl animate-pulse" />
-        <div class="absolute bottom-10 right-10 w-32 h-32 bg-blue-500/10 rounded-full blur-xl animate-pulse delay-1000" />
-        <div class="absolute top-1/2 left-1/3 w-16 h-16 bg-orange-500/10 rounded-full blur-xl animate-pulse delay-500" />
-      </div>
-      
-      <div class="relative z-10 container mx-auto px-4 py-20">
-        <div class="max-w-4xl mx-auto text-center">
-          <h1 class="text-5xl font-bold mb-6 bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">
-            联系我们
-          </h1>
-          <p class="text-xl text-purple-100 mb-8 leading-relaxed">
-            我们欢迎任何关于创新技术的咨询、合作机会和学术交流。
-            让我们一起探索创新技术的无限可能，共同构建可信的数字未来。
-          </p>
-          <div class="flex justify-center gap-8 flex-wrap">
-            <template v-if="statsLoading">
-              <div
-                v-for="n in 3"
-                :key="`stats-loading-${n}`"
-                class="w-32 h-20 rounded-xl bg-white/10 animate-pulse"
-              />
-            </template>
-            <template v-else>
-              <div
-                v-for="item in summaryMetrics"
-                :key="item.label"
-                class="text-center"
-              >
-                <div class="text-3xl font-bold text-orange-200">
-                  {{ item.value }}
-                </div>
-                <div class="text-sm text-purple-200">
-                  {{ item.label }}
-                </div>
+    <header class="gradient-hero flowing-gradient-horizon hero-header">
+      <div class="hero-inner">
+        <span class="hero-eyebrow">CONTACT · 联系我们</span>
+        <h1 class="hero-title">
+          欢迎加入我们，
+          <span class="hero-title-accent">一起共创未来</span>
+        </h1>
+        <p class="hero-subtitle">
+          我们欢迎任何咨询、合作与学术交流，一起探索技术的无限可能。
+        </p>
+        <div class="hero-stats">
+          <template v-if="statsLoading">
+            <div
+              v-for="n in 3"
+              :key="`stats-loading-${n}`"
+              class="hero-stat"
+              style="height: 72px; background: rgba(255, 255, 255, 0.04);"
+            />
+          </template>
+          <template v-else>
+            <div
+              v-for="item in summaryMetrics"
+              :key="item.label"
+              class="hero-stat"
+            >
+              <div class="hero-stat-icon">💬</div>
+              <div class="hero-stat-body">
+                <div class="hero-stat-value">{{ item.value }}</div>
+                <div class="hero-stat-label">{{ item.label }}</div>
               </div>
-            </template>
-          </div>
-          <p
-            v-if="statsError"
-            class="mt-4 text-sm text-red-100"
-          >
-            {{ statsError }}
-          </p>
+            </div>
+          </template>
         </div>
+        <p
+          v-if="statsError"
+          class="mt-4 text-sm"
+          style="color: rgba(254, 202, 202, 0.9);"
+        >
+          {{ statsError }}
+        </p>
       </div>
     </header>
 
     <!-- 主要内容 -->
-    <main class="container mx-auto px-4 py-16">
+    <main class="container mx-auto px-4 py-10 md:py-16">
       <!-- 联系表单区域 -->
-      <section class="mb-20">
+      <section class="mb-12 md:mb-20">
         <div class="max-w-6xl mx-auto">
-          <div class="grid lg:grid-cols-2 gap-12">
+          <div class="grid lg:grid-cols-2 gap-6 md:gap-12">
             <!-- 联系表单 -->
-            <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-              <h2 class="text-2xl font-bold text-gray-800 mb-6">
+            <div class="bg-white rounded-2xl shadow-xl p-5 sm:p-8 border border-gray-100">
+              <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-5 sm:mb-6">
                 发送消息
               </h2>
-              
+
               <form
-                class="space-y-6"
+                class="space-y-5 sm:space-y-6"
                 @submit.prevent="handleSubmit"
               >
-                <div class="grid md:grid-cols-2 gap-4">
+                <div class="grid sm:grid-cols-2 gap-4">
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">姓名 *</label>
                     <input 
@@ -96,7 +83,7 @@
                   </div>
                 </div>
                 
-                <div class="grid md:grid-cols-2 gap-4">
+                <div class="grid sm:grid-cols-2 gap-4">
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">电话</label>
                     <input 
@@ -229,13 +216,13 @@
             </div>
             
             <!-- 联系信息 -->
-            <div class="space-y-8">
-              <div class="bg-gradient-to-br from-purple-50 to-blue-50 rounded-2xl p-8">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">
+            <div class="space-y-6 md:space-y-8">
+              <div class="bg-gradient-to-br from-purple-50 to-blue-50 rounded-2xl p-5 sm:p-8">
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-5 sm:mb-6">
                   联系方式
                 </h2>
-                
-                <div class="space-y-6">
+
+                <div class="space-y-5 sm:space-y-6">
                   <div class="flex items-start space-x-4">
                     <div class="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center flex-shrink-0">
                       <svg
@@ -358,8 +345,8 @@
               </div>
               
               <!-- 社交媒体 -->
-              <div class="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
-                <h3 class="text-xl font-bold text-gray-800 mb-6">
+              <div class="bg-white rounded-2xl shadow-lg p-5 sm:p-8 border border-gray-100">
+                <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-5 sm:mb-6">
                   关注我们
                 </h3>
                 
@@ -423,13 +410,13 @@
       </section>
 
       <!-- 合作机会 -->
-      <section class="mb-20">
+      <section class="mb-12 md:mb-20">
         <div class="max-w-6xl mx-auto">
-          <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">
+          <h2 class="text-2xl md:text-3xl font-bold text-center mb-8 md:mb-12 text-gray-800">
             合作机会
           </h2>
-          <div class="grid md:grid-cols-3 gap-8">
-            <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-8 text-center hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+          <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-5 md:gap-8">
+            <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 sm:p-8 text-center hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
               <div class="w-16 h-16 bg-blue-500 rounded-full mx-auto mb-6 flex items-center justify-center">
                 <svg
                   class="w-8 h-8 text-white"
@@ -453,7 +440,7 @@
               </p>
             </div>
 
-            <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-8 text-center hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+            <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 sm:p-8 text-center hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
               <div class="w-16 h-16 bg-orange-500 rounded-full mx-auto mb-6 flex items-center justify-center">
                 <svg
                   class="w-8 h-8 text-white"
@@ -477,7 +464,7 @@
               </p>
             </div>
 
-            <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-8 text-center hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+            <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 sm:p-8 text-center hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
               <div class="w-16 h-16 bg-green-500 rounded-full mx-auto mb-6 flex items-center justify-center">
                 <svg
                   class="w-8 h-8 text-white"
@@ -505,9 +492,9 @@
       </section>
 
       <!-- 常见问题 -->
-      <section class="mb-20">
+      <section class="mb-12 md:mb-20">
         <div class="max-w-4xl mx-auto">
-          <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">
+          <h2 class="text-2xl md:text-3xl font-bold text-center mb-8 md:mb-12 text-gray-800">
             常见问题
           </h2>
           <div class="space-y-4">
@@ -552,11 +539,11 @@
       <!-- 地图 -->
       <section>
         <div class="max-w-6xl mx-auto">
-          <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">
+          <h2 class="text-2xl md:text-3xl font-bold text-center mb-8 md:mb-12 text-gray-800">
             找到我们
           </h2>
-          <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-            <div class="aspect-video bg-gray-200 rounded-lg flex items-center justify-center">
+          <div class="bg-white rounded-2xl shadow-xl p-4 sm:p-8 border border-gray-100">
+            <div class="aspect-video bg-gray-200 rounded-lg flex items-center justify-center p-4">
               <div class="text-center text-gray-500">
                 <svg
                   class="w-16 h-16 mx-auto mb-4"
@@ -595,16 +582,16 @@
       @click="closeQrModal"
     >
       <div
-        class="bg-white rounded-2xl p-10 max-w-xl w-full mx-6 text-center shadow-2xl"
+        class="bg-white rounded-2xl p-6 sm:p-10 max-w-xl w-full mx-4 sm:mx-6 text-center shadow-2xl"
         @click.stop
       >
-        <h3 class="text-xl font-bold text-gray-800 mb-4">
+        <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-4">
           {{ qrModal.title }}
         </h3>
         <img
           :src="qrModal.image"
           :alt="qrModal.title"
-          class="w-72 h-72 object-contain mx-auto mb-4"
+          class="w-56 h-56 sm:w-72 sm:h-72 object-contain mx-auto mb-4"
         >
         <p class="text-sm text-gray-500 mb-6">
           可长按识别二维码或扫码了解详情。

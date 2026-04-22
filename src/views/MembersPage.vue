@@ -1,48 +1,36 @@
 <template>
   <div class="members-page">
     <!-- 页面头部 -->
-    <header class="gradient-hero flowing-gradient-lagoon text-white overflow-hidden page-header">
-      <div class="hero-stars">
-        <span style="top:15%;left:12%;animation-duration:18s" />
-        <span style="top:32%;left:80%;animation-duration:21s;animation-delay:1.2s" />
-        <span style="top:60%;left:28%;animation-duration:15s;animation-delay:2.4s" />
-        <span style="top:78%;left:66%;animation-duration:24s;animation-delay:3.1s" />
-      </div>
-      <div class="container">
-        <div class="header-content">
-          <div class="header-text">
-            <h1 class="page-title">
-              <UsersIcon class="title-icon" />
-              团队成员
-            </h1>
-            <p class="page-description">
-              认识我们的团队成员，了解每个人的专业技能和研究方向
-            </p>
+    <header class="gradient-hero flowing-gradient-lagoon hero-header">
+      <div class="hero-inner">
+        <span class="hero-eyebrow">MEMBERS · 成员档案</span>
+        <h1 class="hero-title">
+          认识我们的
+          <span class="hero-title-accent">团队成员</span>
+        </h1>
+        <p class="hero-subtitle">
+          每一位成员都有独特的专业背景与研究方向，共同探索。
+        </p>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="hero-stat-icon"><UsersIcon :size="18" /></div>
+            <div class="hero-stat-body">
+              <div class="hero-stat-value">{{ totalMembers }}</div>
+              <div class="hero-stat-label">团队成员</div>
+            </div>
           </div>
-          <div class="header-stats">
-            <div class="stat-card">
-              <div class="stat-value">
-                {{ totalMembers }}
-              </div>
-              <div class="stat-label">
-                团队成员
-              </div>
+          <div class="hero-stat">
+            <div class="hero-stat-icon">✨</div>
+            <div class="hero-stat-body">
+              <div class="hero-stat-value">{{ activeMembers }}</div>
+              <div class="hero-stat-label">活跃成员</div>
             </div>
-            <div class="stat-card">
-              <div class="stat-value">
-                {{ activeMembers }}
-              </div>
-              <div class="stat-label">
-                活跃成员
-              </div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-value">
-                {{ totalProjects }}
-              </div>
-              <div class="stat-label">
-                参与项目
-              </div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-icon">📊</div>
+            <div class="hero-stat-body">
+              <div class="hero-stat-value">{{ totalProjects }}</div>
+              <div class="hero-stat-label">参与项目</div>
             </div>
           </div>
         </div>
@@ -102,6 +90,7 @@
                   :key="member.id"
                   :member="member"
                   @click="selectMember(member)"
+                  @view="selectMember"
                 />
               </div>
 
@@ -230,17 +219,6 @@
                 </div>
               </div>
             </div>
-            <div class="stat-item">
-              <ProjectIcon class="stat-icon" />
-              <div>
-                <div class="stat-label">
-                  参与项目
-                </div>
-                <div class="stat-value">
-                  {{ selectedMember.projectCount || 0 }}个
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -256,8 +234,7 @@ import {
   UsersIcon,
   GithubIcon,
   EmailIcon,
-  CalendarIcon,
-  ProjectIcon
+  CalendarIcon
 } from '@/components/icons'
 import MemberCard from '@/components/members/MemberCard.vue'
 import MemberFilter from '@/components/members/MemberFilter.vue'
@@ -530,49 +507,8 @@ onMounted(() => {
 }
 
 
-.page-header {
-  @apply text-white py-16;
-}
-
-.header-content {
-  @apply flex flex-col lg:flex-row items-center justify-between gap-10;
-}
-
-.header-text {
-  @apply max-w-2xl;
-}
-
-.page-title {
-  @apply text-4xl font-bold mb-4 flex items-center gap-3;
-}
-
-.title-icon {
-  @apply w-10 h-10;
-}
-
-.page-description {
-  @apply text-xl text-blue-100;
-}
-
-
-.header-stats {
-  @apply flex flex-wrap gap-6 justify-center lg:justify-end;
-}
-
-.stat-card {
-  @apply bg-white/10 backdrop-blur-lg rounded-2xl p-6 text-center border border-white/20 min-w-[140px];
-}
-
-.stat-value {
-  @apply text-2xl font-bold;
-}
-
-.stat-label {
-  @apply text-sm text-blue-100;
-}
-
 .page-content {
-  @apply py-12;
+  @apply py-6 md:py-12;
 }
 
 .content-layout {
@@ -581,6 +517,10 @@ onMounted(() => {
 
 .filter-sidebar {
   @apply w-80 flex-shrink-0;
+}
+
+.members-page .container {
+  @apply px-4 sm:px-6 lg:px-8 mx-auto max-w-7xl;
 }
 
 .members-main {
@@ -600,10 +540,15 @@ onMounted(() => {
 }
 
 .list-header {
-  @apply flex items-center justify-between mb-8;
+  @apply flex items-center justify-between mb-6 md:mb-8;
 }
 
 .results-info {
+  @apply text-sm sm:text-base;
+}
+
+.results-info .active-filters,
+.results-info .results-count {
   @apply text-gray-600;
 }
 
@@ -628,7 +573,7 @@ onMounted(() => {
 }
 
 .members-grid {
-  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6;
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6 items-start;
 }
 
 .empty-state {
@@ -732,37 +677,41 @@ onMounted(() => {
 /* 移动端适配 */
 @media (max-width: 1024px) {
   .content-layout {
-    @apply flex-col;
+    @apply flex-col gap-4;
   }
-  
+
   .filter-sidebar {
     @apply w-full;
   }
 }
 
-@media (max-width: 768px) {
-  .page-header {
-    @apply py-12;
-  }
-  
-  .header-content {
-    @apply flex-col items-start gap-6;
-  }
-  
-  .header-stats {
-    @apply w-full;
-  }
-  
-  .members-grid {
-    @apply grid-cols-1 md:grid-cols-2;
-  }
-  
+@media (max-width: 640px) {
   .member-header {
-    @apply flex-col items-center text-center;
+    @apply flex-col items-center text-center gap-4;
   }
-  
+
+  .member-avatar-large {
+    @apply w-24 h-24;
+  }
+
+  .member-name {
+    @apply text-xl;
+  }
+
+  .member-role {
+    @apply text-base;
+  }
+
   .member-stats {
-    @apply grid-cols-1;
+    @apply grid-cols-1 gap-3;
+  }
+
+  .member-links {
+    @apply justify-center flex-wrap;
+  }
+
+  .pagination-wrapper {
+    @apply mt-8;
   }
 }
 </style>

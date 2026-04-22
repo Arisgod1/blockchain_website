@@ -1,79 +1,43 @@
 <template>
   <div class="meetings-page">
     <!-- 页面头部 -->
-    <header class="gradient-hero flowing-gradient-twilight text-white overflow-hidden meetings-header">
-      <div class="hero-stars">
-        <span style="top:14%;left:18%;animation-duration:18s" />
-        <span style="top:38%;left:82%;animation-duration:20s;animation-delay:1.4s" />
-        <span style="top:62%;left:30%;animation-duration:17s;animation-delay:2.2s" />
-        <span style="top:80%;left:68%;animation-duration:24s;animation-delay:3.5s" />
-      </div>
-      <div class="header-overlay" />
-      <div class="header-content">
-        <div class="container">
-          <div class="header-text">
-            <h1 class="page-title">
-              <span class="title-icon">📝</span>
-              例会记录
-            </h1>
-            <p class="page-subtitle">
-              团队会议纪要和学术讨论记录
-            </p>
+    <header class="gradient-hero flowing-gradient-twilight hero-header">
+      <div class="hero-inner">
+        <span class="hero-eyebrow">MEETINGS · 例会纪要</span>
+        <h1 class="hero-title">
+          例会记录，
+          <span class="hero-title-accent">沉淀每一次讨论</span>
+        </h1>
+        <p class="hero-subtitle">
+          团队会议纪要和学术讨论记录，帮助每位成员追踪项目进展、研究脉络与协作细节。
+        </p>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="hero-stat-icon">📅</div>
+            <div class="hero-stat-body">
+              <div class="hero-stat-value">{{ stats.totalMeetings }}</div>
+              <div class="hero-stat-label">总会次数</div>
+            </div>
           </div>
-          
-          <!-- 统计数据 -->
-          <div class="header-stats">
-            <div class="stat-card">
-              <div class="stat-icon">
-                📅
-              </div>
-              <div class="stat-content">
-                <div class="stat-number">
-                  {{ stats.totalMeetings }}
-                </div>
-                <div class="stat-label">
-                  总会次数
-                </div>
-              </div>
+          <div class="hero-stat">
+            <div class="hero-stat-icon">👥</div>
+            <div class="hero-stat-body">
+              <div class="hero-stat-value">{{ stats.totalParticipants }}</div>
+              <div class="hero-stat-label">总参与人次</div>
             </div>
-            <div class="stat-card">
-              <div class="stat-icon">
-                👥
-              </div>
-              <div class="stat-content">
-                <div class="stat-number">
-                  {{ stats.totalParticipants }}
-                </div>
-                <div class="stat-label">
-                  总参与人次
-                </div>
-              </div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-icon">⏱️</div>
+            <div class="hero-stat-body">
+              <div class="hero-stat-value">{{ stats.totalHours }}h</div>
+              <div class="hero-stat-label">总会议时长</div>
             </div>
-            <div class="stat-card">
-              <div class="stat-icon">
-                ⏱️
-              </div>
-              <div class="stat-content">
-                <div class="stat-number">
-                  {{ stats.totalHours }}h
-                </div>
-                <div class="stat-label">
-                  总会议时长
-                </div>
-              </div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon">
-                📄
-              </div>
-              <div class="stat-content">
-                <div class="stat-number">
-                  {{ stats.totalDocuments }}
-                </div>
-                <div class="stat-label">
-                  会议文档
-                </div>
-              </div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-icon">📄</div>
+            <div class="hero-stat-body">
+              <div class="hero-stat-value">{{ stats.totalDocuments }}</div>
+              <div class="hero-stat-label">会议文档</div>
             </div>
           </div>
         </div>
@@ -626,71 +590,17 @@ onUnmounted(() => {
   @apply min-h-screen bg-gray-50;
 }
 
-/* 页面头部 */
-.meetings-header {
-  @apply relative overflow-hidden;
-}
-
-.header-overlay {
-  @apply absolute inset-0;
-  background:
-    radial-gradient(circle at 20% 20%, rgba(255,255,255,0.35), transparent 55%),
-    radial-gradient(circle at 80% 30%, rgba(255,255,255,0.25), transparent 55%),
-    linear-gradient(120deg, rgba(15,23,42,0.35), rgba(15,23,42,0));
-}
-
-.header-content {
-  @apply relative z-10 py-16;
-}
-
 .container {
   @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
 }
 
-.header-text {
-  @apply text-center mb-12;
-}
-
-.page-title {
-  @apply text-4xl md:text-5xl font-bold text-white mb-4;
-}
-
-.title-icon {
-  @apply mr-4;
-}
-
-.page-subtitle {
-  @apply text-xl text-white/90;
-}
-
-.header-stats {
-  @apply grid grid-cols-2 md:grid-cols-4 gap-6;
-}
-
-.stat-card {
-  @apply bg-white/10 backdrop-blur-md rounded-xl p-6 text-center
-         border border-white/20;
-}
-
-.stat-icon {
-  @apply text-3xl mb-3;
-}
-
-.stat-number {
-  @apply text-3xl font-bold text-white mb-1;
-}
-
-.stat-label {
-  @apply text-white/80 text-sm;
-}
-
 /* 主内容区域 */
 .meetings-content {
-  @apply py-12;
+  @apply py-6 md:py-12;
 }
 
 .content-layout {
-  @apply grid grid-cols-1 lg:grid-cols-4 gap-8;
+  @apply grid grid-cols-1 lg:grid-cols-4 gap-6 md:gap-8;
 }
 
 .meetings-sidebar {
@@ -703,9 +613,10 @@ onUnmounted(() => {
 
 /* 移动端筛选 */
 .mobile-filter-toggle {
-  @apply fixed bottom-6 right-6 z-40 w-14 h-14 bg-blue-600 text-white
-         rounded-full shadow-lg flex items-center justify-center
-         transition-all duration-300;
+  @apply fixed bottom-6 right-6 z-30 w-14 h-14 bg-blue-600 text-white
+         rounded-full shadow-lg flex flex-col items-center justify-center
+         text-[10px] gap-0.5 transition-all duration-300;
+  padding-bottom: env(safe-area-inset-bottom, 0);
 }
 
 .mobile-filter-toggle.is-active {
@@ -725,7 +636,17 @@ onUnmounted(() => {
 }
 
 .mobile-filter-content {
-  @apply relative z-10 h-full overflow-y-auto bg-white p-6;
+  @apply relative z-10 h-full overflow-y-auto bg-white p-4 sm:p-6;
+  -webkit-overflow-scrolling: touch;
+  width: min(88vw, 360px);
+  margin-left: auto;
+  box-shadow: -16px 0 48px -20px rgba(0, 0, 0, 0.4);
+  animation: slideInRight 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
 }
 
 .mobile-filter-backdrop {
@@ -739,16 +660,16 @@ onUnmounted(() => {
 
 /* 视图控制 */
 .view-controls {
-  @apply flex items-center justify-between mb-8 p-4 bg-white rounded-xl shadow-sm;
+  @apply flex items-center justify-between mb-6 md:mb-8 p-3 sm:p-4 bg-white rounded-xl shadow-sm gap-3;
 }
 
 .view-options {
-  @apply flex space-x-2;
+  @apply flex gap-2;
 }
 
 .view-btn {
-  @apply flex items-center space-x-2 px-4 py-2 text-sm border border-gray-200
-         rounded-lg cursor-pointer transition-colors duration-200;
+  @apply flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm border border-gray-200
+         rounded-lg cursor-pointer transition-colors duration-200 whitespace-nowrap;
 }
 
 .view-btn.is-active {
@@ -800,11 +721,11 @@ onUnmounted(() => {
 
 /* 会议列表 */
 .meetings-list {
-  @apply grid gap-6 mb-8;
+  @apply grid gap-4 md:gap-6 mb-6 md:mb-8;
 }
 
 .meetings-list-grid {
-  @apply grid-cols-1 md:grid-cols-2 xl:grid-cols-3;
+  @apply grid-cols-1 sm:grid-cols-2 xl:grid-cols-3;
 }
 
 .meetings-list-list {
@@ -817,21 +738,21 @@ onUnmounted(() => {
 
 /* 分页控制 */
 .pagination-controls {
-  @apply flex items-center justify-center space-x-2;
+  @apply flex flex-wrap items-center justify-center gap-2;
 }
 
 .pagination-btn {
-  @apply px-4 py-2 text-sm border border-gray-300 rounded-lg
+  @apply px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg
          hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed
          transition-colors duration-200;
 }
 
 .pagination-pages {
-  @apply flex space-x-1;
+  @apply flex flex-wrap justify-center gap-1;
 }
 
 .pagination-page {
-  @apply w-10 h-10 text-sm border border-gray-300 rounded-lg
+  @apply w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-sm border border-gray-300 rounded-lg
          hover:bg-gray-50 transition-colors duration-200;
 }
 
@@ -850,21 +771,21 @@ onUnmounted(() => {
 }
 
 /* 响应式设计 */
-@media (max-width: 768px) {
-  .header-stats {
-    @apply grid-cols-2;
-  }
-  
+@media (max-width: 640px) {
   .view-controls {
-    @apply flex-col space-y-4;
+    @apply flex-col items-stretch gap-3 space-y-0;
   }
-  
+
+  .view-options {
+    @apply justify-center;
+  }
+
+  .pagination-info {
+    @apply text-center text-xs;
+  }
+
   .meetings-list-grid {
     @apply grid-cols-1;
-  }
-  
-  .pagination-controls {
-    @apply flex-wrap;
   }
 }
 

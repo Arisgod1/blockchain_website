@@ -5,15 +5,39 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    /* 防止移动端 iOS 横向溢出 + 字体缩放异常 */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
-  
+
   body {
     @apply font-sans antialiased;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
-  
+
   body {
     @apply bg-neutral-50 text-neutral-900;
+    /* 避免横向滚动条出现在移动端 */
+    overflow-x: hidden;
+  }
+
+  /* 媒体元素默认响应式 */
+  img,
+  picture,
+  video,
+  canvas,
+  svg {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* 移动端输入框防止 iOS 自动缩放 */
+  @media (max-width: 640px) {
+    input:not([type='checkbox']):not([type='radio']),
+    select,
+    textarea {
+      font-size: 16px;
+    }
   }
 }
 
@@ -58,6 +82,11 @@
     @apply bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent;
   }
   
+  /* ============================================================
+   * 页面顶部 Hero / 渐变头部（全站统一）
+   * 调色思路：深色基底（slate-950 → 强调色）+ 低饱和辅色，
+   * 避免原先的彩虹渐变噪音；配合毛玻璃统计卡与网格点阵背景。
+   * ============================================================ */
   .flowing-gradient,
   .flowing-gradient-aurora,
   .flowing-gradient-sunrise,
@@ -70,31 +99,14 @@
   .flowing-gradient-horizon {
     position: relative;
     color: #fff;
-    background-image: var(--flow-gradient, linear-gradient(120deg, #1d4ed8, #9333ea, #f97316, #2563eb));
-    background-size: 300% 300%;
-    animation: flowingGradient 12s ease-in-out infinite;
+    background-color: #0b1120;
+    background-image: var(
+      --flow-gradient,
+      linear-gradient(135deg, #0b1120 0%, #1e293b 40%, #312e81 100%)
+    );
+    background-size: 200% 200%;
+    animation: flowingGradient 18s ease-in-out infinite;
     overflow: hidden;
-  }
-
-  .flowing-gradient::after,
-  .flowing-gradient-aurora::after,
-  .flowing-gradient-sunrise::after,
-  .flowing-gradient-ocean::after,
-  .flowing-gradient-cosmic::after,
-  .flowing-gradient-lagoon::after,
-  .flowing-gradient-nebula::after,
-  .flowing-gradient-twilight::after,
-  .flowing-gradient-solstice::after,
-  .flowing-gradient-horizon::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(circle at 20% 20%, rgba(255,255,255,0.35), transparent 35%),
-      radial-gradient(circle at 80% 0%, rgba(255,255,255,0.25), transparent 30%),
-      linear-gradient(120deg, rgba(255,255,255,0.18), transparent 65%);
-    opacity: 0.85;
-    pointer-events: none;
   }
 
   .flowing-gradient > *,
@@ -112,74 +124,94 @@
   }
 
   .flowing-gradient-aurora {
-    --flow-gradient: linear-gradient(130deg, #0ea5e9, #8b5cf6, #ec4899, #22d3ee);
+    --flow-gradient: radial-gradient(1200px 480px at 20% 0%, rgba(56, 189, 248, 0.45), transparent 60%),
+      radial-gradient(900px 420px at 85% 100%, rgba(139, 92, 246, 0.4), transparent 65%),
+      linear-gradient(135deg, #0b1120 0%, #1e1b4b 55%, #0f172a 100%);
   }
 
   .flowing-gradient-sunrise {
-    --flow-gradient: linear-gradient(115deg, #f97316, #facc15, #ef4444, #a855f7);
+    --flow-gradient: radial-gradient(1000px 420px at 15% 0%, rgba(251, 146, 60, 0.38), transparent 60%),
+      radial-gradient(900px 420px at 90% 100%, rgba(244, 63, 94, 0.32), transparent 65%),
+      linear-gradient(135deg, #1a0f1f 0%, #2b1b2e 50%, #0f172a 100%);
   }
 
   .flowing-gradient-ocean {
-    --flow-gradient: linear-gradient(140deg, #0f172a, #0ea5e9, #22c55e, #0f766e);
+    --flow-gradient: radial-gradient(1100px 460px at 18% 0%, rgba(14, 165, 233, 0.42), transparent 60%),
+      radial-gradient(900px 420px at 85% 100%, rgba(20, 184, 166, 0.35), transparent 65%),
+      linear-gradient(135deg, #041a2c 0%, #082f49 50%, #0b1120 100%);
   }
 
   .flowing-gradient-cosmic {
-    --flow-gradient: linear-gradient(125deg, #4f46e5, #9333ea, #0ea5e9, #14b8a6);
+    --flow-gradient: radial-gradient(1100px 460px at 20% 0%, rgba(99, 102, 241, 0.45), transparent 60%),
+      radial-gradient(900px 440px at 85% 100%, rgba(45, 212, 191, 0.3), transparent 65%),
+      linear-gradient(135deg, #0b1120 0%, #1e1b4b 50%, #0b1120 100%);
   }
 
   .flowing-gradient-lagoon {
-    --flow-gradient: linear-gradient(140deg, #0ea5e9, #22d3ee, #14b8a6, #0f766e);
+    --flow-gradient: radial-gradient(1100px 460px at 18% 0%, rgba(34, 211, 238, 0.4), transparent 60%),
+      radial-gradient(900px 420px at 85% 100%, rgba(16, 185, 129, 0.32), transparent 65%),
+      linear-gradient(135deg, #042f2e 0%, #0f172a 50%, #0b1120 100%);
   }
 
   .flowing-gradient-nebula {
-    --flow-gradient: linear-gradient(135deg, #9333ea, #c026d3, #f43f5e, #f97316);
+    --flow-gradient: radial-gradient(1100px 460px at 18% 0%, rgba(168, 85, 247, 0.45), transparent 60%),
+      radial-gradient(900px 420px at 85% 100%, rgba(236, 72, 153, 0.32), transparent 65%),
+      linear-gradient(135deg, #1a0b2e 0%, #1e1b4b 50%, #0b1120 100%);
   }
 
   .flowing-gradient-twilight {
-    --flow-gradient: linear-gradient(140deg, #312e81, #6d28d9, #9333ea, #f59e0b);
+    --flow-gradient: radial-gradient(1100px 460px at 18% 0%, rgba(129, 140, 248, 0.42), transparent 60%),
+      radial-gradient(900px 420px at 85% 100%, rgba(244, 114, 182, 0.28), transparent 65%),
+      linear-gradient(135deg, #0b1120 0%, #312e81 55%, #0b1120 100%);
   }
 
   .flowing-gradient-solstice {
-    --flow-gradient: linear-gradient(130deg, #fb7185, #fbbf24, #f97316, #f43f5e);
+    --flow-gradient: radial-gradient(1100px 460px at 18% 0%, rgba(251, 191, 36, 0.35), transparent 60%),
+      radial-gradient(900px 440px at 85% 100%, rgba(251, 113, 133, 0.3), transparent 65%),
+      linear-gradient(135deg, #1a0f1f 0%, #2a1a2e 50%, #0b1120 100%);
   }
 
   .flowing-gradient-horizon {
-    --flow-gradient: linear-gradient(135deg, #7c3aed, #6366f1, #0ea5e9, #06b6d4);
+    --flow-gradient: radial-gradient(1100px 460px at 20% 0%, rgba(124, 58, 237, 0.4), transparent 60%),
+      radial-gradient(900px 440px at 85% 100%, rgba(14, 165, 233, 0.35), transparent 65%),
+      linear-gradient(135deg, #0b1120 0%, #1e1b4b 50%, #082f49 100%);
   }
 
+  /* Hero 外壳 */
   .gradient-hero {
     position: relative;
-    border-bottom-left-radius: 2.5rem;
-    border-bottom-right-radius: 2.5rem;
-    box-shadow: 0 30px 80px rgba(15, 23, 42, 0.25);
+    border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+    box-shadow: 0 24px 80px -40px rgba(15, 23, 42, 0.6);
     overflow: hidden;
   }
 
-  .gradient-hero::before,
+  .gradient-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+      radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 36px 36px, 72px 72px;
+    background-position: 0 0, 18px 18px;
+    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.15));
+    -webkit-mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.15));
+    pointer-events: none;
+    opacity: 0.7;
+  }
+
   .gradient-hero::after {
     content: '';
     position: absolute;
-    width: 420px;
-    height: 420px;
-    border-radius: 9999px;
-    filter: blur(60px);
-    opacity: 0.35;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 120px;
+    background: linear-gradient(180deg, transparent, rgba(15, 23, 42, 0.35));
     pointer-events: none;
-    mix-blend-mode: screen;
   }
 
-  .gradient-hero::before {
-    top: -120px;
-    left: -160px;
-    background: radial-gradient(circle, rgba(255,255,255,0.85), transparent 60%);
-  }
-
-  .gradient-hero::after {
-    bottom: -160px;
-    right: -120px;
-    background: radial-gradient(circle, rgba(59,130,246,0.65), transparent 65%);
-  }
-
+  /* 旧版星点：保留兼容，但改为微妙柔光 */
   .gradient-hero .hero-stars {
     position: absolute;
     inset: 0;
@@ -189,11 +221,21 @@
 
   .gradient-hero .hero-stars span {
     position: absolute;
-    width: 3px;
-    height: 3px;
+    width: 2px;
+    height: 2px;
     border-radius: 9999px;
-    background: rgba(255,255,255,0.9);
-    animation: heroStarFloat 12s linear infinite;
+    background: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    animation: heroStarFloat 18s linear infinite;
+  }
+
+  @keyframes flowingGradient {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
   }
 
   @keyframes heroStarFloat {
@@ -202,37 +244,186 @@
       opacity: 0;
     }
     40% {
-      opacity: 0.65;
+      opacity: 0.45;
     }
     to {
-      transform: translate3d(110%, -40%, 0) scale(1.2);
+      transform: translate3d(110%, -40%, 0) scale(1.1);
       opacity: 0;
     }
   }
 
+  /* ------------------ 统一的 Hero 内容组件 ------------------ */
+  .hero-header {
+    @apply relative;
+    padding-top: clamp(3rem, 6vw, 5.5rem);
+    padding-bottom: clamp(2.5rem, 5vw, 4.5rem);
+  }
+
+  .hero-inner {
+    @apply relative z-10 mx-auto w-full max-w-6xl px-4 sm:px-6;
+  }
+
+  .hero-eyebrow {
+    @apply inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium tracking-widest uppercase;
+    color: rgba(226, 232, 240, 0.85);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    backdrop-filter: blur(8px);
+  }
+
+  .hero-eyebrow::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 9999px;
+    background: currentColor;
+    opacity: 0.7;
+    box-shadow: 0 0 8px currentColor;
+  }
+
+  .hero-title {
+    @apply mt-5 font-bold tracking-tight text-white;
+    font-size: clamp(1.65rem, 6.5vw, 3rem);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  .hero-title .hero-title-accent {
+    background: linear-gradient(120deg, #ffffff 0%, #a5b4fc 50%, #67e8f9 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .hero-subtitle {
+    @apply mt-4 max-w-2xl text-sm leading-relaxed sm:text-base md:text-lg;
+    color: rgba(226, 232, 240, 0.78);
+    text-wrap: balance;
+  }
+
+  .hero-stats {
+    @apply mt-8 grid gap-3 md:mt-10 md:gap-4;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+
+  @media (max-width: 480px) {
+    .hero-stats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .hero-stat {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.75rem 0.9rem;
+    border-radius: 0.9rem;
+    background: rgba(255, 255, 255, 0.055);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(14px);
+    box-shadow: 0 10px 30px -18px rgba(15, 23, 42, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+  }
+
+  @media (min-width: 640px) {
+    .hero-stat {
+      gap: 0.85rem;
+      padding: 1rem 1.25rem;
+    }
+  }
+
+  .hero-stat:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.22);
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .hero-stat-icon {
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    border-radius: 0.6rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    color: #fff;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.45), rgba(14, 165, 233, 0.35));
+    border: 1px solid rgba(255, 255, 255, 0.18);
+  }
+
+  @media (min-width: 640px) {
+    .hero-stat-icon {
+      width: 38px;
+      height: 38px;
+      font-size: 1rem;
+    }
+  }
+
+  .hero-stat-body {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+    min-width: 0;
+  }
+
+  .hero-stat-value {
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 1.2rem;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+  }
+
+  @media (min-width: 640px) {
+    .hero-stat-value {
+      font-size: 1.5rem;
+    }
+  }
+
+  .hero-stat-label {
+    margin-top: 0.15rem;
+    color: rgba(203, 213, 225, 0.78);
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+  }
+
+  @media (min-width: 640px) {
+    .hero-stat-label {
+      font-size: 0.78rem;
+    }
+  }
+
+  /* ------------------ 旧版类名的优雅兼容（可继续使用） ------------------ */
   .gradient-hero .stat-card,
   .gradient-hero .stat-item,
   .gradient-hero .hero-glass {
-    background: rgba(255, 255, 255, 0.12);
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    box-shadow: 0 10px 45px rgba(15, 23, 42, 0.25);
-    backdrop-filter: blur(18px);
+    background: rgba(255, 255, 255, 0.055);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 10px 30px -18px rgba(15, 23, 42, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(14px);
+    border-radius: 0.9rem;
   }
 
   .gradient-hero .stat-number,
   .gradient-hero .stat-value {
     color: #fff;
+    font-weight: 700;
+    letter-spacing: -0.01em;
   }
 
   .gradient-hero .stat-label,
   .gradient-hero .stat-text {
-    color: rgba(248, 250, 252, 0.8);
+    color: rgba(203, 213, 225, 0.78);
+    letter-spacing: 0.04em;
   }
 
   .gradient-hero .section-tagline,
   .gradient-hero .page-subtitle,
   .gradient-hero .page-description {
-    color: rgba(248, 250, 252, 0.85);
+    color: rgba(226, 232, 240, 0.78);
   }
   
   /* 容器样式 */
@@ -275,13 +466,55 @@
   .text-balance {
     text-wrap: balance;
   }
-  
+
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  
+
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+
+  /* 移动端触控目标最小尺寸（44x44 为 Apple HIG 推荐） */
+  .tap-target {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* 可横向滚动的 Tab 栏 */
+  .scroll-x-snap {
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .scroll-x-snap > * {
+    scroll-snap-align: start;
+    flex-shrink: 0;
+  }
+
+  /* 安全区域 padding，给顶部右上角预留给浮动汉堡按钮 */
+  .safe-top-right {
+    padding-top: env(safe-area-inset-top, 0);
+    padding-right: env(safe-area-inset-right, 0);
+  }
+}
+
+/* ============================================================
+ * 全局移动端适配（不在 layer 内，保证优先级稳定）
+ * ============================================================ */
+
+/* 为 hero 标题栏在移动端让出浮动汉堡按钮的空间 */
+@media (max-width: 1024px) {
+  .hero-header .hero-eyebrow {
+    padding-right: 48px;
+  }
+}
+
+/* 全局 container 在小屏的内边距 */
+@media (max-width: 640px) {
+  .container-custom {
+    @apply px-3;
   }
 }

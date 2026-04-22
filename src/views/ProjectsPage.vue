@@ -1,53 +1,43 @@
 <template>
   <div class="projects-page">
     <!-- 页面头部 -->
-    <header class="gradient-hero flowing-gradient-nebula text-white overflow-hidden page-header">
-      <div class="hero-stars">
-        <span style="top:10%;left:15%;animation-duration:19s" />
-        <span style="top:30%;left:78%;animation-duration:23s;animation-delay:0.8s" />
-        <span style="top:58%;left:25%;animation-duration:16s;animation-delay:2s" />
-        <span style="top:80%;left:65%;animation-duration:25s;animation-delay:3.4s" />
-      </div>
-      <div class="header-content">
-        <div class="header-text">
-          <h1 class="page-title">
-            项目展示
-          </h1>
-          <p class="page-description">
-            探索我们的区块链项目，从概念到实现，见证技术的力量
-          </p>
-        </div>
-        <div class="header-stats">
-          <div class="stat-card">
-            <div class="stat-value">
-              {{ stats.totalProjects }}
-            </div>
-            <div class="stat-label">
-              总项目数
+    <header class="gradient-hero flowing-gradient-nebula hero-header">
+      <div class="hero-inner">
+        <span class="hero-eyebrow">PROJECTS · 项目矩阵</span>
+        <h1 class="hero-title">
+          项目展示，
+          <span class="hero-title-accent">见证技术的力量</span>
+        </h1>
+        <p class="hero-subtitle">
+          探索我们的区块链项目，从概念到实现——科研、产业与社区共创的成果在这里集合。
+        </p>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="hero-stat-icon">📦</div>
+            <div class="hero-stat-body">
+              <div class="hero-stat-value">{{ stats.totalProjects }}</div>
+              <div class="hero-stat-label">总项目数</div>
             </div>
           </div>
-          <div class="stat-card">
-            <div class="stat-value">
-              {{ stats.activeProjects }}
-            </div>
-            <div class="stat-label">
-              活跃项目
-            </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-value">
-              {{ stats.completedProjects }}
-            </div>
-            <div class="stat-label">
-              已完成
+          <div class="hero-stat">
+            <div class="hero-stat-icon">⚡</div>
+            <div class="hero-stat-body">
+              <div class="hero-stat-value">{{ stats.activeProjects }}</div>
+              <div class="hero-stat-label">活跃项目</div>
             </div>
           </div>
-          <div class="stat-card">
-            <div class="stat-value">
-              {{ stats.totalContributors }}
+          <div class="hero-stat">
+            <div class="hero-stat-icon">✅</div>
+            <div class="hero-stat-body">
+              <div class="hero-stat-value">{{ stats.completedProjects }}</div>
+              <div class="hero-stat-label">已完成</div>
             </div>
-            <div class="stat-label">
-              贡献者
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-icon">👥</div>
+            <div class="hero-stat-body">
+              <div class="hero-stat-value">{{ stats.totalContributors }}</div>
+              <div class="hero-stat-label">贡献者</div>
             </div>
           </div>
         </div>
@@ -56,10 +46,17 @@
 
     <!-- 主要内容区域 -->
     <div class="page-content">
+      <!-- 移动端遮罩 -->
+      <div
+        v-if="showMobileFilters"
+        class="mobile-overlay"
+        @click="toggleMobileFilters"
+      />
+
       <!-- 筛选侧边栏 -->
       <div
         class="filter-sidebar"
-        :class="{ 'filter-sidebar-mobile': showMobileFilters }"
+        :class="{ 'filter-sidebar-mobile': true, 'is-open': showMobileFilters }"
       >
         <div class="sidebar-header">
           <h3 class="sidebar-title">
@@ -67,6 +64,7 @@
           </h3>
           <button
             class="close-sidebar-btn md:hidden"
+            aria-label="关闭筛选"
             @click="toggleMobileFilters"
           >
             <XIcon />
@@ -80,15 +78,23 @@
         <!-- 工具栏 -->
         <div class="projects-toolbar">
           <div class="toolbar-left">
-            
+            <button
+              class="mobile-filter-btn md:hidden"
+              type="button"
+              @click="toggleMobileFilters"
+            >
+              <FilterIcon />
+              <span>筛选</span>
+            </button>
+
             <div class="view-mode-selector">
-              <button 
+              <button
                 :class="['view-mode-btn', { active: viewMode === 'grid' }]"
                 @click="setViewMode('grid')"
               >
                 <GridIcon />
               </button>
-              <button 
+              <button
                 :class="['view-mode-btn', { active: viewMode === 'list' }]"
                 @click="setViewMode('list')"
               >
@@ -96,7 +102,7 @@
               </button>
             </div>
           </div>
-          
+
           <div class="toolbar-right">
             <div class="per-page-selector">
               <select
@@ -227,12 +233,6 @@
       @close="closeCreateModal"
     />
 
-    <!-- 移动端遮罩 -->
-    <div 
-      v-if="showMobileFilters"
-      class="mobile-overlay md:hidden"
-      @click="toggleMobileFilters"
-    />
   </div>
 </template>
 
@@ -251,7 +251,8 @@ import {
   XIcon,
   FolderXIcon,
   ChevronLeftIcon,
-  ChevronRightIcon
+  ChevronRightIcon,
+  FilterIcon
 } from '@/components/icons'
 
 interface ProjectFilterSelection {
@@ -470,44 +471,8 @@ const handleProjectCreated = () => {
   @apply min-h-screen bg-gray-50;
 }
 
-.page-header {
-  @apply text-white;
-}
-
-.header-content {
-  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12;
-}
-
-.header-text {
-  @apply text-center mb-8;
-}
-
-.page-title {
-  @apply text-4xl font-bold mb-4 text-white;
-}
-
-.page-description {
-  @apply text-xl text-indigo-100 max-w-3xl mx-auto;
-}
-
-.header-stats {
-  @apply grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto;
-}
-
-.stat-card {
-  @apply bg-white/10 backdrop-blur-lg rounded-2xl p-6 text-center border border-white/20;
-}
-
-.stat-value {
-  @apply text-3xl font-bold mb-2;
-}
-
-.stat-label {
-  @apply text-indigo-100 text-sm;
-}
-
 .page-content {
-  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8;
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8;
   display: grid;
   grid-template-columns: 400px 1fr;
   gap: 2rem;
@@ -526,11 +491,7 @@ const handleProjectCreated = () => {
 }
 
 .close-sidebar-btn {
-  @apply w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100;
-}
-
-.filter-sidebar-mobile {
-  @apply fixed inset-y-0 left-0 z-50 w-80 transform transition-transform duration-300;
+  @apply w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-600;
 }
 
 .projects-main {
@@ -611,8 +572,15 @@ const handleProjectCreated = () => {
 
 .projects-grid.view-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  gap: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .projects-grid.view-grid {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+  }
 }
 
 .projects-grid.view-list {
@@ -652,7 +620,9 @@ const handleProjectCreated = () => {
 }
 
 .mobile-overlay {
-  @apply fixed inset-0 bg-black/50 z-40;
+  @apply fixed inset-0 bg-black/50 z-40 md:hidden;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
 }
 
 /* 移动端适配 */
@@ -661,46 +631,81 @@ const handleProjectCreated = () => {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
-  .filter-sidebar-mobile {
-    @apply -translate-x-full;
+
+  /* 移动端：侧边栏变成从左滑入的抽屉 */
+  .filter-sidebar {
+    position: fixed;
+    inset-block: 0;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: min(86vw, 340px);
+    z-index: 60;
+    border-radius: 0;
+    border: none;
+    padding: calc(env(safe-area-inset-top, 0) + 1rem) 1rem calc(env(safe-area-inset-bottom, 0) + 1rem);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    transform: translateX(-100%);
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    height: auto;
   }
-  
-  .filter-sidebar-mobile.show {
-    @apply translate-x-0;
+
+  .filter-sidebar.is-open {
+    transform: translateX(0);
+    box-shadow: 16px 0 48px -20px rgba(0, 0, 0, 0.4);
   }
-  
-  .header-stats {
-    @apply grid-cols-2 gap-2;
-  }
-  
-  .stat-card {
-    @apply p-4;
-  }
-  
-  .stat-value {
-    @apply text-2xl;
-  }
-  
+
   .projects-toolbar {
-    @apply flex-col items-stretch gap-4;
+    @apply flex-col items-stretch gap-3 p-3;
   }
-  
+
   .toolbar-left {
     @apply justify-between;
   }
-  
+
+  .mobile-filter-btn {
+    @apply text-sm;
+  }
+
+  .toolbar-right {
+    @apply gap-2 justify-end;
+  }
+
+  .per-page-select {
+    @apply py-2 px-2 text-sm;
+  }
+
   .projects-grid.view-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
-  .pagination {
-    @apply flex-col gap-4;
+
+  .pagination-container {
+    @apply p-4;
   }
-  
+
+  .pagination {
+    @apply flex-col gap-3;
+  }
+
   .pagination-numbers {
-    @apply order-first;
+    @apply order-first flex-wrap justify-center;
+  }
+
+  .pagination-number {
+    @apply w-9 h-9;
+  }
+
+  .pagination-btn {
+    @apply px-3 py-2 text-xs;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-filter-btn,
+  .close-sidebar-btn {
+    display: none !important;
   }
 }
 </style>

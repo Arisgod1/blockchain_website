@@ -1,14 +1,12 @@
 <template>
   <div class="resume-apply-page min-h-screen bg-slate-50 text-slate-800">
-    <header class="hero-wrap border-b border-slate-200">
-      <div class="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8">
-        <p class="text-xs tracking-[0.28em] text-slate-500">
-          DUT BLOCKCHAIN RECRUITMENT
-        </p>
-        <h1 class="mt-4 text-3xl font-semibold leading-tight text-slate-900 sm:text-4xl">
+    <header class="gradient-hero flowing-gradient-cosmic hero-header">
+      <div class="hero-inner">
+        <span class="hero-eyebrow">DUT BLOCKCHAIN RECRUITMENT</span>
+        <h1 class="hero-title">
           简历投递
         </h1>
-        <p class="mt-4 max-w-2xl text-sm leading-7 text-slate-600 sm:text-base">
+        <p class="hero-subtitle">
           欢迎加入大连理工大学区块链组。请完整填写基础信息并提交表单，我们会尽快完成审核并与你联系。
         </p>
       </div>
@@ -311,13 +309,6 @@ const handleSubmit = async () => {
 </script>
 
 <style scoped>
-.hero-wrap {
-  background:
-    radial-gradient(circle at 15% 10%, rgba(56, 189, 248, 0.22), transparent 42%),
-    radial-gradient(circle at 85% 25%, rgba(16, 185, 129, 0.16), transparent 44%),
-    linear-gradient(145deg, #f8fafc, #eff6ff 52%, #f0fdfa 100%);
-}
-
 .field-input {
   width: 100%;
   border-radius: 0.75rem;
