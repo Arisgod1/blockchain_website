@@ -1,8 +1,9 @@
 import type { MeetingAttendee, Member } from '@/types/entities'
 import { MOCK_MEMBERS } from '@/common_value/members'
+import defaultAvatar from '@/assets/BLOCKCHAINNexus.png'
 
 const LOCAL_MEMBER_KEY = 'admin-members-local'
-const DEFAULT_AVATAR = '/images/default-avatar.svg'
+const DEFAULT_AVATAR = defaultAvatar
 
 type MemberLike = Member & { avatarUrl?: string }
 
@@ -16,9 +17,14 @@ const normalizeNameKey = (value?: string): string => {
 
 const normalizeAvatar = (value?: string): string => {
   if (!value) return DEFAULT_AVATAR
-  const cleaned = value.replace(/\\/g, '/').replace(/^\/+/, '')
+  const normalized = value.replace(/\\/g, '/').trim()
+  if (!normalized) return DEFAULT_AVATAR
+  if (/^(data:|blob:)/i.test(normalized)) return normalized
+  if (/^https?:\/\//i.test(normalized)) return normalized
+  if (normalized.startsWith('/')) return normalized
+  if (/^(src|assets)\//i.test(normalized)) return `/${normalized}`
+  const cleaned = normalized.replace(/^\/+/, '')
   if (!cleaned) return DEFAULT_AVATAR
-  if (/^https?:\/\//i.test(cleaned)) return cleaned
   const base = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8082').replace(/\/+$/, '')
   return base ? `${base}/${cleaned}` : `/${cleaned}`
 }

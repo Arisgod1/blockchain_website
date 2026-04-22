@@ -110,7 +110,9 @@
 import { computed } from 'vue'
 import type { Article } from '@/types/entities'
 import avatar from '@/assets/richang2.png'
-import defaultAvatar from '@/assets/zhaoshuyang.png'
+import defaultAvatar from '@/assets/BLOCKCHAINNexus.png'
+import defaultArticleImage from '@/assets/richang1.png'
+import { StarIcon, EyeIcon, HeartIcon, MessageCircleIcon, ShareIcon } from '@/components/icons'
 interface Props {
   article: Article
 }
@@ -181,14 +183,16 @@ const getCategoryClass = (category: string) => {
   return categoryMap[category] || 'default'
 }
 
-  const handleImageError = (event: Event) => {
+const handleImageError = (event: Event) => {
   const img = event.target as HTMLImageElement
-  img.src = '/images/default-article.svg'
+  img.onerror = null
+  img.src = defaultArticleImage
 }
 
-  const handleAuthorAvatarError = (event: Event) => {
+const handleAuthorAvatarError = (event: Event) => {
   const img = event.target as HTMLImageElement
-  img.src = '/images/default-avatar.svg'
+  img.onerror = null
+  img.src = defaultAvatar
 }
 
 const tagClicked = (tag: string) => {

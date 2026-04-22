@@ -140,7 +140,7 @@
 import { computed } from 'vue'
 import { BaseModal, BaseButton } from '@/components/common'
 import type { Member } from '@/types/entities'
-import defaultAvatar from '@/assets/zhaoshuyang.png'
+import defaultAvatar from '@/assets/BLOCKCHAINNexus.png'
 
 interface Props {
   show: boolean

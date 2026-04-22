@@ -58,7 +58,7 @@
 </template>
 
 <script setup lang="ts">
-import defaultAvatar from '@/assets/zhaoshuyang.png'
+import defaultAvatar from '@/assets/BLOCKCHAINNexus.png'
 </script>
 
 <style scoped>

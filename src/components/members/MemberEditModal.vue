@@ -325,7 +325,7 @@ import { ref, watch, computed } from 'vue'
 import { BaseModal, BaseButton } from '@/components/common'
 import type { Member } from '@/types/entities'
 import { uploadFile } from '@/api/file'
-import defaultAvatar from '@/assets/zhaoshuyang.png'
+import defaultAvatar from '@/assets/BLOCKCHAINNexus.png'
 
 interface Props {
   show: boolean
@@ -379,8 +379,12 @@ const normalizeMember = (member?: Member | null): Partial<Member> => ({
 const normalizeAvatarUrl = (value?: string) => {
   const trimmed = (value || '').trim()
   if (!trimmed) return ''
-  const cleaned = trimmed.replace(/\\/g, '/').replace(/^\/+/, '')
-  if (/^https?:\/\//i.test(cleaned)) return cleaned
+  const normalized = trimmed.replace(/\\/g, '/')
+  if (/^(data:|blob:)/i.test(normalized)) return normalized
+  if (/^https?:\/\//i.test(normalized)) return normalized
+  if (normalized.startsWith('/')) return normalized
+  if (/^(src|assets)\//i.test(normalized)) return `/${normalized}`
+  const cleaned = normalized.replace(/^\/+/, '')
   const base = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8082').replace(/\/+$/, '')
   return base ? `${base}/${cleaned}` : `/${cleaned}`
 }

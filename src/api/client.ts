@@ -14,6 +14,7 @@ axios.defaults.withCredentials = true;
 
 class ApiService {
   private instance: AxiosInstance
+  private isMockModeLocked = false
 
   constructor() {
     this.instance = axios.create({
@@ -32,6 +33,26 @@ class ApiService {
     if (!payload || typeof payload !== 'object') return false
     const record = payload as Record<string, unknown>
     return Array.isArray(record.content) && typeof record.totalElements === 'number' && typeof record.totalPages === 'number'
+  }
+
+  private isReadMethod(method?: string): boolean {
+    const normalizedMethod = String(method || 'get').toLowerCase()
+    return normalizedMethod === 'get' || normalizedMethod === 'head' || normalizedMethod === 'options'
+  }
+
+  private createMockAxiosResponse(config: AxiosRequestConfig, data: unknown, message: string): AxiosResponse<ApiResponse<unknown>> {
+    return {
+      data: {
+        code: 200,
+        data,
+        message,
+        timestamp: Date.now()
+      },
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: config as import('axios').InternalAxiosRequestConfig
+    }
   }
 
   private normalizeResponsePayload<T>(raw: unknown): ApiResponse<T> {
@@ -93,6 +114,28 @@ class ApiService {
     // 请求拦截器
     this.instance.interceptors.request.use(
       (config) => {
+        const requestUrl = config.url || ''
+
+        // 进入 Mock 锁定模式后，不再主动请求后端，直到用户手动刷新页面。
+        if (this.isMockModeLocked) {
+          const mockData = this.getMockData(requestUrl)
+          const canServeReadRequestFromMock = this.isReadMethod(config.method) && mockData !== null
+
+          if (canServeReadRequestFromMock) {
+            config.adapter = async () => this.createMockAxiosResponse(config, mockData, 'Loaded from local mock data (Locked)')
+            return config
+          }
+
+          config.adapter = async () => {
+            throw new axios.AxiosError(
+              'Backend requests are blocked while mock mode is locked. Please refresh manually to retry.',
+              'ERR_NETWORK',
+              config as import('axios').InternalAxiosRequestConfig
+            )
+          }
+          return config
+        }
+
         // 添加认证令牌（如果有）
         const token = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken')
         if (token) {
@@ -120,26 +163,21 @@ class ApiService {
       async (error) => {
         const appStore = useAppStore()
         const url = error.config?.url || ''
+        const method = error.config?.method
         const hasResponse = Boolean(error.response)
         const isNetworkError = !hasResponse
-        
+
         // 仅在纯网络错误（无响应）时降级到本地 Mock，避免掩盖真实后端错误
-        if (isNetworkError) {
+        if (isNetworkError && this.isReadMethod(method)) {
           const mockData = this.getMockData(url)
-          if (mockData) {
+          if (mockData !== null) {
+            this.isMockModeLocked = true
             console.warn(`API 请求失败: ${url}，已降级使用本地 Mock 数据`)
-            return {
-              data: {
-                code: 200,
-                data: mockData,
-                message: 'Loaded from local mock data (Fallback)',
-                timestamp: Date.now()
-              },
-              status: 200,
-              statusText: 'OK',
-              headers: {},
-              config: error.config
-            }
+            return this.createMockAxiosResponse(
+              error.config,
+              mockData,
+              'Loaded from local mock data (Fallback)'
+            )
           }
         }
 

@@ -15,7 +15,7 @@ class AdminHotkeyService {
   private readonly RESET_DELAY = 3000 // 3秒后重置序列
 
   /**
-   * 开始监听管理员快捷键
+   * 开始监听管理员入口
    */
   startListening(callback: AdminHotkeyCallback) {
     if (this.isListening) {
@@ -28,8 +28,6 @@ class AdminHotkeyService {
     
     // 使用 window 监听键盘事件而不是 document，避免被某些元素拦截
     window.addEventListener('keydown', this.handleKeyDown, true)
-    console.log('管理员快捷键监听已启动: Ctrl+5次B键')
-    console.log('当前监听状态:', this.isListening)
   }
 
   /**
@@ -49,7 +47,6 @@ class AdminHotkeyService {
     
     // 使用 window 移除键盘事件监听
     window.removeEventListener('keydown', this.handleKeyDown, true)
-    console.log('管理员快捷键监听已停止')
   }
 
   /**
@@ -80,7 +77,6 @@ class AdminHotkeyService {
       this.keySequence.shift()
     }
 
-    console.log('当前按键序列:', this.keySequence.map(k => `${k.ctrlKey?'Ctrl+':''}${k.key}`).join(' -> '))
     
     // 检查是否满足触发条件
     if (this.checkTriggerSequence()) {
@@ -94,7 +90,6 @@ class AdminHotkeyService {
     // 如果不是触发条件，设置重置定时器
     if (this.keySequence.length >= 3 && !this.isTriggerPattern()) {
       this.resetTimer = window.setTimeout(() => {
-        console.log('重置按键序列')
         this.resetSequence()
       }, this.RESET_DELAY)
     }
@@ -148,9 +143,6 @@ class AdminHotkeyService {
    * 触发管理员模式
    */
   private triggerAdminMode() {
-    console.log('🎉 管理员快捷键触发成功!')
-    console.log('触发时间:', new Date().toLocaleTimeString())
-    
     // 触发全局管理员登录事件
     const adminHotkeyEvent = new CustomEvent('admin-hotkey-trigger', {
       detail: { 

@@ -100,8 +100,10 @@ const mapDtoToProject = (dto: ProjectDto): Project => {
     achievements: dto.achievements,
     imageUrl: dto.imageUrl,
     repositoryUrl: dto.repositoryUrl,
+    githubUrl: dto.repositoryUrl,
     demoUrl: dto.demoUrl,
     documentationUrl: dto.documentationUrl,
+    documentation: dto.documentationUrl,
     displayOrder: dto.displayOrder
   }
 }

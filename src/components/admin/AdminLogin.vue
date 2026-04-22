@@ -100,7 +100,7 @@ const emit = defineEmits<Emits>()
 
 // 设置页面元数据
 useHead({
-  title: '管理员登录 - 区块链组官方网站',
+  title: '区块链组官方网站',
   meta: [
     { name: 'description', content: '区块链组官方网站管理员登录页面' }
   ]

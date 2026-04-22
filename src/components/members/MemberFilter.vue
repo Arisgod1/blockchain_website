@@ -52,9 +52,6 @@
         class="sort-select"
         @change="handleSortChange"
       >
-        <option value="id">
-          按 ID
-        </option>
         <option value="role">
           按角色
         </option>

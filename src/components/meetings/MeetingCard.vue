@@ -63,7 +63,7 @@
           <img
             v-for="attendee in normalizedAttendees.slice(0, 5)"
             :key="attendee.id"
-            :src="attendee.avatar || '/images/default-avatar.svg'"
+            :src="attendee.avatar || defaultAvatar"
             :alt="attendee.name"
             class="attendee-avatar"
             :title="attendee.role ? `${attendee.name} · ${attendee.role}` : attendee.name"
@@ -192,6 +192,7 @@
 import { computed, ref } from 'vue'
 import type { Meeting, MeetingAttendee } from '@/types/entities'
 import { mergeAttendeesWithMembers } from '@/utils/attendeeMapper'
+import defaultAvatar from '@/assets/BLOCKCHAINNexus.png'
 
 interface Props {
   meeting: Meeting

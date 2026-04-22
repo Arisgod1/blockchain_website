@@ -42,9 +42,10 @@
         <div class="article-meta">
           <div class="author-info">
             <img
-              :src="article.author?.avatar || '/images/default-avatar.png'"
+              :src="article.author?.avatar || defaultAvatar"
               :alt="article.author?.name || '匿名作者'"
               class="author-avatar"
+              @error="handleAuthorAvatarError"
             >
             <div class="author-details">
               <span class="author-name">{{ article.author?.name || '匿名作者' }}</span>
@@ -260,6 +261,8 @@
 import { ref, computed } from 'vue'
 import type { Component } from 'vue'
 import type { EnrichedArticle } from '@/types/entities'
+import defaultAvatar from '@/assets/BLOCKCHAINNexus.png'
+import defaultArticleImage from '@/assets/richang1.png'
 import {
   XIcon,
   StarIcon,
@@ -317,7 +320,14 @@ const handleOverlayClick = () => {
 
 const handleImageError = (event: Event) => {
   const target = event.target as HTMLImageElement
-  target.src = '/images/default-article.svg'
+  target.onerror = null
+  target.src = defaultArticleImage
+}
+
+const handleAuthorAvatarError = (event: Event) => {
+  const target = event.target as HTMLImageElement
+  target.onerror = null
+  target.src = defaultAvatar
 }
 
 const handleBookmark = () => {

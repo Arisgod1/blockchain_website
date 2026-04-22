@@ -157,7 +157,7 @@
       >
         <div class="member-header">
           <img
-            :src="selectedMember.avatar || '/images/default-avatar.svg'"
+            :src="selectedMember.avatar || defaultAvatar"
             :alt="selectedMember.name"
             class="member-avatar-large"
           >
@@ -265,6 +265,7 @@ import BaseButton from '@/components/common/BaseButton.vue'
 import BasePagination from '@/components/common/BasePagination.vue'
 import BaseModal from '@/components/common/BaseModal.vue'
 import { throttle } from '@/utils/jieliu'
+import defaultAvatar from '@/assets/BLOCKCHAINNexus.png'
 interface MemberFiltersState {
   search: string
   role: string
@@ -388,8 +389,12 @@ type RawMember = Partial<Member> & Record<string, unknown>
 const normalizeMember = (raw: RawMember): Member => {
   const toAbsoluteAvatar = (value?: string) => {
     if (!value) return undefined
-    const normalized = value.replace(/\\/g, '/').replace(/^\//, '')
+    const normalized = value.replace(/\\/g, '/').trim()
+    if (!normalized) return undefined
+    if (/^(data:|blob:)/i.test(normalized)) return normalized
     if (/^https?:\/\//i.test(normalized)) return normalized
+    if (normalized.startsWith('/')) return normalized
+    if (/^(src|assets)\//i.test(normalized)) return `/${normalized}`
     const base = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '')
     return base ? `${base}/${normalized}` : normalized
   }

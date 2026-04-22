@@ -215,7 +215,7 @@
                     <img
                       v-for="attendee in resolveMeetingAttendees(meeting).slice(0, 3)"
                       :key="`${meeting.id}-${attendee.id}`"
-                      :src="attendee.avatar || '/images/default-avatar.svg'"
+                      :src="attendee.avatar || defaultAvatar"
                       :alt="attendee.name"
                       class="attendee-avatar"
                       :title="attendee.name"
@@ -319,6 +319,7 @@ import type { Meeting, MeetingAttendee } from '@/types/entities'
 import { onAdminRefresh } from '@/utils/adminEvents'
 import { recordAdminOperation } from '@/composables/useAdminLogs'
 import { mergeAttendeesWithMembers } from '@/utils/attendeeMapper'
+import defaultAvatar from '@/assets/BLOCKCHAINNexus.png'
 
 interface MeetingFilterState {
   searchQuery?: string

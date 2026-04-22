@@ -135,7 +135,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import defaultAvatar from '@/assets/zhaoshuyang.png'
+import defaultAvatar from '@/assets/BLOCKCHAINNexus.png'
 import type { Member } from '@/types/entities'
 import { GithubIcon, EmailIcon, LinkedInIcon, CalendarIcon } from '@/components/icons'
 

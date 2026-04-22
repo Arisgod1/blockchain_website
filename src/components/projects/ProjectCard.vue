@@ -104,8 +104,8 @@
         
         <div class="project-links">
           <a 
-            v-if="project.githubUrl" 
-            :href="project.githubUrl" 
+            v-if="project.githubUrl || project.repositoryUrl" 
+            :href="project.githubUrl || project.repositoryUrl" 
             target="_blank" 
             class="link-btn"
             :title="'GitHub 仓库'"
@@ -124,7 +124,7 @@
             <ExternalLinkIcon />
           </a>
           <button 
-            v-if="project.documentation"
+            v-if="project.documentation || project.documentationUrl"
             class="link-btn"
             title="技术文档"
             @click.stop="showDocumentation"
@@ -151,6 +151,7 @@ import {
   UsersIcon
 } from '@/components/icons'
 import  withDefaults  from '@/assets/logo-circle.png'
+import defaultProjectImage from '@/assets/BLOCKCHAINNexus.png'
 interface Props {
   project: Project
 }
@@ -196,7 +197,8 @@ const formatDate = (dateInput?: string | Date) => {
 // 处理图片加载失败
 const handleImageError = (event: Event) => {
   const img = event.target as HTMLImageElement
-  img.src = '/images/default-project.png'
+  img.onerror = null
+  img.src = defaultProjectImage
 }
 
 // 切换点赞状态

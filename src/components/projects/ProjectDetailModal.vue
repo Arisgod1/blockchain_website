@@ -259,8 +259,8 @@
           
           <div class="link-buttons">
             <a 
-              v-if="project.githubUrl"
-              :href="project.githubUrl"
+              v-if="project.githubUrl || project.repositoryUrl"
+              :href="project.githubUrl || project.repositoryUrl"
               target="_blank"
               class="action-btn link-btn"
             >
@@ -277,7 +277,7 @@
               在线演示
             </a>
             <button 
-              v-if="project.documentation"
+              v-if="project.documentation || project.documentationUrl"
               class="action-btn link-btn"
               @click="showDocumentation"
             >
@@ -309,6 +309,7 @@ import {
   ExternalLinkIcon,
   FileTextIcon
 } from '@/components/icons'
+import defaultProjectImage from '@/assets/BLOCKCHAINNexus.png'
 
 type ProjectContributorEntry = NonNullable<Project['contributors']>[number]
 
@@ -330,7 +331,7 @@ const statusClass = computed(() => String(props.project.status ?? 'planning').to
 // 计算属性
 const currentImage = computed(() => {
   const images = props.project.images || []
-  return images[currentImageIndex.value] || '/images/default-project.png'
+  return images[currentImageIndex.value] || defaultProjectImage
 })
 
 // 监听项目变化，重置图片索引
@@ -405,7 +406,8 @@ const previousImage = () => {
 
 const handleImageError = (event: Event) => {
   const img = event.target as HTMLImageElement
-  img.src = '/images/default-project.png'
+  img.onerror = null
+  img.src = defaultProjectImage
 }
 
 const toggleLike = () => {

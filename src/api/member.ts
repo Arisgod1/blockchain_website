@@ -67,8 +67,12 @@ const normalizeRoleFromDto = (role?: string): string => {
 
 const toAbsoluteAvatar = (value?: string): string => {
   if (!value) return ''
-  const normalized = value.replace(/\\/g, '/').replace(/^\//, '')
+  const normalized = value.replace(/\\/g, '/').trim()
+  if (!normalized) return ''
+  if (/^(data:|blob:)/i.test(normalized)) return normalized
   if (/^https?:\/\//i.test(normalized)) return normalized
+  if (normalized.startsWith('/')) return normalized
+  if (/^(src|assets)\//i.test(normalized)) return `/${normalized}`
   const base = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8082').replace(/\/+$/, '')
   return base ? `${base}/${normalized}` : normalized
 }

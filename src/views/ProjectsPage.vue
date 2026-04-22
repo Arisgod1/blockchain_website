@@ -388,8 +388,9 @@ const closeProjectDetail = () => {
 
 const showProjectDocumentation = (project: Project) => {
   // 打开项目文档
-  if (project.documentation) {
-    window.open(project.documentation, '_blank')
+  const docsUrl = project.documentation || project.documentationUrl
+  if (docsUrl) {
+    window.open(docsUrl, '_blank')
   }
 }
 
