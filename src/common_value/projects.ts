@@ -223,19 +223,6 @@ export const MOCK_PROJECTS: Project[] = [
     progress: 100
   },
   {
-    id: 18,
-    name: 'nano-claude-code',
-    description: '七天从零实现一个Claude Code，探索AI代码助手的核心原理',
-    category: Category.Development,
-    status: Status.Completed,
-    techStack: ['Go', 'AST', 'LLM'],
-    imageUrl: 'https://picsum.photos/id/28/800/600',
-    startDate: new Date('2024-01-01'),
-    endDate: new Date('2025-01-15'),
-    featured: false,
-    progress: 100
-  },
-  {
     id: 19,
     name: 'AI-Picture-in-Picture',
     description: 'AI互动应用，实现图像前景背景分离与融合，支持创意图片合成',

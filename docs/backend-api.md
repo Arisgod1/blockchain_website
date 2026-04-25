@@ -73,10 +73,9 @@
 | GET | `/api/public/stats` | 首页 & Contact 页统计 | - | `SiteStats`（含 `totalMembers/totalProjects/totalArticles/totalMeetings/successfulCollaborations/averageResponseHours/globalPartners`） |
 | GET | `/api/public/hero-banners` | 首页大图 & CTA 配置 | - | `HeroBanner[]` |
 | POST | `/api/public/contact` | 联系我们表单 | `{ name, email, message }` | `{ ticketId: string }` |
-| POST | `/api/public/resume/apply` | 简历投递（multipart） | FormData: `name/studentId/contact/techStack/projectExperience/campusExperience/extraNote/photo/resumePdf` | `{ applicationId: string, status: 'received' | 'processing' }` |
 | GET | `/api/public/events` | 公开活动列表 | `page`, `size`, `category` | `PageEvent` |
 
-> 目前 `ContactPage.vue` 已接入 `getSiteStats` 与 `submitContactMessage`；`ResumeApplyPage.vue` 已接入 `submitResumeApplication`。即使后端未启动也会通过 Mock 数据/回执编号保证体验一致。Hero Banner 接口可供首页、About 等模块共用。
+> 目前 `ContactPage.vue` 已接入 `getSiteStats` 与 `submitContactMessage`。即使后端未启动也会通过 Mock 数据/回执编号保证体验一致。Hero Banner 接口可供首页、About 等模块共用。
 
 ## 9. 通用错误码 & Mock 降级
 - 服务端应返回 `success=false` 并附带 `message`。前端在 `ApiService` 中捕获后会：

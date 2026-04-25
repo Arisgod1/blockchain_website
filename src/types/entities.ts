@@ -306,22 +306,6 @@ export interface ContactResponse {
   estimatedReplyHours?: number
 }
 
-export interface ResumeApplicationPayload {
-  name: string
-  studentId: string
-  contact: string
-  email: string
-  techStack: string
-  projectExperience: string
-  campusExperience: string
-  extraNote?: string
-}
-
-export interface ResumeApplicationResponse {
-  applicationId: string
-  status: 'received' | 'processing'
-}
-
 export interface PublicEvent {
   id: string
   title: string

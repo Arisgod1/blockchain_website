@@ -4,8 +4,7 @@ import type {
 	HeroBanner,
 	ContactRequest,
 	ContactResponse,
-	PublicEvent,
-	ResumeApplicationResponse
+	PublicEvent
 } from '@/types/entities'
 import { MOCK_SITE_STATS, MOCK_HERO_BANNERS, MOCK_CONTACT_RESPONSE, MOCK_PUBLIC_EVENTS } from '@/common_value/public'
 import { assertApiResponseSuccess } from '@/api/utils'
@@ -67,26 +66,9 @@ export const getPublicEvents = async (params?: Record<string, unknown>): Promise
 	}
 }
 
-export const submitResumeApplication = async (formData: FormData): Promise<ResumeApplicationResponse> => {
-	try {
-		const res = await apiService.upload<ResumeApplicationResponse>('/api/public/resume/apply', formData)
-		assertApiResponseSuccess(res, '简历投递失败')
-		return withFallback(res.data, {
-			applicationId: `RESUME-${Date.now()}`,
-			status: 'received'
-		})
-	} catch (error) {
-		console.warn('简历投递失败，降级为 Mock 响应', error)
-		return {
-			applicationId: `RESUME-${Date.now()}`,
-			status: 'received'
-		}
-	}
-}
-
 export default {
 	getSiteStats,
 	getHeroBanners,
 	submitContactMessage,
-	submitResumeApplication
+	getPublicEvents
 }

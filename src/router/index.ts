@@ -75,15 +75,6 @@ const routes: RouteRecordRaw[] = [
       description: '联系方式和地址信息'
     }
   },
-  {
-    path: '/resume-apply',
-    name: 'ResumeApply',
-    component: () => import('@/views/ResumeApplyPage.vue'),
-    meta: {
-      title: '简历投递',
-      description: '在线投递简历与个人信息'
-    }
-  },
   // 管理员后台页面
   {
     path: '/admin',

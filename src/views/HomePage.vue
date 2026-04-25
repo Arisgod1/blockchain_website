@@ -125,24 +125,13 @@ const navigationItems: OrbitNavItem[] = [
     themeColor: '#c084fc',
     orbit: 1,
     angle: 280
-  },
-  {
-    id: 'resumeApply',
-    title: '简历投递',
-    subtitle: 'APPLY',
-    description: '在线提交简历与资料',
-    icon: '📄',
-    route: '/resume-apply',
-    themeColor: '#38bdf8',
-    orbit: 0,
-    angle: 325
   }
 ]
 
 const stats = [
-  { label: '科研合作', value: '38+' },
-  { label: '在研项目', value: '15' },
-  { label: '核心成员', value: '28' }
+  { label: '科研合作', value: '5+' },
+  { label: '在研项目', value: '19' },
+  { label: '核心成员', value: '15' }
 ]
 
 const goProjects = () => router.push('/projects')

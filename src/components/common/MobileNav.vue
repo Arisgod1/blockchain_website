@@ -130,8 +130,7 @@ const navItems: NavItem[] = [
   { title: '知识星图', description: 'BLOG · 研究分享', route: '/blog', icon: '📚', color: '#34d399' },
   { title: '例会纪要', description: 'MEETINGS · 团队例会', route: '/meetings', icon: '📝', color: '#f97316' },
   { title: '会议活动', description: 'EVENTS · 学术峰会', route: '/events', icon: '🗓️', color: '#fbbf24' },
-  { title: '联系我们', description: 'CONTACT · 合作咨询', route: '/contact', icon: '📧', color: '#c084fc' },
-  { title: '简历投递', description: 'APPLY · 加入我们', route: '/resume-apply', icon: '📄', color: '#22d3ee' }
+  { title: '联系我们', description: 'CONTACT · 合作咨询', route: '/contact', icon: '📧', color: '#c084fc' }
 ]
 
 const isHome = computed(() => route.path === '/')
