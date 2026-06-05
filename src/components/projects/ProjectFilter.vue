@@ -21,12 +21,7 @@
       </div>
     </div>
 
-    <!-- 筛选器网格 -->
     <div class="filter-grid">
-      <!-- 分类筛选 -->
-      
-
-      <!-- 状态筛选 -->
       <div class="filter-group">
         <label class="filter-label">项目状态</label>
         <div class="status-options">
@@ -46,9 +41,6 @@
         </div>
       </div>
 
-      
-
-      <!-- 排序选项 -->
       <div class="filter-group">
         <label class="filter-label">排序方式</label>
         <div class="sort-options">
@@ -77,56 +69,33 @@
       </div>
     </div>
 
-    <!-- 筛选结果统计 -->
-   
-
-    <!-- 快速操作 -->
     <div class="filter-actions">
       <button
         class="reset-btn"
+        type="button"
         @click="resetFilters"
       >
         <RotateCcwIcon />
-        重置筛选
-      </button>
-      <button
-        class="save-btn"
-        @click="saveFilters"
-      >
-        <BookmarkIcon />
-        保存筛选
-      </button>
-      <button
-        class="export-btn"
-        @click="exportResults"
-      >
-        <DownloadIcon />
-        导出结果
+        清空条件
       </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import {
   SearchIcon,
   XIcon,
-  RotateCcwIcon,
-  BookmarkIcon,
-  DownloadIcon
+  RotateCcwIcon
 } from '@/components/icons'
 
 // 筛选选项接口
 interface FilterOptions {
   searchQuery: string
-  category: string
   statuses: string[]
-  techStack: string[]
   sortBy: string
   sortOrder: 'asc' | 'desc'
-  teamSizes: string[]
-  showActiveOnly: boolean
 }
 
 // 项目状态选项
@@ -139,14 +108,9 @@ const projectStatuses = [
 
 // 响应式数据
 const searchQuery = ref('')
-const selectedCategory = ref('all')
 const selectedStatuses = ref<string[]>([])
-const selectedTechStack = ref<string[]>([])
 const sortBy = ref('updateTime')
 const sortOrder = ref<'asc' | 'desc'>('desc')
-const selectedTeamSizes = ref<string[]>([])
-const showActiveOnly = ref(false)
-const techToAdd = ref('')
 
 // 事件处理
 const handleSearch = () => {
@@ -168,50 +132,18 @@ const clearSearch = () => {
 
 const resetFilters = () => {
   searchQuery.value = ''
-  selectedCategory.value = 'all'
   selectedStatuses.value = []
-  selectedTechStack.value = []
   sortBy.value = 'updateTime'
   sortOrder.value = 'desc'
-  selectedTeamSizes.value = []
-  showActiveOnly.value = false
-  techToAdd.value = ''
   emitFilterChange()
-}
-
-const saveFilters = () => {
-  const filterOptions = getCurrentFilters()
-  localStorage.setItem('projectFilters', JSON.stringify(filterOptions))
-  alert('筛选条件已保存')
-}
-
-const exportResults = () => {
-  const filters = getCurrentFilters()
-  const params = new URLSearchParams()
-  
-  if (filters.searchQuery) params.append('search', filters.searchQuery)
-  if (filters.category && filters.category !== 'all') params.append('category', filters.category)
-  if (filters.statuses.length) params.append('statuses', filters.statuses.join(','))
-  if (filters.techStack.length) params.append('techStack', filters.techStack.join(','))
-  if (filters.teamSizes.length) params.append('teamSizes', filters.teamSizes.join(','))
-  if (filters.sortBy !== 'updateTime') params.append('sortBy', filters.sortBy)
-  if (filters.sortOrder !== 'desc') params.append('sortOrder', filters.sortOrder)
-  if (filters.showActiveOnly) params.append('activeOnly', 'true')
-  
-  const url = `/projects?${params.toString()}`
-  window.open(url, '_blank')
 }
 
 // 获取当前筛选条件
 const getCurrentFilters = (): FilterOptions => ({
   searchQuery: searchQuery.value,
-  category: selectedCategory.value,
   statuses: [...selectedStatuses.value],
-  techStack: [...selectedTechStack.value],
   sortBy: sortBy.value,
-  sortOrder: sortOrder.value,
-  teamSizes: [...selectedTeamSizes.value],
-  showActiveOnly: showActiveOnly.value
+  sortOrder: sortOrder.value
 })
 
 // 发送筛选变化事件
@@ -220,12 +152,6 @@ const emitFilterChange = () => {
   emit('filter-change', filters)
 }
 
-// 监听筛选条件变化，更新计数
-watch([searchQuery, selectedCategory, selectedStatuses, selectedTechStack, selectedTeamSizes, showActiveOnly], () => {
-  // 这里应该根据筛选条件更新 filteredCount
-  // 实际项目中应该调用 API 获取真实的筛选结果数量
-}, { deep: true })
-
 // 定义事件
 interface Emits {
   'filter-change': [filters: FilterOptions]
@@ -233,12 +159,12 @@ interface Emits {
 
 const emit = defineEmits<Emits>()
 
-// 图标组件
 </script>
 
 <style scoped>
 .project-filter {
-  @apply bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-6;
+  @apply bg-white rounded-xl border border-slate-200 p-5 space-y-5;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
 }
 
 .search-section {
@@ -250,11 +176,11 @@ const emit = defineEmits<Emits>()
 }
 
 .search-input {
-  @apply w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all;
+  @apply w-full pl-10 pr-10 py-3 border border-slate-300 rounded-lg bg-slate-50 text-slate-950 placeholder:text-slate-500 focus:ring-2 focus:ring-cyan-600 focus:border-transparent transition-all;
 }
 
 .search-icon {
-  @apply absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400;
+  @apply absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500;
 }
 
 .clear-btn {
@@ -262,7 +188,7 @@ const emit = defineEmits<Emits>()
 }
 
 .filter-grid {
-  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+  @apply grid grid-cols-1 gap-5;
 }
 
 .filter-group {
@@ -270,61 +196,27 @@ const emit = defineEmits<Emits>()
 }
 
 .filter-label {
-  @apply block text-sm font-medium text-gray-700;
+  @apply block text-sm font-semibold text-slate-900;
 }
 
-.category-tags {
+.status-options {
   @apply flex flex-wrap gap-2;
 }
 
-.category-tag {
-  @apply px-3 py-2 text-sm border border-gray-300 rounded-lg cursor-pointer transition-all hover:border-blue-500 hover:text-blue-600;
+.status-option {
+  @apply relative inline-flex cursor-pointer;
 }
 
-.category-tag.active {
-  @apply bg-blue-500 text-white border-blue-500;
+.status-option input {
+  @apply sr-only;
 }
 
-.status-options,
-.team-size-options,
-.activity-filter {
-  @apply space-y-2;
+.status-text {
+  @apply inline-flex items-center rounded-full border border-slate-300 px-3 py-1.5 text-sm text-slate-700 transition-colors;
 }
 
-.status-option,
-.team-size-option,
-.activity-option {
-  @apply flex items-center space-x-2 cursor-pointer;
-}
-
-.status-text,
-.size-text,
-.activity-text {
-  @apply text-sm text-gray-700;
-}
-
-.tech-stack-filters {
-  @apply space-y-3;
-}
-
-.selected-techs {
-  @apply flex flex-wrap gap-2;
-}
-
-.selected-tech-tag {
-  @apply inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full;
-}
-
-.remove-tech-btn {
-  @apply w-4 h-4 flex items-center justify-center rounded-full hover:bg-blue-200;
-}
-
-.clear-tech-btn {
-  @apply px-2 py-1 text-xs text-blue-600 hover:text-blue-800 underline;
-}
-
-.tech-select {
-  @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+.status-option input:checked + .status-text {
+  @apply border-slate-950 bg-slate-950 text-white;
 }
 
 .sort-options {
@@ -332,7 +224,7 @@ const emit = defineEmits<Emits>()
 }
 
 .sort-select {
-  @apply flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  @apply flex-1 px-3 py-2 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-cyan-600 focus:border-transparent;
 }
 
 .sort-order-btn {
@@ -343,42 +235,16 @@ const emit = defineEmits<Emits>()
   @apply bg-blue-50 border-blue-500 text-blue-600;
 }
 
-.filter-stats {
-  @apply flex items-center justify-between py-3 border-t border-gray-200;
-}
-
-.stats-item {
-  @apply flex items-center space-x-1;
-}
-
-.stats-label {
-  @apply text-sm text-gray-600;
-}
-
-.stats-value {
-  @apply text-lg font-semibold text-blue-600;
-}
-
 .filter-actions {
-  @apply flex flex-wrap gap-3 pt-3 border-t border-gray-200;
+  @apply flex flex-wrap gap-2 pt-4 border-t border-slate-200;
 }
 
-.reset-btn,
-.save-btn,
-.export-btn {
+.reset-btn {
   @apply flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors;
 }
 
 .reset-btn {
-  @apply border-gray-300 text-gray-700 hover:bg-gray-50;
-}
-
-.save-btn {
-  @apply border-blue-300 text-blue-700 hover:bg-blue-50;
-}
-
-.export-btn {
-  @apply border-green-300 text-green-700 hover:bg-green-50;
+  @apply border-slate-300 text-slate-700 hover:bg-slate-50;
 }
 
 /* 移动端适配 */
@@ -391,25 +257,11 @@ const emit = defineEmits<Emits>()
     @apply grid-cols-1 gap-4;
   }
   
-  .category-tags {
-    @apply gap-1;
-  }
-  
-  .category-tag {
-    @apply px-2 py-1 text-xs;
-  }
-  
-  .filter-stats {
-    @apply flex-col items-start gap-2;
-  }
-  
   .filter-actions {
     @apply gap-2;
   }
   
-  .reset-btn,
-  .save-btn,
-  .export-btn {
+  .reset-btn {
     @apply px-3 py-2 text-sm;
   }
 }

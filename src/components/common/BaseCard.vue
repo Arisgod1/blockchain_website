@@ -217,8 +217,7 @@ const overlayClasses = [
 </script>
 
 <style scoped>
-/* 确保卡片在所有内容之上 */
-:deep(*) {
-  position: relative;
+.rounded-inherit {
+  border-radius: inherit;
 }
 </style>

@@ -410,7 +410,8 @@ watch(() => props.initialFilters, initializeFilters, { immediate: true })
   
 /* 基础样式 */
 .meeting-filter {
-  @apply bg-white rounded-xl shadow-md border border-gray-100 p-6;
+  @apply bg-white rounded-xl border border-slate-200 p-5;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
 }
 
 /* 搜索区域 */
@@ -423,12 +424,12 @@ watch(() => props.initialFilters, initializeFilters, { immediate: true })
 }
 
 .search-icon {
-  @apply absolute left-3 w-5 h-5 text-gray-400;
+  @apply absolute left-3 w-5 h-5 text-slate-500;
 }
 
 .search-input {
-  @apply w-full pl-10 pr-10 py-3 border border-gray-200 rounded-lg
-         focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+  @apply w-full pl-10 pr-10 py-3 border border-slate-300 rounded-lg bg-slate-50 text-slate-950 placeholder:text-slate-500
+         focus:outline-none focus:ring-2 focus:ring-cyan-600 focus:border-transparent
          transition-colors duration-200;
 }
 
@@ -447,7 +448,7 @@ watch(() => props.initialFilters, initializeFilters, { immediate: true })
 }
 
 .filter-title {
-  @apply text-lg font-semibold text-gray-900 mb-3;
+  @apply text-base font-semibold text-slate-950 mb-3;
 }
 
 .filter-group {
@@ -455,7 +456,7 @@ watch(() => props.initialFilters, initializeFilters, { immediate: true })
 }
 
 .filter-label {
-  @apply block text-sm font-medium text-gray-700 mb-2;
+  @apply block text-sm font-semibold text-slate-900 mb-2;
 }
 
 .filter-options {
@@ -472,7 +473,7 @@ watch(() => props.initialFilters, initializeFilters, { immediate: true })
 }
 
 .filter-text {
-  @apply text-sm text-gray-700 flex-1;
+  @apply text-sm text-slate-700 flex-1;
 }
 
 .filter-count {
@@ -481,12 +482,12 @@ watch(() => props.initialFilters, initializeFilters, { immediate: true })
 
 /* 日期范围 */
 .date-range {
-  @apply  items-center space-x-2;
+  @apply flex flex-col gap-2;
 }
 
 .date-input {
-  @apply flex-1 px-3 py-2 border border-gray-200 rounded-lg
-         focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  @apply w-full px-3 py-2 border border-slate-300 rounded-lg bg-white
+         focus:outline-none focus:ring-2 focus:ring-cyan-600 focus:border-transparent;
 }
 
 .date-input::-webkit-datetime-edit {
@@ -499,7 +500,7 @@ watch(() => props.initialFilters, initializeFilters, { immediate: true })
 }
 
 .date-separator {
-  @apply text-sm text-gray-500;
+  @apply text-sm text-slate-500;
 }
 
 /* 标签云 */
@@ -524,13 +525,13 @@ watch(() => props.initialFilters, initializeFilters, { immediate: true })
 
 .sort-option {
   @apply flex items-center justify-between px-3 py-2 text-sm
-         border border-gray-200 rounded-lg cursor-pointer
-         hover:border-blue-300 hover:text-blue-600
+         border border-slate-300 rounded-lg cursor-pointer text-slate-700
+         hover:border-cyan-400 hover:text-cyan-800
          transition-colors duration-200;
 }
 
 .sort-option.is-active {
-  @apply bg-blue-50 border-blue-300 text-blue-700;
+  @apply bg-slate-950 border-slate-950 text-white;
 }
 
 .sort-text {
@@ -546,8 +547,8 @@ watch(() => props.initialFilters, initializeFilters, { immediate: true })
 }
 
 .sort-direction-toggle {
-  @apply w-full px-3 py-2 text-sm text-gray-600 border border-gray-200
-         rounded-lg hover:border-blue-300 hover:text-blue-600
+  @apply w-full px-3 py-2 text-sm text-slate-700 border border-slate-300
+         rounded-lg hover:border-cyan-400 hover:text-cyan-800
          transition-colors duration-200;
 }
 
@@ -557,12 +558,12 @@ watch(() => props.initialFilters, initializeFilters, { immediate: true })
 }
 
 .active-filter-tag {
-  @apply flex items-center space-x-1 px-3 py-1 bg-blue-50 border border-blue-200
+  @apply flex items-center space-x-1 px-3 py-1 bg-cyan-50 border border-cyan-200
          rounded-full text-sm;
 }
 
 .filter-remove {
-  @apply w-4 h-4 text-blue-400 hover:text-blue-600
+  @apply w-4 h-4 text-cyan-700 hover:text-cyan-900
          transition-colors duration-200;
 }
 
@@ -582,11 +583,11 @@ watch(() => props.initialFilters, initializeFilters, { immediate: true })
 }
 
 .stats-text {
-  @apply text-sm text-gray-600;
+  @apply text-sm text-slate-600;
 }
 
 .stats-text strong {
-  @apply text-gray-900 font-semibold;
+  @apply text-cyan-700 font-semibold;
 }
 
 /* 响应式设计 */

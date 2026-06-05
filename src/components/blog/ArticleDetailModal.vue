@@ -110,50 +110,13 @@
 
       <!-- 文章内容 -->
       <div class="article-content">
-        <div class="content-section">
-          <h2 class="content-title">
-            技术背景
-          </h2>
-          <div class="content-text">
-            <p>区块链技术作为近年来最具革命性的技术创新之一，在金融、供应链、医疗健康等多个领域展现出巨大的应用潜力。本文深入探讨了{{ article.category }}在区块链生态中的重要地位。</p>
-            <p>随着Web3.0概念的普及和去中心化应用的快速发展，{{ article.category }}技术正成为连接传统业务与区块链世界的重要桥梁。</p>
-          </div>
-        </div>
-
-        <div class="content-section">
-          <h2 class="content-title">
-            核心原理
-          </h2>
-          <div class="content-text">
-            <p>深入分析{{ article.category }}的技术架构，包括关键算法、数据结构以及与区块链网络的交互机制。</p>
-            <ul class="content-list">
-              <li>技术原理详解</li>
-              <li>实现方式分析</li>
-              <li>性能优化策略</li>
-              <li>安全性考虑</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="content-section">
-          <h2 class="content-title">
-            实践案例
-          </h2>
-          <div class="content-text">
-            <p>通过实际项目案例，展示{{ article.category }}技术在真实环境中的应用效果和最佳实践。</p>
-            <blockquote class="content-quote">
-              "技术创新只有在实际应用中才能发挥其真正的价值，理论研究与实践探索需要相互支撑。"
-            </blockquote>
-          </div>
-        </div>
-
-        <div class="content-section">
-          <h2 class="content-title">
-            未来展望
-          </h2>
-          <div class="content-text">
-            <p>展望{{ article.category }}技术的发展趋势，分析可能面临的挑战和机遇，为技术选型提供参考。</p>
-          </div>
+        <div class="content-text">
+          <p
+            v-for="(paragraph, index) in contentParagraphs"
+            :key="index"
+          >
+            {{ paragraph }}
+          </p>
         </div>
       </div>
 
@@ -213,6 +176,12 @@
               <ShareIcon class="action-icon" />
               分享
             </button>
+            <span
+              v-if="shareNotice"
+              class="share-notice"
+            >
+              {{ shareNotice }}
+            </span>
             <div
               v-if="showShareMenu"
               class="share-menu"
@@ -242,16 +211,6 @@
           </div>
         </div>
 
-        <div class="footer-nav">
-          <button class="nav-button prev">
-            <ChevronLeftIcon />
-            上一篇
-          </button>
-          <button class="nav-button next">
-            下一篇
-            <ChevronRightIcon />
-          </button>
-        </div>
       </div>
     </div>
   </div>
@@ -274,8 +233,6 @@ import {
   WeiboIcon,
   MessageCircleIcon,
   CopyIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
   CodeIcon,
   CoinsIcon,
   FileTextIcon,
@@ -309,9 +266,17 @@ const emit = defineEmits<Emits>()
 
 // 响应式数据
 const showShareMenu = ref(false)
+const shareNotice = ref('')
 
 // 计算属性
 const article = computed(() => props.article)
+const contentParagraphs = computed(() => {
+  const source = article.value.content || article.value.summary || article.value.excerpt || ''
+  return source
+    .split(/\n{2,}|\r?\n/)
+    .map(paragraph => paragraph.trim())
+    .filter(Boolean)
+})
 
 // 事件处理
 const handleOverlayClick = () => {
@@ -340,17 +305,17 @@ const toggleShare = () => {
 
 const handleShare = (platform: string) => {
   if (platform === 'copy') {
-    navigator.clipboard.writeText(window.location.href)
-    alert('链接已复制到剪贴板')
+    void navigator.clipboard?.writeText(window.location.href)
+    shareNotice.value = '链接已复制'
+    window.setTimeout(() => {
+      shareNotice.value = ''
+    }, 1800)
   }
   emit('share', props.article, platform)
   showShareMenu.value = false
 }
 
-const filterByTag = (tag: string) => {
-  console.log('按标签筛选:', tag)
-  // 这里可以实现标签筛选功能
-}
+const filterByTag = (_tag: string) => {}
 
 const formatDate = (date?: string | Date) => {
   if (!date) return '未知'
@@ -565,27 +530,11 @@ document.addEventListener('click', (e) => {
 }
 
 .article-content {
-  @apply p-6 space-y-8;
-}
-
-.content-section {
-  @apply space-y-4;
-}
-
-.content-title {
-  @apply text-xl font-semibold text-gray-900;
+  @apply p-6;
 }
 
 .content-text {
   @apply text-gray-700 leading-relaxed space-y-4;
-}
-
-.content-list {
-  @apply list-disc list-inside space-y-2 ml-4;
-}
-
-.content-quote {
-  @apply border-l-4 border-blue-500 pl-4 py-2 bg-blue-50 italic text-blue-900 rounded-r;
 }
 
 .interaction-stats {
@@ -632,6 +581,10 @@ document.addEventListener('click', (e) => {
   @apply relative;
 }
 
+.share-notice {
+  @apply inline-flex items-center px-3 py-2 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg;
+}
+
 .share-menu {
   @apply absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-10 min-w-32;
 }
@@ -642,14 +595,6 @@ document.addEventListener('click', (e) => {
 
 .share-icon {
   @apply w-4 h-4;
-}
-
-.footer-nav {
-  @apply flex justify-between items-center pt-4 border-t border-gray-200;
-}
-
-.nav-button {
-  @apply flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors;
 }
 
 /* 移动端适配 */
@@ -690,12 +635,5 @@ document.addEventListener('click', (e) => {
     @apply px-3 py-2 text-sm;
   }
   
-  .footer-nav {
-    @apply flex-col gap-3;
-  }
-  
-  .nav-button {
-    @apply w-full justify-center;
-  }
 }
 </style>

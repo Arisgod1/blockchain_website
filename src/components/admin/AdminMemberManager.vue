@@ -583,24 +583,20 @@ watch(filteredMembers, (list) => {
 })
 
 const handleCreate = () => {
-  console.debug('[AdminMemberManager] handleCreate called - navigate to editor')
   router.push({ name: 'AdminMemberCreate' })
 }
 
 const handleView = (member: Member) => {
-  console.debug('[AdminMemberManager] handleView', member && member.id)
   detailModal.show = true
   detailModal.member = member
 }
 
 const handleEdit = (member: Member) => {
-  console.debug('[AdminMemberManager] handleEdit - navigate to editor', member && member.id)
   if (!member || !member.id) return
   router.push({ name: 'AdminMemberEdit', params: { id: member.id } })
 }
 
 const handleToggleStatus = async (member: Member) => {
-  console.debug('[AdminMemberManager] handleToggleStatus', member && member.id)
   const nextStatus = !member.isActive
   try {
     await updateMember(member.id, { isActive: nextStatus })
@@ -614,7 +610,6 @@ const handleToggleStatus = async (member: Member) => {
 }
 
 const handleDelete = async (member: Member) => {
-  console.debug('[AdminMemberManager] handleDelete', member && member.id)
   if (!confirm(`确定要删除成员 "${member.name}" 吗？`)) return
   try {
     await deleteMember(member.id)

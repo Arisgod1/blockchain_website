@@ -138,28 +138,7 @@
           </div>
 
           <div class="nav-section">
-            <h3
-              v-if="!sidebarCollapsed"
-              class="nav-section-title"
-            >
-              系统设置
-            </h3>
             <ul class="nav-list">
-              <li class="nav-item">
-                <button
-                  class="nav-link"
-                  :class="{ active: activeTab === 'settings' }"
-                  title="系统设置"
-                  @click="switchTab('settings')"
-                >
-                  <span class="nav-icon">⚙️</span>
-                  <span
-                    v-if="!sidebarCollapsed"
-                    class="nav-text"
-                  >系统设置</span>
-                </button>
-              </li>
-              
               <li class="nav-item">
                 <button
                   class="nav-link"
@@ -236,7 +215,7 @@ useHead({
 
 // 响应式数据
 const sidebarCollapsed = ref(false)
-type TabKey = 'meetings' | 'members' | 'projects' | 'articles' | 'files' | 'settings' | 'logs'
+type TabKey = 'meetings' | 'members' | 'projects' | 'articles' | 'files' | 'logs'
 const activeTab = ref<TabKey>('meetings')
 const confirmExitModal = ref(false)
 const exiting = ref(false)
@@ -253,7 +232,6 @@ const tabRouteMap: Record<TabKey, string> = {
   projects: 'AdminProjects',
   articles: 'AdminArticles',
   files: 'AdminFiles',
-  settings: 'AdminSettings',
   logs: 'AdminLogs'
 }
 
@@ -277,8 +255,6 @@ const resolveTabFromRoute = (name?: string | symbol): TabKey => {
       return 'meetings'
     case 'AdminFiles':
       return 'files'
-    case 'AdminSettings':
-      return 'settings'
     case 'AdminLogs':
       return 'logs'
     default:
@@ -309,7 +285,7 @@ const handleKeyboardShortcuts = (event: KeyboardEvent) => {
       '2': 'members', 
       '3': 'projects',
       '4': 'articles',
-      '5': 'settings',
+      '5': 'files',
       '6': 'logs'
     }
     
@@ -333,38 +309,25 @@ const handleRefresh = () => {
 }
 
 const handleCloseAdmin = () => {
-  console.log('🚪 handleCloseAdmin 被调用')
   confirmExitModal.value = true
-  console.log('📋 confirmExitModal 设置为:', confirmExitModal.value)
 }
 
 const confirmExit = async () => {
-  console.log('✅ confirmExit 被调用')
   exiting.value = true
   
   try {
-    console.log('⏳ 开始退出处理...')
-    // 模拟退出处理
     await new Promise(resolve => setTimeout(resolve, 500))
-    console.log('⏳ 退出处理完成')
     
-    console.log('🧹 清除管理员状态...')
-    // 清除管理员状态
     currentAdmin.value = null
     localStorage.removeItem('adminToken')
     localStorage.removeItem('admin-user')
-    console.log('🧹 状态清除完成')
     
-    console.log('📢 触发 admin-exit 事件')
-    // 触发退出事件
     window.dispatchEvent(new CustomEvent('admin-exit'))
-    console.log('📢 admin-exit 事件已发送')
   } catch (error) {
     console.error('退出失败:', error)
   } finally {
     exiting.value = false
     confirmExitModal.value = false
-    console.log('🏁 confirmExit 完成，弹窗已关闭')
   }
 }
 

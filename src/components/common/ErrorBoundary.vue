@@ -110,13 +110,19 @@
           </svg>
           报告问题
         </button>
+        <p
+          v-if="reportSent"
+          class="text-sm text-emerald-700"
+        >
+          已记录错误信息，感谢反馈。
+        </p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import type { AppError } from '@/store/app'
 
@@ -137,6 +143,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const router = useRouter()
+const reportSent = ref(false)
 
 // 检测是否为开发环境
 const isDevelopment = computed(() => {
@@ -193,7 +200,7 @@ function handleGoHome() {
 
 // 处理报告问题
 function handleReportBug() {
-  const errorInfo = {
+  const report = {
     title: errorTitle.value,
     message: errorMessage.value,
     error: props.error,
@@ -201,14 +208,8 @@ function handleReportBug() {
     timestamp: new Date().toISOString(),
     userAgent: navigator.userAgent
   }
-  
-  // 在实际项目中，这里可以发送错误报告到服务器
-  // 或者打开一个报告表单
-  
-  console.log('错误报告:', errorInfo)
-  
-  // 临时显示感谢消息
-  alert('感谢您的反馈！我们已记录此错误并会尽快修复。')
+  sessionStorage.setItem('last-error-report', JSON.stringify(report))
+  reportSent.value = true
 }
 </script>
 

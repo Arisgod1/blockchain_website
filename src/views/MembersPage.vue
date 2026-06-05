@@ -1,41 +1,14 @@
 <template>
   <div class="members-page">
     <!-- 页面头部 -->
-    <header class="gradient-hero flowing-gradient-lagoon hero-header">
-      <div class="hero-inner">
-        <span class="hero-eyebrow">MEMBERS · 成员档案</span>
-        <h1 class="hero-title">
-          认识我们的
-          <span class="hero-title-accent">团队成员</span>
-        </h1>
-        <p class="hero-subtitle">
-          每一位成员都有独特的专业背景与研究方向，共同探索。
-        </p>
-        <div class="hero-stats">
-          <div class="hero-stat">
-            <div class="hero-stat-icon"><UsersIcon :size="18" /></div>
-            <div class="hero-stat-body">
-              <div class="hero-stat-value">{{ totalMembers }}</div>
-              <div class="hero-stat-label">团队成员</div>
-            </div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-icon">✨</div>
-            <div class="hero-stat-body">
-              <div class="hero-stat-value">{{ activeMembers }}</div>
-              <div class="hero-stat-label">活跃成员</div>
-            </div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-icon">📊</div>
-            <div class="hero-stat-body">
-              <div class="hero-stat-value">{{ totalProjects }}</div>
-              <div class="hero-stat-label">参与项目</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </header>
+    <PublicGraphHero
+      eyebrow="MEMBERS · 成员节点"
+      title="认识团队成员"
+      accent="看见每条成长链路"
+      subtitle="成员、方向、技能和项目共同构成团队网络。新同学可以从这里找到同行者，也能看见自己未来的位置。"
+      tone="green"
+      :stats="memberHeroStats"
+    />
 
     <!-- 页面内容 -->
     <div class="page-content">
@@ -241,6 +214,7 @@ import MemberFilter from '@/components/members/MemberFilter.vue'
 import BaseButton from '@/components/common/BaseButton.vue'
 import BasePagination from '@/components/common/BasePagination.vue'
 import BaseModal from '@/components/common/BaseModal.vue'
+import PublicGraphHero from '@/components/common/PublicGraphHero.vue'
 import { throttle } from '@/utils/jieliu'
 import defaultAvatar from '@/assets/BLOCKCHAINNexus.png'
 interface MemberFiltersState {
@@ -297,6 +271,12 @@ const activeMembers = computed(() => allMembers.value.filter((member) => member.
 const totalProjects = computed(() =>
   allMembers.value.reduce((sum, member) => sum + (member.projectCount || 0), 0)
 )
+
+const memberHeroStats = computed(() => [
+  { label: '团队成员', value: totalMembers.value },
+  { label: '活跃成员', value: activeMembers.value },
+  { label: '参与项目', value: totalProjects.value }
+])
 
 const hasActiveFilters = computed(() =>
   Boolean(filters.value.search ||

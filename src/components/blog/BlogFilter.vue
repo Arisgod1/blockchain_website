@@ -21,9 +21,7 @@
       </div>
     </div>
 
-    <!-- 筛选器网格 -->
     <div class="filter-grid">
-      <!-- 分类筛选 -->
       <div class="filter-group">
         <label class="filter-label">文章分类</label>
         <div>
@@ -43,10 +41,6 @@
         </div>
       </div>
 
-      <!-- 标签云 -->
-      
-
-      <!-- 作者筛选 -->
       <div class="filter-group">
         <label class="filter-label">作者</label>
         <div class="author-filters">
@@ -69,7 +63,6 @@
         </div>
       </div>
 
-      <!-- 时间范围 -->
       <div class="filter-group">
         <label class="filter-label">发布时间</label>
         <div class="date-filters">
@@ -100,7 +93,6 @@
         </div>
       </div>
 
-      <!-- 排序选项 -->
       <div class="filter-group">
         <label class="filter-label">排序方式</label>
         <div class="sort-options">
@@ -136,51 +128,8 @@
         </div>
       </div>
 
-      <!-- 阅读难度 -->
     </div>
 
-    <!-- 活跃标签显示 -->
-    <div
-      v-if="selectedTags.length > 0"
-      class="active-filters"
-    >
-      <div class="active-filters-label">
-        已选标签:
-      </div>
-      <div class="active-tags">
-        <span 
-          v-for="tag in selectedTags" 
-          :key="tag"
-          class="active-tag"
-          @click="removeTag(tag)"
-        >
-          {{ tag }}
-          <XIcon class="remove-tag-icon" />
-        </span>
-      </div>
-      <button
-        class="clear-all-tags"
-        @click="clearAllTags"
-      >
-        清除全部
-      </button>
-    </div>
-
-    <!-- 筛选结果统计 -->
-    <div class="filter-stats">
-      <div class="stats-item">
-        <span class="stats-label">共找到</span>
-        <span class="stats-value">{{ totalCount }}</span>
-        <span class="stats-label">篇文章</span>
-      </div>
-      <div class="stats-item">
-        <span class="stats-label">显示</span>
-        <span class="stats-value">{{ filteredCount }}</span>
-        <span class="stats-label">篇文章</span>
-      </div>
-    </div>
-
-    <!-- 快速操作 -->
     <div class="filter-actions">
       <button
         class="reset-btn"
@@ -197,16 +146,8 @@
         <SettingsIcon />
         高级筛选
       </button>
-      <button
-        class="save-btn"
-        @click="saveFilters"
-      >
-        <BookmarkIcon />
-        保存筛选
-      </button>
     </div>
 
-    <!-- 高级筛选面板 -->
     <div
       v-if="showAdvanced"
       class="advanced-panel"
@@ -256,7 +197,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import {
   SearchIcon,
   XIcon,
@@ -264,19 +205,16 @@ import {
   ArrowDownIcon,
   RotateCcwIcon,
   SettingsIcon,
-  BookmarkIcon
 } from '@/components/icons'
 
 // 筛选选项接口
 interface FilterOptions {
   searchQuery: string
   category: string
-  tags: string[]
   author: string
   dateRange: string
   sortBy: string
   sortOrder: 'asc' | 'desc'
-  difficulties: string[]
   minReadTime: number
   featuredOnly: boolean
 }
@@ -298,19 +236,13 @@ const categories = [
 // 响应式数据
 const searchQuery = ref('')
 const selectedCategory = ref('all')
-const selectedTags = ref<string[]>([])
 const selectedAuthor = ref('')
 const selectedDateRange = ref('')
 const sortBy = ref('publishedAt')
 const sortOrder = ref<'asc' | 'desc'>('desc')
-const selectedDifficulties = ref<string[]>([])
 const minReadTime = ref(1)
 const featuredFilter = ref('')
 const showAdvanced = ref(false)
-
-// 计算属性
-const totalCount = ref(128) // 总文章数
-const filteredCount = ref(128) // 筛选后文章数
 
 const authors = ref([
   { id: 1, name: '张三', articleCount: 15 },
@@ -327,19 +259,6 @@ const handleSearch = () => {
 
 const handleCategoryChange = () => {
   // select's v-model already updated selectedCategory
-  emitFilterChange()
-}
-
-const removeTag = (tag: string) => {
-  const index = selectedTags.value.indexOf(tag)
-  if (index > -1) {
-    selectedTags.value.splice(index, 1)
-    emitFilterChange()
-  }
-}
-
-const clearAllTags = () => {
-  selectedTags.value = []
   emitFilterChange()
 }
 
@@ -380,34 +299,24 @@ const clearSearch = () => {
 const resetFilters = () => {
   searchQuery.value = ''
   selectedCategory.value = 'all'
-  selectedTags.value = []
   selectedAuthor.value = ''
   selectedDateRange.value = ''
   sortBy.value = 'publishedAt'
   sortOrder.value = 'desc'
-  selectedDifficulties.value = []
   minReadTime.value = 1
   featuredFilter.value = ''
   showAdvanced.value = false
   emitFilterChange()
 }
 
-const saveFilters = () => {
-  const filterOptions = getCurrentFilters()
-  localStorage.setItem('blogFilters', JSON.stringify(filterOptions))
-  alert('筛选条件已保存')
-}
-
 // 获取当前筛选条件
 const getCurrentFilters = (): FilterOptions => ({
   searchQuery: searchQuery.value,
   category: selectedCategory.value,
-  tags: [...selectedTags.value],
   author: selectedAuthor.value,
   dateRange: selectedDateRange.value,
   sortBy: sortBy.value,
   sortOrder: sortOrder.value,
-  difficulties: [...selectedDifficulties.value],
   minReadTime: minReadTime.value,
   featuredOnly: featuredFilter.value === 'featured'
 })
@@ -418,12 +327,6 @@ const emitFilterChange = () => {
   emit('filter-change', filters)
 }
 
-// 监听筛选条件变化，更新计数
-watch([searchQuery, selectedCategory, selectedTags, selectedAuthor, selectedDateRange, selectedDifficulties, minReadTime, featuredFilter], () => {
-  // 这里应该根据筛选条件更新 filteredCount
-  // 实际项目中应该调用 API 获取真实的筛选结果数量
-}, { deep: true })
-
 // 定义事件
 interface Emits {
   'filter-change': [filters: FilterOptions]
@@ -431,11 +334,14 @@ interface Emits {
 
 const emit = defineEmits<Emits>()
 
+defineExpose({ resetFilters })
+
 </script>
 
 <style scoped lang="postcss">
 .blog-filter {
-  @apply bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-6;
+  @apply bg-white rounded-xl border border-slate-200 p-5 space-y-5;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
 }
 
 .search-section {
@@ -447,11 +353,11 @@ const emit = defineEmits<Emits>()
 }
 
 .search-input {
-  @apply w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all;
+  @apply w-full pl-10 pr-10 py-3 border border-slate-300 rounded-lg bg-slate-50 text-slate-950 placeholder:text-slate-500 focus:ring-2 focus:ring-cyan-600 focus:border-transparent transition-all;
 }
 
 .search-icon {
-  @apply absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400;
+  @apply absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500;
 }
 
 .clear-btn {
@@ -459,7 +365,7 @@ const emit = defineEmits<Emits>()
 }
 
 .filter-grid {
-  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+  @apply grid grid-cols-1 gap-5;
 }
 
 .filter-group {
@@ -467,53 +373,21 @@ const emit = defineEmits<Emits>()
 }
 
 .filter-label {
-  @apply block text-sm font-medium text-gray-700;
-}
-
-.category-tags {
-  @apply flex flex-wrap gap-2;
-}
-
-.category-tag {
-  @apply flex items-center gap-2 px-3 py-2 text-sm border border-gray-300 rounded-lg cursor-pointer transition-all hover:border-blue-500 hover:text-blue-600;
-}
-
-.category-tag.active {
-  @apply bg-blue-500 text-white border-blue-500;
-}
-
-.category-icon {
-  @apply w-4 h-4;
-}
-
-.tag-cloud {
-  @apply flex flex-wrap gap-2 max-h-32 overflow-y-auto;
-}
-
-.tag-cloud-item {
-  @apply inline-flex items-center gap-1 px-2 py-1 text-sm border border-gray-300 rounded cursor-pointer transition-all hover:border-blue-500 hover:text-blue-600;
-}
-
-.tag-cloud-item.active {
-  @apply bg-blue-500 text-white border-blue-500;
-}
-
-.tag-count {
-  @apply text-xs opacity-75;
+  @apply block text-sm font-semibold text-slate-900;
 }
 
 .author-select,
 .date-select {
-  @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  @apply w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-cyan-600 focus:border-transparent;
 }
 
 .sort-select {
-  @apply px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  @apply px-3 py-2 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-cyan-600 focus:border-transparent;
   min-width: 200px;
 }
 
 .category-select {
-  @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  @apply w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-cyan-600 focus:border-transparent;
 }
 
 .sort-options {
@@ -521,111 +395,44 @@ const emit = defineEmits<Emits>()
 }
 
 .sort-order-btn {
-  @apply w-10 h-10 flex items-center justify-center border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors;
+  @apply w-10 h-10 flex items-center justify-center border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors;
 }
 
 .sort-order-btn.desc {
-  @apply bg-blue-50 border-blue-500 text-blue-600;
+  @apply bg-cyan-50 border-cyan-500 text-cyan-700;
 }
 
-.difficulty-filters,
 .featured-filter {
   @apply space-y-2;
 }
 
-.difficulty-option,
 .featured-option {
   @apply flex items-center space-x-2 cursor-pointer;
 }
 
-.difficulty-text {
-  @apply text-sm;
-}
-
-.difficulty-beginner {
-  @apply text-green-600;
-}
-
-.difficulty-intermediate {
-  @apply text-yellow-600;
-}
-
-.difficulty-advanced {
-  @apply text-orange-600;
-}
-
-.difficulty-expert {
-  @apply text-red-600;
-}
-
-.active-filters {
-  @apply flex items-center gap-3 p-4 bg-blue-50 rounded-lg;
-}
-
-.active-filters-label {
-  @apply text-sm font-medium text-blue-800;
-}
-
-.active-tags {
-  @apply flex flex-wrap gap-2 flex-1;
-}
-
-.active-tag {
-  @apply inline-flex items-center gap-1 px-3 py-1 bg-blue-500 text-white text-sm rounded-full cursor-pointer hover:bg-blue-600 transition-colors;
-}
-
-.remove-tag-icon {
-  @apply w-3 h-3;
-}
-
-.clear-all-tags {
-  @apply px-2 py-1 text-xs text-blue-600 hover:text-blue-800 underline;
-}
-
-.filter-stats {
-  @apply flex items-center justify-between py-3 border-t border-gray-200;
-}
-
-.stats-item {
-  @apply flex items-center space-x-1;
-}
-
-.stats-label {
-  @apply text-sm text-gray-600;
-}
-
-.stats-value {
-  @apply text-lg font-semibold text-blue-600;
-}
-
 .filter-actions {
-  @apply flex flex-wrap gap-3 pt-3 border-t border-gray-200;
+  @apply flex flex-wrap gap-2 pt-4 border-t border-slate-200;
 }
 
 .reset-btn,
-.save-btn,
 .advanced-btn {
   @apply flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors;
 }
 
 .reset-btn {
-  @apply border-gray-300 text-gray-700 hover:bg-gray-50;
+  @apply border-slate-300 text-slate-700 hover:bg-slate-50;
 }
 
 .advanced-btn {
-  @apply border-gray-300 text-gray-700 hover:bg-gray-50;
+  @apply border-slate-300 text-slate-700 hover:bg-slate-50;
 }
 
 .advanced-btn.active {
-  @apply bg-blue-50 border-blue-500 text-blue-600;
-}
-
-.save-btn {
-  @apply border-blue-300 text-blue-700 hover:bg-blue-50;
+  @apply bg-cyan-50 border-cyan-500 text-cyan-700;
 }
 
 .advanced-panel {
-  @apply p-4 bg-gray-50 rounded-lg space-y-4;
+  @apply p-4 bg-slate-50 rounded-lg space-y-4;
 }
 
 .advanced-group {
@@ -637,7 +444,7 @@ const emit = defineEmits<Emits>()
 }
 
 .range-labels {
-  @apply flex justify-between text-xs text-gray-600;
+  @apply flex justify-between text-xs text-slate-600;
 }
 
 /* 移动端适配 */
@@ -650,28 +457,8 @@ const emit = defineEmits<Emits>()
     @apply grid-cols-1 gap-4;
   }
   
-  .category-tags {
-    @apply gap-1;
-  }
-  
-  .category-tag {
-    @apply px-2 py-1 text-xs;
-  }
-  
-  .tag-cloud {
-    @apply max-h-24;
-  }
-  
-  .filter-stats {
-    @apply flex-col items-start gap-2;
-  }
-  
   .filter-actions {
     @apply gap-2;
-  }
-  
-  .active-filters {
-    @apply flex-col items-start gap-2;
   }
 }
 </style>

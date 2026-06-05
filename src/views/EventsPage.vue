@@ -1,41 +1,14 @@
 <template>
   <div class="events-page">
     <!-- 页面头部 -->
-    <header class="gradient-hero flowing-gradient-solstice hero-header">
-      <div class="hero-inner">
-        <span class="hero-eyebrow">EVENTS · 会议活动</span>
-        <h1 class="hero-title">
-          会议活动，
-          <span class="hero-title-accent">链接前沿智慧</span>
-        </h1>
-        <p class="hero-subtitle">
-          汇聚区块链领域的前沿洞察与行业力量，共同参与专业会议、学术研讨与行业峰会，塑造区块链的未来。
-        </p>
-        <div class="hero-stats">
-          <div class="hero-stat">
-            <div class="hero-stat-icon">🗓️</div>
-            <div class="hero-stat-body">
-              <div class="hero-stat-value">{{ stats.totalEvents }}</div>
-              <div class="hero-stat-label">年度活动</div>
-            </div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-icon">👥</div>
-            <div class="hero-stat-body">
-              <div class="hero-stat-value">{{ stats.totalParticipants }}+</div>
-              <div class="hero-stat-label">参与人次</div>
-            </div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-icon">🚀</div>
-            <div class="hero-stat-body">
-              <div class="hero-stat-value">{{ stats.upcomingEvents }}</div>
-              <div class="hero-stat-label">即将举行</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </header>
+    <PublicGraphHero
+      eyebrow="EVENTS · 外部连接"
+      title="把团队带到"
+      accent="更大的技术现场"
+      subtitle="会议、研讨和工作坊是团队网络向外延展的连接点，记录我们如何参与学术交流与行业实践。"
+      tone="rose"
+      :stats="eventHeroStats"
+    />
 
     <!-- 导航标签 -->
     <nav class="bg-white shadow-sm border-b sticky top-0 z-30">
@@ -44,11 +17,11 @@
           <button
             v-for="tab in tabs"
             :key="tab.id"
-            class="py-3 sm:py-4 px-1 sm:px-2 border-b-2 font-medium text-sm transition-colors whitespace-nowrap flex-shrink-0"
+            class="my-2 rounded-full px-3 py-2 font-medium text-sm transition-colors whitespace-nowrap flex-shrink-0"
             :class="[
               activeTab === tab.id
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                ? 'bg-slate-950 text-white'
+                : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800'
             ]"
             @click="activeTab = tab.id"
           >
@@ -155,7 +128,7 @@
           v-if="isLoading"
           class="flex items-center justify-center py-12"
         >
-          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+          <div class="animate-spin rounded-full h-12 w-12 border-4 border-slate-200 border-t-cyan-700" />
         </div>
 
         <!-- 空状态 -->
@@ -190,6 +163,7 @@
                 :src="event.image" 
                 :alt="event.title"
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                @error="handleEventImageError"
               >
               <div class="absolute top-4 left-4">
                 <span 
@@ -270,7 +244,7 @@
                       d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
                     />
                   </svg>
-                  {{ event.attendees }}人
+                  {{ event.duration }}
                 </div>
               </div>
               
@@ -281,13 +255,6 @@
                     @click="viewEventDetails(event)"
                   >
                     查看详情
-                  </button>
-                  <button 
-                    v-if="event.status === 'upcoming'"
-                    class="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
-                    @click="registerForEvent(event)"
-                  >
-                    立即报名
                   </button>
                 </div>
               </div>
@@ -346,6 +313,7 @@
             :src="selectedEvent?.image"
             :alt="selectedEvent?.title"
             class="w-full h-48 sm:h-64 object-cover rounded-t-2xl"
+            @error="handleEventImageError"
           >
           <button 
             class="absolute top-4 right-4 w-8 h-8 bg-black/50 text-white rounded-full flex items-center justify-center hover:bg-black/70"
@@ -454,7 +422,7 @@
                   d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
                 />
               </svg>
-              {{ selectedEvent?.attendees }}人已报名
+              {{ selectedEvent?.duration }}
             </div>
           </div>
           
@@ -485,13 +453,6 @@
           
           <div class="flex gap-4">
             <button 
-              v-if="selectedEvent?.status === 'upcoming'"
-              class="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-              @click="registerForEvent(selectedEvent)"
-            >
-              立即报名
-            </button>
-            <button 
               class="flex-1 border border-gray-300 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-50 transition-colors font-medium"
               @click="shareEvent"
             >
@@ -501,51 +462,15 @@
         </div>
       </div>
     </div>
-
-    <!-- 报名成功提示 -->
-    <div 
-      v-if="showRegistrationSuccess"
-      class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-      @click="showRegistrationSuccess = false"
-    >
-      <div 
-        class="bg-white rounded-2xl p-8 max-w-md mx-4 text-center shadow-2xl"
-        @click.stop
-      >
-        <div class="w-16 h-16 bg-green-500 rounded-full mx-auto mb-4 flex items-center justify-center">
-          <svg
-            class="w-8 h-8 text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M5 13l4 4L19 7"
-            />
-          </svg>
-        </div>
-        <h3 class="text-xl font-bold text-gray-800 mb-2">
-          报名成功！
-        </h3>
-        <p class="text-gray-600 mb-6">
-          您已成功报名该活动，我们将通过邮件发送详细信息。
-        </p>
-        <button 
-          class="bg-blue-600 text-white py-2 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors"
-          @click="showRegistrationSuccess = false"
-        >
-          确定
-        </button>
-      </div>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import PublicGraphHero from '@/components/common/PublicGraphHero.vue'
+import { getPublicEvents } from '@/api/public'
+import type { PublicEvent } from '@/types/entities'
+import defaultEventImage from '@/assets/BLOCKCHAINNexus.png'
 
 type EventCategory = 'conference' | 'seminar' | 'workshop' | 'summit'
 type EventStatus = 'upcoming' | 'ongoing' | 'completed'
@@ -559,7 +484,6 @@ interface EventDetail {
   category: EventCategory
   status: EventStatus
   duration: string
-  attendees: number
   image: string
   highlights: string[]
 }
@@ -587,7 +511,6 @@ const currentPage = ref(1)
 const itemsPerPage = ref(9)
 const isLoading = ref(false)
 const showDetailModal = ref(false)
-const showRegistrationSuccess = ref(false)
 const selectedEvent = ref<EventDetail | null>(null)
 
 // 导航标签
@@ -598,117 +521,7 @@ const tabs = [
   { id: 'completed', name: '已结束' }
 ]
 
-// 活动数据
-const events = ref<EventDetail[]>([
-  {
-    id: '1',
-    title: '2025年全球区块链技术峰会',
-    description: '汇聚全球顶级区块链专家，共同探讨分布式账本、DeFi、NFT等前沿技术的最新发展与应用。',
-    date: '2025-03-15T09:00:00',
-    location: '北京国际会议中心',
-    category: 'summit',
-    status: 'upcoming',
-    duration: '全天',
-    attendees: 1500,
-    image: '/images/blockchain-summit.jpg',
-    highlights: [
-      '50+国际顶级专家演讲',
-      '最新技术趋势发布',
-      '商业合作机会对接',
-      '行业权威奖项颁发'
-    ]
-  },
-  {
-    id: '2',
-    title: '智能合约安全研讨会',
-    description: '深入探讨智能合约的安全漏洞、审计方法和最佳实践，提升区块链应用的安全性。',
-    date: '2025-02-20T14:00:00',
-    location: '大连理工大学学术报告厅',
-    category: 'workshop',
-    status: 'upcoming',
-    duration: '3小时',
-    attendees: 200,
-    image: '/images/smart-contract.jpg',
-    highlights: [
-      '实战案例分析',
-      '安全审计工具演示',
-      '专家答疑环节',
-      '结业证书颁发'
-    ]
-  },
-  {
-    id: '3',
-    title: 'DeFi生态系统创新论坛',
-    description: '聚焦去中心化金融的创新发展，探讨流动性挖矿、跨链桥接、Layer2扩容等核心技术。',
-    date: '2025-01-25T10:00:00',
-    location: '上海陆家嘴金融中心',
-    category: 'conference',
-    status: 'completed',
-    duration: '8小时',
-    attendees: 800,
-    image: '/images/defi-forum.jpg',
-    highlights: [
-      '头部DeFi项目展示',
-      '技术架构深度解析',
-      '投资机会分享',
-      '行业白皮书发布'
-    ]
-  },
-  {
-    id: '4',
-    title: 'NFT艺术创作工作坊',
-    description: '学习NFT创作和发行全流程，包括艺术作品制作、智能合约部署、市场营销策略等。',
-    date: '2025-02-10T13:00:00',
-    location: '深圳南山区科技园',
-    category: 'workshop',
-    status: 'upcoming',
-    duration: '4小时',
-    attendees: 100,
-    image: '/images/nft-workshop.jpg',
-    highlights: [
-      '艺术家现场指导',
-      '创作工具实操训练',
-      '作品展示与点评',
-      '版权保护讲座'
-    ]
-  },
-  {
-    id: '5',
-    title: '区块链学术年会',
-    description: '学术界年度盛会，分享最新研究成果，探讨区块链理论创新和跨学科应用。',
-    date: '2024-12-15T09:30:00',
-    location: '清华大学学术交流中心',
-    category: 'seminar',
-    status: 'completed',
-    duration: '2天',
-    attendees: 500,
-    image: '/images/academic-conference.jpg',
-    highlights: [
-      '顶级论文发表',
-      '学术合作签约',
-      '青年学者奖评选',
-      '未来研究展望'
-    ]
-  },
-  {
-    id: '6',
-    title: '跨链技术开发大会',
-    description: '聚焦跨链技术的最新进展，包括多链互操作性、资产跨链转移、消息传递机制等。',
-    date: '2025-04-10T09:00:00',
-    location: '杭州西湖国际博览中心',
-    category: 'conference',
-    status: 'upcoming',
-    duration: '2天',
-    attendees: 600,
-    image: '/images/cross-chain.jpg',
-    highlights: [
-      '主流跨链项目展示',
-      '技术路线图发布',
-      '开发者技能培训',
-      '生态合作签约'
-    ]
-  }
-])
+const events = ref<EventDetail[]>([])
 
 // 计算属性
 const filteredEvents = computed(() => {
@@ -771,14 +584,19 @@ const visiblePages = computed(() => {
 const stats = computed(() => {
   const totalEvents = events.value.length
   const upcomingEvents = events.value.filter(e => e.status === 'upcoming').length
-  const totalParticipants = events.value.reduce((sum, event) => sum + event.attendees, 0)
   
   return {
     totalEvents,
     upcomingEvents,
-    totalParticipants: Math.round(totalParticipants / 1000) // 转换为K
+    completedEvents: events.value.filter(e => e.status === 'completed').length
   }
 })
+
+const eventHeroStats = computed(() => [
+  { label: '年度活动', value: stats.value.totalEvents },
+  { label: '已结束', value: stats.value.completedEvents },
+  { label: '即将举行', value: stats.value.upcomingEvents }
+])
 
 const eventTypeStats = computed(() => {
   const categories: Record<EventCategory, { label: string; count: number }> = {
@@ -813,6 +631,46 @@ const formatDate = (dateString?: string) => {
   })
 }
 
+const mapPublicEventStatus = (status: PublicEvent['status']): EventStatus => {
+  return status === 'finished' ? 'completed' : status
+}
+
+const mapPublicEventCategory = (type: string): EventCategory => {
+  if (type === 'seminar' || type === 'workshop' || type === 'summit') return type
+  return 'conference'
+}
+
+const formatDurationRange = (startTime: string, endTime: string) => {
+  const start = new Date(startTime)
+  const end = new Date(endTime)
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return '时间待定'
+  const minutes = Math.max(0, Math.round((end.getTime() - start.getTime()) / 60000))
+  if (minutes === 0) return '时间待定'
+  if (minutes < 60) return `${minutes}分钟`
+  const hours = Math.floor(minutes / 60)
+  const rest = minutes % 60
+  return rest ? `${hours}小时${rest}分钟` : `${hours}小时`
+}
+
+const normalizePublicEvent = (event: PublicEvent): EventDetail => ({
+  id: event.id,
+  title: event.title,
+  description: event.description,
+  date: event.startTime,
+  location: event.location,
+  category: mapPublicEventCategory(event.type),
+  status: mapPublicEventStatus(event.status),
+  duration: formatDurationRange(event.startTime, event.endTime),
+  image: event.banner || defaultEventImage,
+  highlights: event.tags?.length ? event.tags : ['团队活动', '技术交流']
+})
+
+const handleEventImageError = (event: Event) => {
+  const img = event.target as HTMLImageElement
+  img.onerror = null
+  img.src = defaultEventImage
+}
+
 const getStatusClass = (status?: EventStatus) => {
   const classes: Record<EventStatus, string> = {
     upcoming: 'bg-blue-100 text-blue-800',
@@ -843,39 +701,31 @@ const closeDetailModal = () => {
   selectedEvent.value = null
 }
 
-const registerForEvent = (event: EventDetail) => {
-  // 模拟报名
-  showDetailModal.value = false
-  showRegistrationSuccess.value = true
-  
-  // 更新参会人数
-  const eventIndex = events.value.findIndex(e => e.id === event.id)
-  if (eventIndex !== -1) {
-    events.value[eventIndex].attendees += 1
-  }
-}
-
 const shareEvent = () => {
   if (navigator.share && selectedEvent.value) {
-    navigator.share({
+    void navigator.share({
       title: selectedEvent.value.title,
       text: selectedEvent.value.description,
       url: window.location.href
     })
-  } else {
-    // 复制到剪贴板
-    navigator.clipboard.writeText(window.location.href)
-    alert('链接已复制到剪贴板')
+  } else if (navigator.clipboard) {
+    void navigator.clipboard.writeText(window.location.href)
   }
 }
 
 // 生命周期
 onMounted(() => {
   isLoading.value = true
-  // 模拟加载
-  setTimeout(() => {
+  getPublicEvents()
+    .then((items) => {
+      events.value = items.map(normalizePublicEvent)
+    })
+    .catch(() => {
+      events.value = []
+    })
+    .finally(() => {
     isLoading.value = false
-  }, 1000)
+    })
 })
 </script>
 

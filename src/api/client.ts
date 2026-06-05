@@ -152,12 +152,6 @@ class ApiService {
     // 响应拦截器
     this.instance.interceptors.response.use(
       (response: AxiosResponse<ApiResponse>) => {
-        // 计算请求耗时
-        const endTime = Date.now()
-        const resConfig = response.config as import('axios').InternalAxiosRequestConfig & { metadata?: { startTime?: number } }
-        const duration = endTime - (resConfig.metadata?.startTime ?? endTime)
-        console.log(`API 请求 ${response.config.url} 耗时: ${duration}ms`)
-
         return response
       },
       async (error) => {

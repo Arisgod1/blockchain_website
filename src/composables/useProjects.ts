@@ -7,7 +7,7 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || ''
 /**
  * useProjects - 一个轻量的 Vue composable，用来封装 Projects 的 fetch 请求
  * - 提供：projects, loading, error, fetchProjects(params), getProject(id)
- * - 基于 fetch，兼容后端返回 ApiResponse<T> 或直接返回数组的情况
+ * - 基于 fetch，支持后端返回 ApiResponse<T> 或直接返回数组
  */
 export function useProjects() {
   const projects = ref<Project[]>([])
@@ -44,7 +44,7 @@ export function useProjects() {
 
       if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`)
 
-      // 先尝试以 text 方式读取（兼容示例），再尝试解析 JSON
+      // 先以 text 读取，再按 JSON 解析，便于捕获非 JSON 响应
       const txt = await res.text()
       let data: unknown = null
       try {
@@ -99,7 +99,7 @@ export function useProjects() {
     }
   }
 
-  // 解析 fetch Response：先 text，再尝试 JSON 解析，兼容 ApiResponse<T> 或直接返回对象/数组
+  // 解析 fetch Response：支持 ApiResponse<T>、对象、数组和非 JSON 文本
   const parseResponse = async (res: Response): Promise<unknown> => {
     const txt = await res.text()
     try {

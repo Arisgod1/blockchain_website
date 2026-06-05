@@ -3,15 +3,14 @@
     <section class="home-grid">
       <article class="info-pane">
         <p class="info-pane__eyebrow">
-          DUT Blockchain · Since 2015
+          DUT Blockchain Research Graph
         </p>
         <h1>
-          链接未来的
-          <span>科研与创新</span>
+          进入区块链组的
+          <span>研究网络</span>
         </h1>
         <p class="info-pane__lede">
-          我们聚焦时代前沿技术、跨链互操作与现实世界资产映射，
-          将学院实验室的突破，转化为可落地的创新方案。
+          从成员、项目、例会到技术文章，每个节点都记录团队如何学习、验证和推进区块链方向的真实问题。
         </p>
 
         <div class="info-pane__stats">
@@ -28,9 +27,9 @@
         <div class="info-pane__actions">
           <HexBladeButton
             label="查看项目"
-            sub-label="PROJECTS"
-            icon="🚀"
-            theme-color="#60a5fa"
+            sub-label="PROJECT GRAPH"
+            icon="◇"
+            theme-color="#67e8f9"
             @click="goProjects"
           />
           <button
@@ -63,66 +62,66 @@ const navigationItems: OrbitNavItem[] = [
   {
     id: 'about',
     title: '关于我们',
-    subtitle: 'ABOUT',
+    subtitle: 'TEAM',
     description: '团队使命·发展脉络',
     icon: '👥',
     route: '/about',
-    themeColor: '#38bdf8',
+    themeColor: '#facc15',
     orbit: 1,
     angle: -10
   },
   {
     id: 'members',
     title: '成员档案',
-    subtitle: 'MEMBERS',
+    subtitle: 'PEOPLE',
     description: '跨学科研发小组',
     icon: '👨‍💻',
     route: '/members',
-    themeColor: '#f59e0b',
+    themeColor: '#5eead4',
     orbit: 0,
     angle: 40
   },
   {
     id: 'projects',
     title: '项目矩阵',
-    subtitle: 'PROJECTS',
+    subtitle: 'WORK',
     description: '科研成果与产业共创',
     icon: '📊',
     route: '/projects',
-    themeColor: '#818cf8',
+    themeColor: '#a78bfa',
     orbit: 1,
     angle: 100
   },
   {
     id: 'blog',
     title: '知识星图',
-    subtitle: 'BLOG',
+    subtitle: 'NOTES',
     description: '研究分享与技术洞察',
     icon: '📚',
     route: '/blog',
-    themeColor: '#34d399',
+    themeColor: '#67e8f9',
     orbit: 1,
     angle: 170
   },
   {
     id: 'meetings',
     title: '例会纪要',
-    subtitle: 'MEETINGS',
+    subtitle: 'LOG',
     description: '周更学习与评审',
     icon: '📝',
     route: '/meetings',
-    themeColor: '#f97316',
+    themeColor: '#93c5fd',
     orbit: 0,
     angle: 230
   },
   {
     id: 'contact',
     title: '联系我们',
-    subtitle: 'CONTACT',
+    subtitle: 'JOIN',
     description: '合作咨询·加入社群',
     icon: '📧',
     route: '/contact',
-    themeColor: '#c084fc',
+    themeColor: '#fb7185',
     orbit: 1,
     angle: 280
   }
@@ -142,7 +141,7 @@ useHead({
   meta: [
     {
       name: 'description',
-      content: '区块链底层研究、跨链互操作与产业孵化，链接科研与行业。'
+  content: '大连理工大学区块链组官方网站，展示成员、项目、例会和研究文章。'
     }
   ]
 })
@@ -152,7 +151,7 @@ useHead({
 .home-shell {
   min-height: 100vh;
   background: radial-gradient(circle at 20% 20%, rgba(34, 197, 94, 0.08), transparent 55%),
-    radial-gradient(circle at 80% 0%, rgba(14, 165, 233, 0.12), transparent 45%),
+    radial-gradient(circle at 80% 0%, rgba(14, 165, 233, 0.16), transparent 45%),
     #02030a;
   color: #f8fafc;
 }
@@ -165,7 +164,7 @@ useHead({
 
 .info-pane {
   padding: clamp(2rem, 4vw, 4rem);
-  background: linear-gradient(180deg, rgba(3, 7, 18, 0.9), rgba(15, 23, 42, 0.9));
+  background: linear-gradient(180deg, rgba(3, 7, 18, 0.94), rgba(12, 22, 36, 0.92));
   border-right: 1px solid rgba(148, 163, 184, 0.15);
   display: flex;
   flex-direction: column;
@@ -178,7 +177,7 @@ useHead({
   content: '';
   position: absolute;
   inset: 30% -40% -30% -40%;
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.25), transparent 60%);
+  background: radial-gradient(circle, rgba(103, 232, 249, 0.2), transparent 60%);
   filter: blur(80px);
   opacity: 0.6;
 }
@@ -203,7 +202,7 @@ useHead({
 
 .info-pane h1 span {
   display: block;
-  color: #60a5fa;
+  color: #67e8f9;
 }
 
 .info-pane__lede {

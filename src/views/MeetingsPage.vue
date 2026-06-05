@@ -1,48 +1,14 @@
 <template>
   <div class="meetings-page">
     <!-- 页面头部 -->
-    <header class="gradient-hero flowing-gradient-twilight hero-header">
-      <div class="hero-inner">
-        <span class="hero-eyebrow">MEETINGS · 例会纪要</span>
-        <h1 class="hero-title">
-          例会记录，
-          <span class="hero-title-accent">沉淀每一次讨论</span>
-        </h1>
-        <p class="hero-subtitle">
-          团队会议纪要和学术讨论记录，帮助每位成员追踪项目进展、研究脉络与协作细节。
-        </p>
-        <div class="hero-stats">
-          <div class="hero-stat">
-            <div class="hero-stat-icon">📅</div>
-            <div class="hero-stat-body">
-              <div class="hero-stat-value">{{ stats.totalMeetings }}</div>
-              <div class="hero-stat-label">总会次数</div>
-            </div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-icon">👥</div>
-            <div class="hero-stat-body">
-              <div class="hero-stat-value">{{ stats.totalParticipants }}</div>
-              <div class="hero-stat-label">总参与人次</div>
-            </div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-icon">⏱️</div>
-            <div class="hero-stat-body">
-              <div class="hero-stat-value">{{ stats.totalHours }}h</div>
-              <div class="hero-stat-label">总会议时长</div>
-            </div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-icon">📄</div>
-            <div class="hero-stat-body">
-              <div class="hero-stat-value">{{ stats.totalDocuments }}</div>
-              <div class="hero-stat-label">会议文档</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </header>
+    <PublicGraphHero
+      eyebrow="MEETINGS · 时间节点"
+      title="把每次讨论"
+      accent="沉淀成团队记忆"
+      subtitle="例会纪要记录项目进度、研究分歧和协作细节，让新成员可以沿着时间线补齐上下文。"
+      tone="blue"
+      :stats="meetingHeroStats"
+    />
 
     <!-- 主内容区域 -->
     <section class="meetings-content">
@@ -277,6 +243,7 @@ import MeetingCard from '@/components/meetings/MeetingCard.vue'
 import MeetingFilter from '@/components/meetings/MeetingFilter.vue'
 import MeetingDetailModal from '@/components/meetings/MeetingDetailModal.vue'
 import FileViewerModal from '@/components/meetings/FileViewerModal.vue'
+import PublicGraphHero from '@/components/common/PublicGraphHero.vue'
 import { getMeetings } from '@/api/meeting'
 import type { Meeting, MeetingFile } from '@/types/entities'
 
@@ -514,6 +481,13 @@ const stats = computed(() => {
     totalDocuments
   }
 })
+
+const meetingHeroStats = computed(() => [
+  { label: '总会次数', value: stats.value.totalMeetings },
+  { label: '总参与人次', value: stats.value.totalParticipants },
+  { label: '总会议时长', value: `${stats.value.totalHours}h` },
+  { label: '会议文档', value: stats.value.totalDocuments }
+])
 
 // 方法
 const getDisplayedCount = (): number => {

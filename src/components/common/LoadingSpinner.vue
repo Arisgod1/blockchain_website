@@ -41,7 +41,7 @@
         <div 
           v-for="i in 3" 
           :key="i"
-          class="w-2 h-2 bg-primary-600 rounded-full animate-bounce"
+          class="w-2 h-2 bg-primary-600 rounded-full loading-dot"
           :style="{ animationDelay: `${i * 0.1}s` }"
         />
       </div>
@@ -87,16 +87,25 @@ const clampedProgress = computed(() => {
 }
 
 /* 自定义动画 */
-.animate-bounce {
-  animation: bounce 1.4s ease-in-out infinite both;
+.loading-dot {
+  animation: loadingDot 1.4s cubic-bezier(0.16, 1, 0.3, 1) infinite both;
 }
 
-@keyframes bounce {
+@keyframes loadingDot {
   0%, 80%, 100% {
-    transform: scale(0);
+    transform: translateY(0) scale(0.72);
+    opacity: 0.45;
   }
   40% {
-    transform: scale(1);
+    transform: translateY(-4px) scale(1);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-reverse,
+  .loading-dot {
+    animation: none;
   }
 }
 </style>

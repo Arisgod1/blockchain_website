@@ -1,76 +1,41 @@
 <template>
   <div class="blog-page">
     <!-- 页面头部 -->
-    <header class="gradient-hero flowing-gradient-aurora hero-header">
-      <div class="hero-inner">
-        <span class="hero-eyebrow">BLOG · 知识星图</span>
-        <h1 class="hero-title">
-          学术博客，
-          <span class="hero-title-accent">深入链上技术</span>
-        </h1>
-        <p class="hero-subtitle">
-          深入探讨前沿科技，分享团队的开发经验、研究心得与工程实践。
-        </p>
-        <div class="hero-stats">
-          <div class="hero-stat">
-            <div class="hero-stat-icon">📚</div>
-            <div class="hero-stat-body">
-              <div class="hero-stat-value">{{ totalArticles }}</div>
-              <div class="hero-stat-label">技术文章</div>
-            </div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-icon">✍️</div>
-            <div class="hero-stat-body">
-              <div class="hero-stat-value">{{ totalAuthors }}</div>
-              <div class="hero-stat-label">专业作者</div>
-            </div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-icon">👁️</div>
-            <div class="hero-stat-body">
-              <div class="hero-stat-value">{{ totalViews }}</div>
-              <div class="hero-stat-label">总浏览量</div>
-            </div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-icon">💎</div>
-            <div class="hero-stat-body">
-              <div class="hero-stat-value">{{ totalLikes }}</div>
-              <div class="hero-stat-label">总点赞数</div>
-            </div>
-          </div>
-        </div>
+    <PublicGraphHero
+      eyebrow="BLOG · 知识星图"
+      title="把学习过程"
+      accent="沉淀成可连接的知识"
+      subtitle="文章记录团队的研究理解、工程实践和复盘经验。新成员可以沿着这些知识节点进入真实问题。"
+      tone="cyan"
+      :stats="blogHeroStats"
+    />
 
-        <!-- 快速操作栏 -->
-        <div class="hero-quick-actions">
-          <button
-            class="hero-action-btn"
-            :class="{ active: showFilter }"
-            @click="toggleFilter"
-          >
-            <FilterIcon />
-            筛选
-          </button>
-          <button
-            class="hero-action-btn"
-            :class="{ active: viewMode === 'list' }"
-            @click="toggleView"
-          >
-            <ListIcon />
-            列表
-          </button>
-          <button
-            class="hero-action-btn"
-            :class="{ active: viewMode === 'grid' }"
-            @click="toggleView"
-          >
-            <GridIcon />
-            网格
-          </button>
-        </div>
-      </div>
-    </header>
+    <div class="hero-quick-actions">
+      <button
+        class="hero-action-btn"
+        :class="{ active: showFilter }"
+        @click="toggleFilter"
+      >
+        <FilterIcon />
+        筛选
+      </button>
+      <button
+        class="hero-action-btn"
+        :class="{ active: viewMode === 'list' }"
+        @click="toggleView"
+      >
+        <ListIcon />
+        列表
+      </button>
+      <button
+        class="hero-action-btn"
+        :class="{ active: viewMode === 'grid' }"
+        @click="toggleView"
+      >
+        <GridIcon />
+        网格
+      </button>
+    </div>
 
     <!-- 筛选抽屉遮罩 -->
     <div
@@ -226,10 +191,10 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
 import ArticleCard from '@/components/blog/ArticleCard.vue'
 import BlogFilter from '@/components/blog/BlogFilter.vue'
 import ArticleDetailModal from '@/components/blog/ArticleDetailModal.vue'
+import PublicGraphHero from '@/components/common/PublicGraphHero.vue'
 import { getArticles } from '@/api/article'
 import type { Article, EnrichedArticle } from '@/types/entities'
 import {
@@ -261,12 +226,10 @@ onMounted(() => {
 interface BlogFilterOptions {
   searchQuery: string
   category: string
-  tags: string[]
   author: string
   dateRange: string
   sortBy: string
   sortOrder: 'asc' | 'desc'
-  difficulties: string[]
   minReadTime: number
   featuredOnly: boolean
 }
@@ -284,11 +247,6 @@ const categoryValueMap: Record<string, string> = {
   all: ''
 }
 
-const mapDisplayCategoryToValue = (label: string): string => {
-  const entry = Object.entries(categoryValueMap).find(([, display]) => display === label)
-  return entry?.[0] ?? label
-}
-
 const buildArticleQueryParams = () => {
   const params: Record<string, unknown> = {
     page: currentPage.value - 1,
@@ -302,14 +260,9 @@ const buildArticleQueryParams = () => {
   }
 
   const mappedFilterCategory = filters?.category && filters.category !== 'all' ? filters.category : ''
-  const mappedCloudCategory = selectedCategory.value ? mapDisplayCategoryToValue(selectedCategory.value) : ''
-  const categoryParam = mappedCloudCategory || mappedFilterCategory
+  const categoryParam = mappedFilterCategory
   if (categoryParam) {
     params.category = categoryParam
-  }
-
-  if (filters?.tags?.length) {
-    params.tag = filters.tags.join(',')
   }
 
   if (filters?.sortBy) {
@@ -336,22 +289,16 @@ const buildArticleQueryParams = () => {
     params.minReadTime = filters.minReadTime
   }
 
-  if (filters?.difficulties?.length) {
-    params.difficulty = filters.difficulties.join(',')
-  }
-
   return params
 }
 
 type ShareableArticle = EnrichedArticle
 
-const router = useRouter()
 const activeFilters = ref<BlogFilterOptions | null>(null)
 
 // 响应式数据
 const showFilter = ref(false)
 const viewMode = ref<'grid' | 'list'>('grid')
-const showBookmarkedOnly = ref(false)
 const showScrollTop = ref(false)
 const loading = ref(false)
 const currentPage = ref(1)
@@ -374,6 +321,12 @@ const totalAuthors = computed(() => {
 })
 const totalViews = computed(() => articles.value.reduce((sum, a) => sum + a.views, 0))
 const totalLikes = computed(() => articles.value.reduce((sum, a) => sum + a.likes, 0))
+const blogHeroStats = computed(() => [
+  { label: '技术文章', value: totalArticles.value },
+  { label: '专业作者', value: totalAuthors.value },
+  { label: '总浏览量', value: totalViews.value },
+  { label: '总点赞数', value: totalLikes.value }
+])
 
 const totalPages = computed(() => Math.max(1, Math.ceil((totalElements.value || filteredArticles.value.length || 1) / pageSize.value)))
 
@@ -409,8 +362,6 @@ const visiblePages = computed(() => {
   return pages
 })
 
-const selectedCategory = ref('')
-
 // 事件处理
 const toggleFilter = () => {
   showFilter.value = !showFilter.value
@@ -440,8 +391,18 @@ const handleBookmark = (articleId: string) => {
 }
 
 const handleShare = (article: ShareableArticle, platform = 'general') => {
-  // 分享逻辑
-  console.log('分享文章:', article.title, '到:', platform)
+  const shareUrl = window.location.href
+  if (platform === 'copy') {
+    void navigator.clipboard?.writeText(shareUrl)
+    return
+  }
+  if (navigator.share) {
+    void navigator.share({
+      title: article.title,
+      text: article.summary || article.description || '',
+      url: shareUrl
+    })
+  }
 }
 
 const openArticle = (article: Article) => {
@@ -454,7 +415,6 @@ const openArticle = (article: Article) => {
   showArticleModal.value = true
   // 更新浏览量
   article.views += 1
-  router.push(`/blog/${article.id}`)
 }
 
 const closeArticle = () => {
@@ -472,8 +432,6 @@ const changePage = (page: number | string) => {
 }
 
 const resetAllFilters = () => {
-  selectedCategory.value = ''
-  showBookmarkedOnly.value = false
   currentPage.value = 1
   activeFilters.value = null
   // 重置筛选器
@@ -507,8 +465,6 @@ const loadArticles = async () => {
   } catch (error) {
     console.error('获取文章失败:', error)
     if (articles.value.length === 0) {
-      articles.value = generateMockArticles()
-      totalElements.value = articles.value.length
       applyFilters()
     }
   } finally {
@@ -539,7 +495,7 @@ const applyFilters = (filtersOverride?: BlogFilterOptions | null) => {
   const mappedFilterCategory = filters?.category && filters.category !== 'all'
     ? (categoryValueMap[filters.category] || filters.category)
     : ''
-  const effectiveCategory = selectedCategory.value || mappedFilterCategory
+  const effectiveCategory = mappedFilterCategory
 
   if (effectiveCategory) {
     filtered = filtered.filter(article => article.category === effectiveCategory)
@@ -551,12 +507,6 @@ const applyFilters = (filtersOverride?: BlogFilterOptions | null) => {
       article.title.toLowerCase().includes(keyword) ||
       article.summary.toLowerCase().includes(keyword) ||
       article.content.toLowerCase().includes(keyword)
-    )
-  }
-
-  if (filters?.tags?.length) {
-    filtered = filtered.filter(article =>
-      filters.tags.every(tag => article.tags.includes(tag))
     )
   }
 
@@ -572,54 +522,7 @@ const applyFilters = (filtersOverride?: BlogFilterOptions | null) => {
     filtered = filtered.filter(article => article.author?.name === filters.author)
   }
 
-  if (showBookmarkedOnly.value) {
-    filtered = filtered.filter(article => article.bookmarked)
-  }
-
   filteredArticles.value = filtered
-}
-
-// 生成模拟文章数据
-const generateMockArticles = (): Article[] => {
-  const authors = [
-    { id: 1, name: '张三', avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64&h=64&fit=crop&crop=face' },
-    { id: 2, name: '李四', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=64&h=64&fit=crop&crop=face' },
-    { id: 3, name: '王五', avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=64&h=64&fit=crop&crop=face' }
-  ]
-
-  const categories = ['技术深度', 'DeFi协议', '智能合约', '开发实践', '行业分析', '区块链基础', '共识算法', '项目分享']
-  const tags = ['Solidity', 'DeFi', 'NFT', '智能合约', 'Web3', '共识算法', '加密货币', '区块链', '安全', '钱包']
-
-  return Array.from({ length: 48 }, (_, i) => {
-    const author = authors[Math.floor(Math.random() * authors.length)]
-    const category = categories[Math.floor(Math.random() * categories.length)]
-    const articleTags = tags.sort(() => 0.5 - Math.random()).slice(0, Math.floor(Math.random() * 4) + 2)
-    
-    return {
-      id: (i + 1).toString(),
-      title: `深度解析：${category}技术应用与实践案例 ${i + 1}`,
-      summary: `本文详细探讨了${category}在区块链领域的重要应用，包括技术原理、实施方案和最佳实践...`,
-      content: '文章详细内容...',
-      author: {
-        ...author,
-        id: String(author.id)
-      },
-      category,
-      tags: articleTags,
-      publishDate: new Date().toISOString().split('T')[0],
-      updateDate: new Date().toISOString().split('T')[0],
-      isPublished: true,
-      publishedAt: new Date(Date.now() - Math.random() * 1000 * 60 * 60 * 24 * 90).toISOString(),
-      readTime: Math.floor(Math.random() * 25) + 5,
-      views: Math.floor(Math.random() * 1000) + 100,
-      likes: Math.floor(Math.random() * 200) + 20,
-      comments: Math.floor(Math.random() * 50) + 5,
-      isFeatured: Math.random() > 0.8,
-      coverImage: `https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&h=250&fit=crop`,
-      bookmarked: Math.random() > 0.7,
-      isLiked: Math.random() > 0.6
-    }
-  })
 }
 
 // 生命周期
@@ -642,28 +545,30 @@ const blogFilterRef = ref()
 }
 
 .hero-quick-actions {
-  @apply mt-8 flex flex-wrap gap-2;
+  @apply mx-auto -mt-8 mb-8 flex flex-wrap gap-2 rounded-xl border border-gray-200 bg-white p-3 shadow-sm;
+  width: min(calc(100% - 2rem), 72rem);
+  position: relative;
+  z-index: 2;
 }
 
 .hero-action-btn {
   @apply inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200;
-  color: rgba(226, 232, 240, 0.9);
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  backdrop-filter: blur(10px);
+  color: #334155;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
 }
 
 .hero-action-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.28);
-  color: #fff;
+  background: #ecfeff;
+  border-color: #67e8f9;
+  color: #155e75;
 }
 
 .hero-action-btn.active {
-  background: rgba(255, 255, 255, 0.92);
-  border-color: transparent;
-  color: #0f172a;
-  box-shadow: 0 10px 30px -14px rgba(15, 23, 42, 0.6);
+  background: #0f172a;
+  border-color: #0f172a;
+  color: #fff;
+  box-shadow: none;
 }
 
 .hero-action-btn :deep(svg) {

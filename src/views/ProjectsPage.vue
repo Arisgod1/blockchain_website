@@ -1,48 +1,14 @@
 <template>
   <div class="projects-page">
     <!-- 页面头部 -->
-    <header class="gradient-hero flowing-gradient-nebula hero-header">
-      <div class="hero-inner">
-        <span class="hero-eyebrow">PROJECTS · 项目矩阵</span>
-        <h1 class="hero-title">
-          项目展示，
-          <span class="hero-title-accent">见证技术的力量</span>
-        </h1>
-        <p class="hero-subtitle">
-          探索我们的区块链项目，从概念到实现——科研、产业与社区共创的成果在这里集合。
-        </p>
-        <div class="hero-stats">
-          <div class="hero-stat">
-            <div class="hero-stat-icon">📦</div>
-            <div class="hero-stat-body">
-              <div class="hero-stat-value">{{ stats.totalProjects }}</div>
-              <div class="hero-stat-label">总项目数</div>
-            </div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-icon">⚡</div>
-            <div class="hero-stat-body">
-              <div class="hero-stat-value">{{ stats.activeProjects }}</div>
-              <div class="hero-stat-label">活跃项目</div>
-            </div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-icon">✅</div>
-            <div class="hero-stat-body">
-              <div class="hero-stat-value">{{ stats.completedProjects }}</div>
-              <div class="hero-stat-label">已完成</div>
-            </div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-icon">👥</div>
-            <div class="hero-stat-body">
-              <div class="hero-stat-value">{{ stats.totalContributors }}</div>
-              <div class="hero-stat-label">贡献者</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </header>
+    <PublicGraphHero
+      eyebrow="PROJECTS · 项目矩阵"
+      title="从想法到原型"
+      accent="每个项目都是一条研究边"
+      subtitle="浏览团队在跨链、智能合约、应用创新和工程实践中的项目节点，理解成员如何把研究推进到可运行成果。"
+      tone="violet"
+      :stats="projectHeroStats"
+    />
 
     <!-- 主要内容区域 -->
     <div class="page-content">
@@ -226,13 +192,6 @@
       @like="handleProjectLike"
     />
 
-    <!-- 新建项目模态 -->
-    <ProjectCreateModal
-      v-if="isCreateModalVisible"
-      @created="handleProjectCreated"
-      @close="closeCreateModal"
-    />
-
   </div>
 </template>
 
@@ -242,7 +201,7 @@ import type { Project, FilterOptions } from '@/types/entities'
 import ProjectCard from '@/components/projects/ProjectCard.vue'
 import ProjectFilter from '@/components/projects/ProjectFilter.vue'
 import ProjectDetailModal from '@/components/projects/ProjectDetailModal.vue'
-import ProjectCreateModal from '@/components/projects/ProjectCreateModal.vue'
+import PublicGraphHero from '@/components/common/PublicGraphHero.vue'
 import { getProjects } from '@/api/project'
 import { Status } from '@/types/entities'
 import {
@@ -259,11 +218,8 @@ interface ProjectFilterSelection {
   searchQuery?: string
   category?: string
   statuses?: string[]
-  techStack?: string[]
   sortBy?: string
   sortOrder?: 'asc' | 'desc'
-  teamSizes?: string[]
-  showActiveOnly?: boolean
 }
 
 // 页面元数据设置
@@ -287,7 +243,6 @@ const showMobileFilters = ref(false)
 const currentPage = ref(1)
 const perPage = ref(12)
 const projects = ref<Project[]>([])
-const isCreateModalVisible = ref(false)
 const selectedProject = ref<Project | null>(null)
 const filters = ref<FilterOptions>({})
 const totalElements = ref(0)
@@ -305,6 +260,13 @@ const stats = computed(() => {
     totalContributors: Math.max(uniqueContributors, 15)
   }
 })
+
+const projectHeroStats = computed(() => [
+  { label: '总项目数', value: stats.value.totalProjects },
+  { label: '活跃项目', value: stats.value.activeProjects },
+  { label: '已完成', value: stats.value.completedProjects },
+  { label: '贡献者', value: stats.value.totalContributors }
+])
 
 const filteredProjects = computed(() => projects.value)
 
@@ -353,7 +315,6 @@ const handleFilterChange = (newFilters: ProjectFilterSelection) => {
     search: newFilters.searchQuery,
     category: newFilters.category,
     status: newFilters.statuses && newFilters.statuses.length > 0 ? newFilters.statuses[0] : undefined,
-    tags: newFilters.techStack || [],
     sortBy: newFilters.sortBy,
     sortOrder: newFilters.sortOrder
   }
@@ -455,15 +416,6 @@ onMounted(() => {
   loadProjects()
 })
 
-const closeCreateModal = () => { isCreateModalVisible.value = false }
-
-const handleProjectCreated = () => {
-  closeCreateModal()
-  // 刷新列表以确保数据与后端一致
-  currentPage.value = 1
-  void loadProjects()
-}
-
 </script>
 
 <style scoped>
@@ -479,7 +431,7 @@ const handleProjectCreated = () => {
 }
 
 .filter-sidebar {
-  @apply bg-white rounded-xl shadow-sm border border-gray-200 p-6 h-fit sticky top-8;
+  @apply h-fit sticky top-8;
 }
 
 .sidebar-header {
@@ -499,7 +451,8 @@ const handleProjectCreated = () => {
 }
 
 .projects-toolbar {
-  @apply flex items-center justify-between bg-white rounded-xl shadow-sm border border-gray-200 p-4;
+  @apply flex items-center justify-between bg-white rounded-xl border border-slate-200 p-3;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
 }
 
 .toolbar-left {
@@ -507,11 +460,11 @@ const handleProjectCreated = () => {
 }
 
 .mobile-filter-btn {
-  @apply flex items-center gap-2 px-3 py-2 bg-blue-500 text-white rounded-lg;
+  @apply flex items-center gap-2 px-3 py-2 bg-slate-950 text-white rounded-lg hover:bg-cyan-700 transition-colors;
 }
 
 .view-mode-selector {
-  @apply flex items-center gap-1 bg-gray-100 rounded-lg p-1;
+  @apply flex items-center gap-1 bg-slate-100 rounded-lg p-1;
 }
 
 .view-mode-btn {
@@ -519,7 +472,7 @@ const handleProjectCreated = () => {
 }
 
 .view-mode-btn.active {
-  @apply bg-white shadow-sm text-blue-600;
+  @apply bg-white text-cyan-700;
 }
 
 .toolbar-right {
@@ -531,7 +484,7 @@ const handleProjectCreated = () => {
 }
 
 .per-page-select {
-  @apply px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  @apply px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-cyan-600 focus:border-transparent;
 }
 
 .loading-container {

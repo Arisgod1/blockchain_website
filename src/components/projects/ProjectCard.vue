@@ -166,7 +166,7 @@ const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 const showDetails = ref(false)
-const statusClass = computed(() => String(project.status ?? 'planning').toLowerCase())
+const statusClass = computed(() => String(props.project.status ?? 'planning').toLowerCase())
 
 // 获取状态文本
 const getStatusText = (status?: string) => {
@@ -203,11 +203,13 @@ const handleImageError = (event: Event) => {
 
 // 切换点赞状态
 const toggleLike = () => {
-  const nextState = !(project.isLiked ?? false)
-  project.isLiked = nextState
-  const currentLikes = project.likes ?? 0
-  project.likes = nextState ? currentLikes + 1 : Math.max(0, currentLikes - 1)
-  emit('like', props.project)
+  const nextState = !(props.project.isLiked ?? false)
+  const currentLikes = props.project.likes ?? 0
+  emit('like', {
+    ...props.project,
+    isLiked: nextState,
+    likes: nextState ? currentLikes + 1 : Math.max(0, currentLikes - 1)
+  })
 }
 
 // 显示文档
@@ -215,49 +217,72 @@ const showDocumentation = () => {
   emit('documentation', props.project)
 }
 
-// 创建响应式的 project 引用
-const project = props.project
+const project = computed(() => props.project)
 </script>
 
 <style scoped>
 .project-card {
-  @apply bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden cursor-pointer transform transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+  @apply bg-white rounded-xl border border-slate-200 overflow-hidden cursor-pointer transition-all duration-300;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
+}
+
+.project-card:hover {
+  @apply border-cyan-300;
+  transform: translateY(-2px);
 }
 
 .project-image {
   @apply relative h-48 overflow-hidden;
+  background: #f8fafc;
 }
 
 .project-image img {
-  @apply w-full h-full object-cover transition-transform duration-300;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.3s ease;
 }
 
 .project-card:hover .project-image img {
-  @apply scale-110;
+  transform: scale(1.02);
 }
 
 .status-badge {
-  @apply absolute top-3 left-3 px-2 py-1 rounded-full text-xs font-medium text-white;
+  @apply absolute top-3 left-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold;
+  color: #0f172a;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.status-badge::before {
+  content: '';
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: currentColor;
 }
 
 .status-planning {
-  @apply bg-yellow-500;
+  @apply text-amber-700;
 }
 
 .status-in-progress {
-  @apply bg-blue-500;
+  @apply text-cyan-700;
 }
 
 .status-completed {
-  @apply bg-green-500;
+  @apply text-emerald-700;
 }
 
 .status-paused {
-  @apply bg-gray-500;
+  @apply text-slate-600;
 }
 
 .project-overlay {
-  @apply absolute inset-0 bg-black/60 flex items-center justify-center p-4;
+  @apply absolute inset-0 flex items-center justify-center p-4;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.08), rgba(15, 23, 42, 0.72));
 }
 
 .tech-stack {
@@ -265,7 +290,7 @@ const project = props.project
 }
 
 .tech-tag {
-  @apply px-2 py-1 bg-white/20 backdrop-blur-sm text-white text-xs rounded-full;
+  @apply px-2.5 py-1 bg-white text-slate-900 text-xs rounded-full;
 }
 
 .project-content {
@@ -277,11 +302,12 @@ const project = props.project
 }
 
 .project-title {
-  @apply text-xl font-bold text-gray-900 line-clamp-2;
+  @apply text-xl font-bold text-slate-950 line-clamp-2;
+  text-wrap: balance;
 }
 
 .project-category {
-  @apply px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full flex-shrink-0 ml-2;
+  @apply px-2.5 py-1 bg-slate-100 text-slate-700 text-xs rounded-full flex-shrink-0 ml-2;
 }
 
 .project-description {
@@ -297,11 +323,11 @@ const project = props.project
 }
 
 .progress-bar {
-  @apply flex-1 h-2 bg-gray-200 rounded-full overflow-hidden;
+  @apply flex-1 h-2 bg-slate-100 rounded-full overflow-hidden;
 }
 
 .progress-fill {
-  @apply h-full bg-gradient-to-r from-blue-500 to-purple-600 rounded-full transition-all duration-500;
+  @apply h-full bg-cyan-600 rounded-full transition-all duration-500;
 }
 
 .progress-text {
@@ -353,7 +379,7 @@ const project = props.project
 }
 
 .link-btn {
-  @apply w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors;
+  @apply w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-950 hover:text-white transition-colors;
 }
 
 /* 移动端适配 */

@@ -1,12 +1,12 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-    <div class="text-center max-w-md">
+  <div class="not-found-page">
+    <div class="not-found-panel">
       <!-- 404 图形 -->
       <div class="mb-8">
-        <div class="text-8xl font-bold text-indigo-600 mb-4">
+        <div class="not-found-code">
           404
         </div>
-        <div class="w-24 h-1 bg-indigo-600 mx-auto rounded-full" />
+        <div class="not-found-line" />
       </div>
       
       <!-- 错误信息 -->
@@ -20,7 +20,7 @@
       <!-- 导航按钮 -->
       <div class="space-y-4">
         <button
-          class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200"
+          class="w-full bg-slate-950 hover:bg-cyan-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200"
           @click="goHome"
         >
           返回首页
@@ -51,5 +51,36 @@ const goBack = () => {
 </script>
 
 <style scoped>
-/* 404页面专用样式 */
+.not-found-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(103, 232, 249, 0.18), transparent 34%),
+    linear-gradient(135deg, #f8fafc, #e2e8f0);
+}
+
+.not-found-panel {
+  max-width: 28rem;
+  text-align: center;
+}
+
+.not-found-code {
+  margin-bottom: 1rem;
+  color: #0f172a;
+  font-size: 6rem;
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.not-found-line {
+  width: 6rem;
+  height: 0.25rem;
+  margin: 0 auto;
+  border-radius: 999px;
+  background: #0891b2;
+}
 </style>

@@ -43,7 +43,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { adminHotkeyService } from './utils/adminHotkey'
-import { AdminLogin } from './components/admin'
+import AdminLogin from './components/admin/AdminLogin.vue'
 import LoadingSpinner from './components/common/LoadingSpinner.vue'
 import MobileNav from './components/common/MobileNav.vue'
 import type { AdminUser } from '@/types/entities'
@@ -142,7 +142,6 @@ const handleAdminLoginSuccess = async (payload: { user: AdminUser; token: string
   pendingRedirect.value = ''
 
   closeAdminLogin()
-  alert('✅ 登录成功！即将跳转到管理员后台...')
   await router.push(redirectTo)
 }
 
@@ -162,7 +161,6 @@ const handleShowAdminLoginEvent = (event: CustomEvent<ShowAdminLoginEventDetail>
 const handleAdminExitEvent = async () => {
   localStorage.removeItem('adminToken')
   localStorage.removeItem('admin-user')
-  alert('✅ 已成功退出管理员模式')
   try {
     await router.push('/')
   } catch (error) {
@@ -184,8 +182,7 @@ onMounted(() => {
   window.addEventListener('showAdminLogin', handleShowAdminLoginEvent as EventListener)
   window.addEventListener('admin-exit', handleAdminExitEvent)
 
-  removeBeforeEach = router.beforeEach((to, from) => {
-    console.log(`🔄 路由变化: ${from.path} -> ${to.path}`)
+  removeBeforeEach = router.beforeEach(() => {
     startPageLoading()
   })
 
@@ -229,7 +226,7 @@ onUnmounted(() => {
 
 <style scoped>
 #app {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Avenir Next', 'PingFang SC', 'Microsoft YaHei', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

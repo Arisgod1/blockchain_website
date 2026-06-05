@@ -5,7 +5,7 @@
   >
     <div class="article-image">
       <img 
-        :src="avatar||article.coverImage || avatar" 
+        :src="article.coverImage || avatar" 
         :alt="article.title"
         loading="lazy"
         @error="handleImageError"
@@ -119,6 +119,7 @@ interface Props {
 
 interface Emits {
   select: [article: Article]
+  'article-click': [article: Article]
   tagClick: [tag: string]
   share: [article: Article]
 }
@@ -130,6 +131,7 @@ const emit = defineEmits<Emits>()
 // 方法
 const navigateToArticle = () => {
   emit('select', props.article)
+  emit('article-click', props.article)
 }
 
 const formatDate = (dateString?: string) => {
@@ -206,7 +208,13 @@ const shareArticle = () => {
 
 <style scoped>
 .article-card {
-  @apply bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden cursor-pointer transform transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+  @apply bg-white rounded-xl border border-slate-200 overflow-hidden cursor-pointer transition-all duration-300;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
+}
+
+.article-card:hover {
+  @apply border-cyan-300;
+  transform: translateY(-2px);
 }
 
 .article-image {
@@ -218,55 +226,58 @@ const shareArticle = () => {
 }
 
 .article-card:hover .article-image img {
-  @apply scale-110;
+  @apply scale-105;
 }
 
 .article-category {
-  @apply absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-medium text-white;
+  @apply absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold;
+  color: #0f172a;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(226, 232, 240, 0.8);
 }
 
 .category-tech {
-  @apply bg-blue-500;
+  @apply text-cyan-700;
 }
 
 .category-practice {
-  @apply bg-green-500;
+  @apply text-emerald-700;
 }
 
 .category-defi {
-  @apply bg-purple-500;
+  @apply text-violet-700;
 }
 
 .category-analysis {
-  @apply bg-orange-500;
+  @apply text-amber-700;
 }
 
 .category-blockchain {
-  @apply bg-indigo-500;
+  @apply text-blue-700;
 }
 
 .category-contract {
-  @apply bg-red-500;
+  @apply text-rose-700;
 }
 
 .category-consensus {
-  @apply bg-cyan-500;
+  @apply text-teal-700;
 }
 
 .category-project {
-  @apply bg-pink-500;
+  @apply text-fuchsia-700;
 }
 
 .category-research {
-  @apply bg-yellow-500;
+  @apply text-yellow-700;
 }
 
 .category-default {
-  @apply bg-gray-500;
+  @apply text-slate-700;
 }
 
 .featured-badge {
-  @apply absolute top-3 right-3 flex items-center gap-1 px-2 py-1 bg-yellow-500 text-white rounded-full text-xs font-medium;
+  @apply absolute top-3 right-3 flex items-center gap-1 px-2.5 py-1 bg-slate-950 text-white rounded-full text-xs font-medium;
 }
 
 .article-content {
@@ -278,7 +289,8 @@ const shareArticle = () => {
 }
 
 .article-title {
-  @apply text-xl font-bold text-gray-900 line-clamp-2 leading-tight;
+  @apply text-xl font-bold text-slate-950 line-clamp-2 leading-tight;
+  text-wrap: balance;
 }
 
 .article-meta {
@@ -315,7 +327,7 @@ const shareArticle = () => {
 }
 
 .tag {
-  @apply px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded cursor-pointer hover:bg-gray-200 transition-colors;
+  @apply px-2.5 py-1 bg-slate-100 text-slate-700 text-xs rounded-full cursor-pointer hover:bg-slate-200 hover:text-slate-950 transition-colors;
 }
 
 .tag-more {
@@ -327,7 +339,7 @@ const shareArticle = () => {
 }
 
 .stat {
-  @apply flex items-center gap-1 cursor-pointer hover:text-blue-600 transition-colors;
+  @apply flex items-center gap-1 cursor-pointer hover:text-cyan-700 transition-colors;
 }
 
 .stat-icon {
@@ -339,7 +351,7 @@ const shareArticle = () => {
 }
 
 .share-btn {
-  @apply w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors;
+  @apply w-7 h-7 flex items-center justify-center rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-950 hover:text-white transition-colors;
 }
 
 /* 文本截断 */

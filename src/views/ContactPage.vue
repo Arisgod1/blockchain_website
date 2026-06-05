@@ -1,48 +1,20 @@
 <template>
   <div class="contact-page">
     <!-- 页面头部 -->
-    <header class="gradient-hero flowing-gradient-horizon hero-header">
-      <div class="hero-inner">
-        <span class="hero-eyebrow">CONTACT · 联系我们</span>
-        <h1 class="hero-title">
-          欢迎加入我们，
-          <span class="hero-title-accent">一起共创未来</span>
-        </h1>
-        <p class="hero-subtitle">
-          我们欢迎任何咨询、合作与学术交流，一起探索技术的无限可能。
-        </p>
-        <div class="hero-stats">
-          <template v-if="statsLoading">
-            <div
-              v-for="n in 3"
-              :key="`stats-loading-${n}`"
-              class="hero-stat"
-              style="height: 72px; background: rgba(255, 255, 255, 0.04);"
-            />
-          </template>
-          <template v-else>
-            <div
-              v-for="item in summaryMetrics"
-              :key="item.label"
-              class="hero-stat"
-            >
-              <div class="hero-stat-icon">💬</div>
-              <div class="hero-stat-body">
-                <div class="hero-stat-value">{{ item.value }}</div>
-                <div class="hero-stat-label">{{ item.label }}</div>
-              </div>
-            </div>
-          </template>
-        </div>
-        <p
-          v-if="statsError"
-          class="mt-4 text-sm"
-          style="color: rgba(254, 202, 202, 0.9);"
-        >
-          {{ statsError }}
-        </p>
-      </div>
-    </header>
+    <PublicGraphHero
+      eyebrow="CONTACT · 加入节点"
+      title="把你的问题"
+      accent="接入团队网络"
+      subtitle="无论是加入团队、学术交流还是项目合作，这里都是进入区块链组研究网络的第一条边。"
+      tone="cyan"
+      :stats="contactHeroStats"
+    />
+    <p
+      v-if="statsError"
+      class="stats-error"
+    >
+      {{ statsError }}
+    </p>
 
     <!-- 主要内容 -->
     <main class="container mx-auto px-4 py-10 md:py-16">
@@ -162,12 +134,12 @@
                     v-model="form.privacy"
                     type="checkbox" 
                     required
-                    class="mt-1 mr-3 h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                    class="mt-1 mr-3 h-4 w-4 text-cyan-700 focus:ring-cyan-600 border-gray-300 rounded"
                   >
                   <label class="text-sm text-gray-600">
                     我同意按照<a
                       href="#"
-                      class="text-purple-600 hover:underline"
+                      class="text-cyan-700 hover:underline"
                     >隐私政策</a>处理我的个人信息
                   </label>
                 </div>
@@ -182,7 +154,7 @@
                 <button 
                   type="submit"
                   :disabled="isSubmitting"
-                  class="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:shadow-lg hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  class="w-full bg-slate-950 text-white py-3 px-6 rounded-lg font-medium hover:bg-cyan-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span v-if="!isSubmitting">发送消息</span>
                   <span
@@ -217,14 +189,14 @@
             
             <!-- 联系信息 -->
             <div class="space-y-6 md:space-y-8">
-              <div class="bg-gradient-to-br from-purple-50 to-blue-50 rounded-2xl p-5 sm:p-8">
+              <div class="bg-slate-50 rounded-2xl p-5 sm:p-8 border border-slate-200">
                 <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-5 sm:mb-6">
                   联系方式
                 </h2>
 
                 <div class="space-y-5 sm:space-y-6">
                   <div class="flex items-start space-x-4">
-                    <div class="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <div class="w-12 h-12 bg-slate-900 rounded-lg flex items-center justify-center flex-shrink-0">
                       <svg
                         class="w-6 h-6 text-white"
                         fill="none"
@@ -597,7 +569,7 @@
           可长按识别二维码或扫码了解详情。
         </p>
         <button
-          class="bg-gradient-to-r from-purple-600 to-blue-600 text-white py-2 px-6 rounded-lg font-medium hover:shadow-lg transition-all duration-300"
+          class="bg-slate-950 text-white py-2 px-6 rounded-lg font-medium hover:bg-cyan-700 transition-colors duration-300"
           @click="closeQrModal"
         >
           关闭
@@ -643,7 +615,7 @@
           工单编号：{{ lastTicketId }}
         </p>
         <button 
-          class="bg-gradient-to-r from-purple-600 to-blue-600 text-white py-2 px-6 rounded-lg font-medium hover:shadow-lg transition-all duration-300"
+          class="bg-slate-950 text-white py-2 px-6 rounded-lg font-medium hover:bg-cyan-700 transition-colors duration-300"
           @click="showSuccess = false"
         >
           确定
@@ -657,6 +629,7 @@
 import { ref, reactive, onMounted, computed } from 'vue'
 import { getSiteStats, submitContactMessage } from '@/api/public'
 import type { SiteStats, ContactRequest } from '@/types/entities'
+import PublicGraphHero from '@/components/common/PublicGraphHero.vue'
 import githubIcon from '@/assets/github.svg'
 import qqIcon from '@/assets/qq.svg'
 import wechatIcon from '@/assets/wechat.svg'
@@ -699,6 +672,20 @@ const summaryMetrics = computed(() => {
       value: stats ? `${stats.averageResponseHours}h` : '—'
     }
   ]
+})
+
+const contactHeroStats = computed(() => {
+  if (statsLoading.value) {
+    return [
+      { label: '项目案例', value: '...' },
+      { label: '合作成功', value: '...' },
+      { label: '平均响应', value: '...' }
+    ]
+  }
+  return summaryMetrics.value.map((item) => ({
+    label: item.label === '平均响应时间' ? '平均响应' : item.label,
+    value: item.value
+  }))
 })
 
 const loadSiteStats = async () => {
@@ -846,6 +833,14 @@ async function handleSubmit() {
 .contact-page {
   min-height: 100vh;
   background-color: #fafafa;
+}
+
+.stats-error {
+  max-width: 72rem;
+  margin: 1rem auto 0;
+  padding: 0 1rem;
+  color: #b91c1c;
+  font-size: 0.875rem;
 }
 
 /* 自定义滚动条 */

@@ -55,9 +55,6 @@ class AdminHotkeyService {
   private handleKeyDown = (event: KeyboardEvent) => {
     if (!this.isListening) return
     
-    // 调试信息：打印每个按键事件
-    console.log(`按键事件: ${event.key} + Ctrl:${event.ctrlKey} + 时间戳:${event.timeStamp}`)
-
     // 重置定时器
     if (this.resetTimer) {
       clearTimeout(this.resetTimer as number)
@@ -80,7 +77,6 @@ class AdminHotkeyService {
     
     // 检查是否满足触发条件
     if (this.checkTriggerSequence()) {
-      console.log('触发条件满足!')
       this.triggerAdminMode()
       this.resetSequence()
       
@@ -151,15 +147,12 @@ class AdminHotkeyService {
       }
     })
     window.dispatchEvent(adminHotkeyEvent)
-    console.log('🚀 已触发 admin-hotkey-trigger 事件')
     
     if (this.callback) {
-      console.log('执行回调函数...')
       this.callback({
         type: 'trigger',
         timestamp: Date.now()
       })
-      console.log('回调函数执行完成')
     } else {
       console.warn('❌ 回调函数未设置!')
     }
@@ -180,12 +173,10 @@ class AdminHotkeyService {
     hint.style.fontWeight = '500'
     
     document.body.appendChild(hint)
-    console.log('管理员提示框已显示')
     
     // 3秒后移除提示
     setTimeout(() => {
       hint.remove()
-      console.log('管理员提示框已移除')
     }, 3000)
   }
 

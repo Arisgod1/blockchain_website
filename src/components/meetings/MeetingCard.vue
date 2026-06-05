@@ -332,9 +332,9 @@ const handleViewFiles = () => {
 <style scoped lang="postcss">
 /* 基础样式 */
 .meeting-card {
-  @apply relative bg-white rounded-xl shadow-md hover:shadow-xl 
-         transition-all duration-300 ease-out cursor-pointer
-         border border-gray-100 overflow-hidden;
+  @apply relative bg-white rounded-xl transition-all duration-300 ease-out cursor-pointer
+         border border-slate-200 overflow-hidden;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
 }
 
 .meeting-card-grid {
@@ -346,11 +346,11 @@ const handleViewFiles = () => {
 }
 
 .meeting-card:hover {
-  @apply transform -translate-y-1;
+  transform: translateY(-2px);
 }
 
 .meeting-card.is-hovered {
-  @apply shadow-2xl ring-2 ring-blue-200;
+  @apply border-cyan-300;
 }
 
 /* 头部信息 */
@@ -363,25 +363,33 @@ const handleViewFiles = () => {
 }
 
 .meeting-date-info .date-main {
-  @apply text-2xl font-bold text-gray-900;
+  @apply text-2xl font-bold text-slate-950;
 }
 
 .meeting-date-info .date-sub {
-  @apply text-sm text-gray-500 mt-1;
+  @apply text-sm text-slate-600 mt-1;
 }
 
 .meeting-date-info .date-time {
-  @apply text-xs text-gray-500 mt-1;
+  @apply text-xs text-slate-500 mt-1;
 }
 
 .meeting-status .status-badge {
-  @apply px-2 py-1 rounded-full text-xs font-medium;
+  @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold;
 }
 
-.status-upcoming { @apply bg-blue-100 text-blue-700; }
-.status-ongoing { @apply bg-green-100 text-green-700; }
-.status-completed { @apply bg-gray-100 text-gray-700; }
-.status-cancelled { @apply bg-red-100 text-red-700; }
+.meeting-status .status-badge::before {
+  content: '';
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.status-upcoming { @apply bg-cyan-50 text-cyan-800; }
+.status-ongoing { @apply bg-emerald-50 text-emerald-800; }
+.status-completed { @apply bg-white text-slate-700 border border-slate-200; }
+.status-cancelled { @apply bg-rose-50 text-rose-800; }
 
 /* 标题区域 */
 .meeting-title-section {
@@ -389,7 +397,8 @@ const handleViewFiles = () => {
 }
 
 .meeting-title {
-  @apply text-lg font-semibold text-gray-900 mb-2 line-clamp-2;
+  @apply text-lg font-semibold text-slate-950 mb-2 line-clamp-2;
+  text-wrap: balance;
 }
 
 .meeting-type-tags {
@@ -397,7 +406,7 @@ const handleViewFiles = () => {
 }
 
 .type-tag {
-  @apply px-2 py-1 bg-orange-100 text-orange-700 rounded-md text-xs font-medium;
+  @apply px-2.5 py-1 bg-amber-50 text-amber-800 rounded-full text-xs font-medium;
 }
 
 /* 内容区域 */
@@ -406,7 +415,7 @@ const handleViewFiles = () => {
 }
 
 .meeting-summary {
-  @apply text-gray-600 text-sm leading-relaxed mb-3 line-clamp-2;
+  @apply text-slate-600 text-sm leading-relaxed mb-3 line-clamp-2;
 }
 
 .meeting-attendees {
@@ -422,12 +431,12 @@ const handleViewFiles = () => {
 }
 
 .attendee-more {
-  @apply w-8 h-8 rounded-full bg-gray-200 border-2 border-white 
-         flex items-center justify-center text-xs text-gray-600 font-medium;
+  @apply w-8 h-8 rounded-full bg-slate-200 border-2 border-white 
+         flex items-center justify-center text-xs text-slate-700 font-medium;
 }
 
 .attendees-count {
-  @apply text-sm text-gray-500;
+  @apply text-sm text-slate-500;
 }
 
 /* 统计信息 */
@@ -440,11 +449,11 @@ const handleViewFiles = () => {
 }
 
 .stat-icon {
-  @apply w-4 h-4 text-gray-400;
+  @apply w-4 h-4 text-cyan-700;
 }
 
 .stat-text {
-  @apply text-sm text-gray-500;
+  @apply text-sm text-slate-600;
 }
 
 /* 标签 */
@@ -456,19 +465,19 @@ const handleViewFiles = () => {
   @apply px-2 py-1 rounded-full text-xs font-medium;
 }
 
-.tag-blue { @apply bg-blue-100 text-blue-700; }
-.tag-purple { @apply bg-purple-100 text-purple-700; }
-.tag-green { @apply bg-green-100 text-green-700; }
-.tag-indigo { @apply bg-indigo-100 text-indigo-700; }
-.tag-pink { @apply bg-pink-100 text-pink-700; }
-.tag-orange { @apply bg-orange-100 text-orange-700; }
-.tag-teal { @apply bg-teal-100 text-teal-700; }
-.tag-red { @apply bg-red-100 text-red-700; }
-.tag-gray { @apply bg-gray-100 text-gray-700; }
+.tag-blue { @apply bg-blue-50 text-blue-800; }
+.tag-purple { @apply bg-violet-50 text-violet-800; }
+.tag-green { @apply bg-emerald-50 text-emerald-800; }
+.tag-indigo { @apply bg-indigo-50 text-indigo-800; }
+.tag-pink { @apply bg-fuchsia-50 text-fuchsia-800; }
+.tag-orange { @apply bg-amber-50 text-amber-800; }
+.tag-teal { @apply bg-teal-50 text-teal-800; }
+.tag-red { @apply bg-rose-50 text-rose-800; }
+.tag-gray { @apply bg-white text-slate-700 border border-slate-200; }
 
 /* 操作按钮 */
 .meeting-actions {
-  @apply flex space-x-2 pt-3 border-t border-gray-100;
+  @apply flex gap-2 pt-3 border-t border-slate-100;
 }
 
 .action-btn {
@@ -477,11 +486,11 @@ const handleViewFiles = () => {
 }
 
 .action-view {
-  @apply bg-blue-50 text-blue-700 hover:bg-blue-100;
+  @apply bg-slate-950 text-white hover:bg-cyan-700;
 }
 
 .action-files {
-  @apply bg-gray-50 text-gray-700 hover:bg-gray-100;
+  @apply bg-slate-100 text-slate-700 hover:bg-slate-200;
 }
 
 .action-icon {

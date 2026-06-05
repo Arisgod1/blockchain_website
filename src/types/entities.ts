@@ -234,7 +234,7 @@ export interface ApiResponse<T = unknown> {
   data?: T
   /** 服务器时间戳（毫秒） */
   timestamp: number
-  /** 可选的错误描述，兼容旧版 */
+  /** 可选的错误描述 */
   error?: string
 }
 

@@ -294,7 +294,6 @@ const handleSubmit = async () => {
     joinDate: form.joinDate,
     isActive: form.isActive,
     avatar: normalizeAvatarUrl(form.avatar),
-    // 兼容可能需要 avatarUrl 字段的后端
     avatarUrl: normalizeAvatarUrl(form.avatar)
     
   }

@@ -6,7 +6,6 @@
     >
       <div
         v-if="visible"
-        ref="rootEl"
         class="fixed inset-0 z-50 flex items-center justify-center p-4"
         @click="handleBackdropClick"
       >
@@ -96,8 +95,6 @@
 import { ref, computed, watch, nextTick, onUnmounted } from 'vue'
 
 interface Props {
-  modelValue?: boolean
-  // 兼容早期代码使用的 `show` 属性
   show?: boolean
   title?: string
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'full'
@@ -108,7 +105,6 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  modelValue: undefined,
   show: undefined,
   title: '',
   size: 'md',
@@ -119,16 +115,13 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<{
-  'update:modelValue': [value: boolean]
   'update:show': [value: boolean]
   'close': []
 }>()
 
 const modalContent = ref<HTMLElement | null>(null)
 
-// 兼容：某些使用处仍然传递 `show` 而非 `modelValue`，以 `modelValue` 优先，否则使用 `show`
 const visible = computed(() => {
-  if (typeof props.modelValue === 'boolean') return props.modelValue
   if (typeof props.show === 'boolean') return props.show
   return false
 })
@@ -238,8 +231,6 @@ function handleBackdropClick() {
 
 // 处理关闭
 function handleClose() {
-  // 同时触发两种更新事件以兼容使用 `modelValue` 或 `show` 的父组件
-  emit('update:modelValue', false)
   emit('update:show', false)
   emit('close')
 }
@@ -271,25 +262,6 @@ watch(() => visible.value, (newValue) => {
     })
   } else {
     unlockScroll()
-  }
-})
-
-// 临时调试：打印 visible 变化并记录 Teleport 挂载情况
-const rootEl = ref<HTMLElement | null>(null)
-watch(() => visible.value, (newValue) => {
-  try {
-    console.debug('[BaseModal] visible changed ->', newValue, 'rootEl=', rootEl.value)
-    if (newValue) {
-      // 等待 DOM 更新后检查 rootEl 是否已插入到 body
-      nextTick(() => {
-        const inBody = rootEl.value ? document.body.contains(rootEl.value) : false
-        console.debug('[BaseModal] after nextTick: root in body=', inBody, 'rootEl=', rootEl.value)
-        // 临时：如果发现没有插入，强制打印当前 body children count
-        if (!inBody) console.debug('[BaseModal] body children count=', document.body.children.length)
-      })
-    }
-  } catch (e) {
-    console.warn('[BaseModal] debug watcher error', e)
   }
 })
 

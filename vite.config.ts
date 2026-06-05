@@ -30,10 +30,18 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        manualChunks: {
-          'vendor-vue': ['vue', 'vue-router', 'pinia'],
-          'vendor-ui': ['chart.js', 'vue-chartjs'],
-          'vendor-utils': ['axios', 'markdown-it', 'highlight.js']
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return undefined
+          if (/[\\/]node_modules[\\/](vue|vue-router|pinia)[\\/]/.test(id)) {
+            return 'vendor-vue'
+          }
+          if (/[\\/]node_modules[\\/](chart.js|vue-chartjs)[\\/]/.test(id)) {
+            return 'vendor-ui'
+          }
+          if (/[\\/]node_modules[\\/](axios|markdown-it|highlight.js)[\\/]/.test(id)) {
+            return 'vendor-utils'
+          }
+          return undefined
         }
       }
     }

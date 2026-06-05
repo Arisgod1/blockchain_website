@@ -243,7 +243,13 @@ defineExpose({
 
 .card-front,
 .card-back {
-  @apply absolute inset-0 w-full h-full backface-hidden rounded-xl bg-white shadow-lg border border-gray-200 p-6 flex flex-col items-center justify-center;
+  @apply absolute inset-0 w-full h-full backface-hidden rounded-xl bg-white border border-slate-200 p-6 flex flex-col items-center justify-center;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
+}
+
+.member-card-container:hover .card-front,
+.member-card-container:hover .card-back {
+  @apply border-cyan-300;
 }
 
 .card-back {
@@ -264,47 +270,48 @@ defineExpose({
 }
 
 .member-avatar img {
-  @apply w-20 h-20 rounded-full object-cover border-4 border-blue-100;
+  @apply w-20 h-20 rounded-full object-cover border-4 border-slate-100;
 }
 
 .member-role-badge {
-  @apply absolute -top-2 -right-2 px-2 py-1 rounded-full text-xs font-medium text-white;
+  @apply absolute -top-2 -right-2 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-950 text-white;
 }
 
 .role-leader {
-  @apply bg-red-500;
+  @apply bg-rose-700;
 }
 
 .role-tech-lead {
-  @apply bg-orange-500;
+  @apply bg-amber-700;
 }
 
 .role-frontend {
-  @apply bg-blue-500;
+  @apply bg-cyan-700;
 }
 
 .role-backend {
-  @apply bg-green-500;
+  @apply bg-emerald-700;
 }
 
 .role-blockchain {
-  @apply bg-purple-500;
+  @apply bg-violet-700;
 }
 
 .role-developer {
-  @apply bg-gray-500;
+  @apply bg-slate-700;
 }
 
 .role-researcher {
-  @apply bg-indigo-500;
+  @apply bg-blue-700;
 }
 
 .role-default {
-  @apply bg-gray-400;
+  @apply bg-slate-500;
 }
 
 .member-name {
-  @apply text-xl font-bold text-gray-800 text-center mb-2;
+  @apply text-xl font-bold text-slate-950 text-center mb-2;
+  text-wrap: balance;
 }
 
 .member-grade {
@@ -316,7 +323,7 @@ defineExpose({
 }
 
 .skill-tag {
-  @apply px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full;
+  @apply px-2.5 py-1 bg-slate-100 text-slate-700 text-xs rounded-full;
 }
 
 .member-stats {
@@ -354,7 +361,7 @@ defineExpose({
 }
 
 .bio-more-hint {
-  @apply text-xs text-blue-500 text-center bg-transparent border-0 cursor-pointer px-2 py-1 rounded hover:text-blue-700 hover:bg-blue-50 transition-colors;
+  @apply text-xs text-cyan-700 text-center bg-transparent border-0 cursor-pointer px-2 py-1 rounded hover:text-cyan-900 hover:bg-cyan-50 transition-colors;
   flex-shrink: 0;
 }
 
@@ -364,7 +371,7 @@ defineExpose({
 }
 
 .link-btn {
-  @apply w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors;
+  @apply w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-950 hover:text-white transition-colors;
 }
 
 .member-skills-full {

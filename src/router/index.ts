@@ -170,13 +170,6 @@ const routes: RouteRecordRaw[] = [
         name: 'AdminLogs',
         component: () => import('@/components/admin/AdminLogViewer.vue'),
         meta: { title: '操作日志' }
-      },
-      {
-        path: 'settings',
-        name: 'AdminSettings',
-        // 占位组件，待后续完善系统设置页
-        component: { template: '<div />' },
-        meta: { title: '系统设置' }
       }
     ]
   },
@@ -218,8 +211,6 @@ router.beforeEach((to, _from, next) => {
     // 检查用户是否已登录管理员账户
     const isAdmin = localStorage.getItem('adminToken')
     if (!isAdmin) {
-      console.log('🔒 需要管理员权限，正在触发登录弹窗...')
-      
       // 触发管理员登录事件
       window.dispatchEvent(new CustomEvent('showAdminLogin', {
         detail: { redirectTo: to.fullPath }
@@ -231,12 +222,6 @@ router.beforeEach((to, _from, next) => {
   }
   
   next()
-})
-
-// 路由后置守卫
-router.afterEach((to, _from) => {
-  // 记录页面访问日志（暂时禁用，from参数未使用）
-  console.log(`导航到: ${to.path}`)
 })
 
 export default router

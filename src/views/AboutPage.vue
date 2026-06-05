@@ -1,41 +1,14 @@
 <template>
   <div class="about-page">
     <!-- 页面头部 -->
-    <header class="gradient-hero flowing-gradient-sunrise hero-header">
-      <div class="hero-inner">
-        <span class="hero-eyebrow">ABOUT · 关于我们</span>
-        <h1 class="hero-title">
-          链上探索者，
-          <span class="hero-title-accent">链下实干家</span>
-        </h1>
-        <p class="hero-subtitle">
-          大连理工大学区块链组致力于区块链技术的研究与创新应用。
-        </p>
-        <div class="hero-stats">
-          <div class="hero-stat">
-            <div class="hero-stat-icon">📅</div>
-            <div class="hero-stat-body">
-              <div class="hero-stat-value">2015</div>
-              <div class="hero-stat-label">成立年份</div>
-            </div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-icon">🔬</div>
-            <div class="hero-stat-body">
-              <div class="hero-stat-value">5+</div>
-              <div class="hero-stat-label">研究领域</div>
-            </div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-icon">👥</div>
-            <div class="hero-stat-body">
-              <div class="hero-stat-value">15</div>
-              <div class="hero-stat-label">团队成员</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </header>
+    <PublicGraphHero
+      eyebrow="ABOUT · 团队图谱"
+      title="链上探索者"
+      accent="链下实干家"
+      subtitle="大连理工大学区块链组把研究方向、成员成长和项目实践连成一张持续扩展的创新网络。"
+      tone="amber"
+      :stats="aboutStats"
+    />
 
     <!-- 主要内容 -->
     <main class="container mx-auto px-4 py-10 md:py-16">
@@ -311,6 +284,7 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import PublicGraphHero from '@/components/common/PublicGraphHero.vue'
 
 // 页面元数据设置
 onMounted(() => {
@@ -325,6 +299,12 @@ onMounted(() => {
     document.head.appendChild(meta)
   }
 })
+
+const aboutStats = [
+  { label: '成立年份', value: '2015' },
+  { label: '研究方向', value: '6' },
+  { label: '核心成员', value: '15' }
+]
 
 // 研究方向数据
 const researchFields = [

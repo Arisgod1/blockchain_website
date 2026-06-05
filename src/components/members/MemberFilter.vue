@@ -35,6 +35,12 @@
           @click="selectRole(role.id)"
         >
           {{ role.name }}
+          <span
+            v-if="typeof role.count === 'number'"
+            class="count"
+          >
+            {{ role.count }}
+          </span>
         </button>
       </div>
     </div>
@@ -208,7 +214,8 @@ const updateFilters = () => {
 
 <style scoped lang="postcss">
 .member-filter {
-  @apply bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-6;
+  @apply bg-white rounded-xl border border-slate-200 p-5 space-y-5;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
 }
 
 .search-section {
@@ -220,11 +227,11 @@ const updateFilters = () => {
 }
 
 .search-input {
-  @apply w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  @apply w-full pl-10 pr-10 py-3 border border-slate-300 rounded-lg bg-slate-50 text-slate-950 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-600 focus:border-transparent;
 }
 
 .search-icon {
-  @apply absolute left-3 w-5 h-5 text-gray-400;
+  @apply absolute left-3 w-5 h-5 text-slate-500;
 }
 
 .clear-btn {
@@ -236,7 +243,7 @@ const updateFilters = () => {
 }
 
 .filter-title {
-  @apply text-sm font-medium text-gray-900;
+  @apply text-sm font-semibold text-slate-900;
 }
 
 .filter-chips {
@@ -244,11 +251,11 @@ const updateFilters = () => {
 }
 
 .filter-chip {
-  @apply px-3 py-2 text-sm border border-gray-300 rounded-full hover:bg-gray-50 transition-colors;
+  @apply inline-flex items-center gap-1.5 px-3 py-2 text-sm border border-slate-300 rounded-full text-slate-700 hover:bg-slate-50 transition-colors;
 }
 
 .filter-chip.active {
-  @apply bg-blue-500 text-white border-blue-500;
+  @apply bg-slate-950 text-white border-slate-950;
 }
 
 .count {
@@ -256,7 +263,7 @@ const updateFilters = () => {
 }
 
 .sort-select {
-  @apply w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  @apply w-full p-2.5 border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-cyan-600 focus:border-transparent;
 }
 
 .status-toggle {
@@ -276,7 +283,7 @@ const updateFilters = () => {
 }
 
 .toggle-item input:checked + .toggle-switch {
-  @apply bg-blue-500;
+  @apply bg-cyan-700;
 }
 
 .toggle-switch::before {
@@ -289,7 +296,7 @@ const updateFilters = () => {
 }
 
 .toggle-label {
-  @apply text-sm text-gray-700;
+  @apply text-sm text-slate-700;
 }
 
 .filter-actions {
@@ -297,7 +304,7 @@ const updateFilters = () => {
 }
 
 .clear-all-btn {
-  @apply w-full flex items-center justify-center gap-2 px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors;
+  @apply w-full flex items-center justify-center gap-2 px-4 py-2 text-sm text-slate-700 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors;
 }
 
 /* 移动端适配 */

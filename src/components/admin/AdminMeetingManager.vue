@@ -594,12 +594,10 @@ const handlePageSizeChange = (size: number) => {
 }
 
 const handleCreate = () => {
-  console.debug('[AdminMeetingManager] handleCreate called - navigate to editor')
   router.push({ name: 'AdminMeetingCreate' })
 }
 
 const handleView = (meeting: Meeting) => {
-  console.debug('[AdminMeetingManager] handleView', meeting && meeting.id)
   detailModal.show = true
   detailModal.meeting = meeting
 }
@@ -618,13 +616,11 @@ const handleViewRecording = (meeting: Meeting) => {
 }
 
 const handleEdit = (meeting: Meeting) => {
-  console.debug('[AdminMeetingManager] handleEdit - navigate to editor', meeting && meeting.id)
   if (!meeting || !meeting.id) return
   router.push({ name: 'AdminMeetingEdit', params: { id: meeting.id } })
 }
 
 const handleDelete = async (meeting: Meeting) => {
-  console.debug('[AdminMeetingManager] handleDelete', meeting && meeting.id)
   if (!confirm(`确定要删除例会 "${meeting.title}" 吗？`)) return
   try {
     await deleteMeeting(meeting.id)
@@ -637,7 +633,6 @@ const handleDelete = async (meeting: Meeting) => {
 }
 
 const handleDuplicate = async (meeting: Meeting) => {
-  console.debug('[AdminMeetingManager] handleDuplicate', meeting && meeting.id)
   try {
     const payload: Partial<Meeting> = {
       ...meeting,

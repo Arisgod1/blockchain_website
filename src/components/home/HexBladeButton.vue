@@ -1,6 +1,5 @@
 <template>
   <button
-    ref="buttonRef"
     type="button"
     :class="[
       rootClass,
@@ -105,7 +104,6 @@ const emit = defineEmits<{
   (e: 'click', event: MouseEvent): void
 }>()
 
-const buttonRef = ref<HTMLButtonElement | null>(null)
 const isHovered = ref(false)
 const isActive = ref(false)
 const showSpikes = ref(false)
@@ -200,7 +198,7 @@ onBeforeUnmount(() => {
   clip-path: polygon(var(--hb-notch) 0%, calc(100% - var(--hb-notch)) 0%, 100% 50%, calc(100% - var(--hb-notch)) 100%, var(--hb-notch) 100%, 0% 50%);
   background: transparent;
   padding: 0;
-  font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  font-family: 'Avenir Next', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
   letter-spacing: 0.08em;
 }
 
@@ -247,9 +245,8 @@ onBeforeUnmount(() => {
 }
 
 .hex-blade__noise {
-  mix-blend-mode: screen;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
-  opacity: 0.4;
+  background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+  opacity: 0.25;
   transition: opacity 0.3s ease;
 }
 
@@ -443,6 +440,14 @@ onBeforeUnmount(() => {
   }
   .hex-blade__label {
     font-size: 0.9rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hex-blade.is-hovered .hex-blade__scan,
+  .hex-blade.is-hovered .hex-blade__border,
+  .hex-blade__spikes.is-visible span {
+    animation: none;
   }
 }
 </style>
