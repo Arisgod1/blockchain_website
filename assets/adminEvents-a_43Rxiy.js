@@ -1,0 +1,2 @@
+var e=`admin-refresh`,t=`admin-log-created`,n=typeof window<`u`,r=(e,t)=>{if(!n)return()=>{};let r=e=>{t(e.detail)};return window.addEventListener(e,r),()=>{window.removeEventListener(e,r)}},i=(e,t)=>{n&&window.dispatchEvent(new CustomEvent(e,{detail:t}))},a=(t={entity:`all`,action:`refresh`})=>{i(e,t)},o=t=>r(e,t),s=e=>{i(t,e)};export{a as n,o as r,s as t};
+//# sourceMappingURL=adminEvents-a_43Rxiy.js.map
